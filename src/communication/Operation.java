@@ -1,0 +1,57 @@
+package communication;
+
+import java.util.*;
+
+public enum Operation {
+	// User
+	REGISTER(1),
+	UNREGISTER(2),
+	
+	// Connections
+	LOGIN(5),
+	LOGOUT(6),
+	
+	// Single operations
+	LOOKUP(10),
+	FRIENDSHIP(11),
+	LIST_FRIENDS(12),
+	
+	// Chatroom operations
+	CHAT_CREATION(20),
+	CHAT_ADDING(21),
+	CHAT_LISTING(22),
+	CHAT_CLOSING(23),
+	
+	// Messages
+	MSG_TO_FRIEND(30),
+	MSG_TO_CHATROOM(31),
+	
+	// Files
+	FILE_TO_FRIEND(40),
+	
+	// Server replies
+	OK(200),
+	ERR(503);
+	
+	private Long value;
+	private static Map<Long, Operation> map= new HashMap<Long,Operation>();
+	
+	private Operation(int value) {
+		this.value=new Long(value);
+	}
+	
+	static {
+		for (Operation op : Operation.values()) {
+			map.put(op.value, op);
+		}
+	}
+	
+	public Long getValue() {
+		return this.value;
+	}
+	
+	public static Operation valueOf(Long op) {
+		return (Operation) map.get(op);
+	}
+
+}
