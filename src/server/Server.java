@@ -12,9 +12,8 @@ public class Server implements Runnable{
 
 	private Graph<User> network;
 	private ConcurrentHashMap<String, User> usersbyname;
-	//Graph of Users and chatrooms
-	//private HashSet<ChatRoom> chatrooms; //Set of existing chatrooms
-	//Private HashSet<User> onlineusers; //Set of connected users
+	private ConcurrentHashMap<String, Chatroom> chatrooms; //Hasmap of existing chatrooms (Map of <Name, Chatroom>)
+	
 	//private ServerSocket listenerSocket = null; //socket in cui e' in ascolto il server
 	//private ThreadPoolExecutor executor = null; //pool di thread per gestire i vari client che arrivano
 	
