@@ -12,8 +12,8 @@ public abstract class Message {
 		message= new JSONObject();
 	}
 	
-	public Operation getOperation() {
-		return Operation.valueOf((Long) this.message.get("OPERATION"));
+	public Object getParameter(String field) {
+		return this.message.get(field);
 	}
 	
 	/**

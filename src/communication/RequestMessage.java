@@ -1,6 +1,5 @@
 package communication;
 
-
 /**
  * 
  * @author Marco Cardia
@@ -8,10 +7,8 @@ package communication;
  */
 public class RequestMessage extends Message {
 	@SuppressWarnings("unchecked")
-	public RequestMessage(Operation op, String sender) {
+	public RequestMessage(String sender) {
 		super();
-		message.put("OPERATION", op);
 		message.put("SENDER", sender);		
 	}
-	
 }

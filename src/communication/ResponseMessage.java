@@ -1,10 +1,8 @@
 package communication;
 
 public class ResponseMessage extends Message{
-	@SuppressWarnings("unchecked")
-	public ResponseMessage(Operation op) {
+	public ResponseMessage() {
 		super();
-		message.put("OPERATION", op);
 	}
 	
 }
