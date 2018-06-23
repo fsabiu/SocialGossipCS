@@ -7,14 +7,11 @@ package communication;
  * @author Francesco Sabiu
  */
 public class RequestMessage extends Message {
+	@SuppressWarnings("unchecked")
 	public RequestMessage(Operation op, String sender) {
-		super(op);
-		try {
-			message.put("SENDER", sender);
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		super();
+		message.put("OPERATION", op);
+		message.put("SENDER", sender);		
 	}
 	
 }

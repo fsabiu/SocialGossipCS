@@ -1,9 +1,10 @@
 package communication;
 
 public class ResponseMessage extends Message{
+	@SuppressWarnings("unchecked")
 	public ResponseMessage(Operation op) {
-		super(op);
-		// TODO Auto-generated constructor stub
+		super();
+		message.put("OPERATION", op);
 	}
 	
 }
