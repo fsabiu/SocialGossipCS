@@ -1,6 +1,12 @@
 package server;
 import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+
+import server.thread.UserRequestHandler;
 
 
 /**
@@ -14,22 +20,40 @@ public class Server implements Runnable{
 	private ConcurrentHashMap<String, User> usersbyname;
 	private ConcurrentHashMap<String, Chatroom> chatrooms; //Hasmap of existing chatrooms (Map of <Name, Chatroom>)
 	
-	//private ServerSocket listenerSocket = null; //socket in cui e' in ascolto il server
-	//private ThreadPoolExecutor executor = null; //pool di thread per gestire i vari client che arrivano
+	private ServerSocket listenerSocket = null; //Server listener socket
+	private ThreadPoolExecutor performer = null; //Manager thread pool performer
 	
 	
 	/**
 	 * Private constructor for the Singleton Server
 	 * @param port
+	 * @throws IOException 
 	 */
-	private void Server(int port) {
+	public Server(int port) throws IOException {
 		network= new Graph<User>();
 		usersbyname= new ConcurrentHashMap<String, User>();
+		chatrooms= new ConcurrentHashMap<String, Chatroom>();
+		performer=(ThreadPoolExecutor) Executors.newCachedThreadPool();
+		listenerSocket = new ServerSocket(port);
 	}
 	
 	@Override
 	public void run() {
-		
+		try {
+			while(true) {
+				//The server is ready to listen new requests
+				Socket Client = listenerSocket.accept();
+				
+				//Submitting client requests to the thread pool
+				performer.submit(new UserRequestHandler(Client,network,chatrooms, usersbyname));
+				
+			}
+		} 
+		catch (IOException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -43,8 +67,9 @@ public class Server implements Runnable{
 			//Running the server
 			CSServer.run();
 		}
-		catch {
-			
+		catch(IOException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 }

@@ -1,6 +1,5 @@
 package communication;
 
-import org.json.JSONException;
 
 /**
  * 
