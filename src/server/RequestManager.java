@@ -144,21 +144,41 @@ public class RequestManager implements Runnable {
 						
 						//If user already exists
 						if(usersbyname.containsKey(username)) {
-							reply.setParameters("OPERATION:ERR","BODY:Username already exists");
+							reply.setParameters("OPERATION:USER_ALREADY_EXISTS","BODY:Username already exists");
+						}else {
+							//Adding user to data structures
+							User new_user= new User(username, password, language);
+							//User is now online because of User constructor
+							usersbyname.put(username, new_user);
+							network.addVertex(new_user);
+							
+							//Setting up reply
+							reply.setParameters("OPERATION:OK");
 						}
-						
-						//Adding user to data structures
-						User new_user= new User(username, password, language);
-						usersbyname.put(username, new_user);
-						network.addVertex(new_user);
-						
 					}catch(IllegalArgumentException e) {
+						reply.setParameters("OPERATION:ERR","BODY:Invalid request format");
 						System.out.println("Invalid request parameters received by the client");
 					}
 					break;
 				case UNREGISTER:
 					break;
 				case CHAT_ADDING:
+					try {
+						//Extracting relevant fields
+						String username= (String) message.getParameter("USERNAME");
+						String chatroom= (String) message.getParameter("CHATROOM");
+						
+						//Is the sender a user?
+						if(!usersbyname.containsKey(username)) 
+							reply.setParameters("OPERATION:PERMISSION_DENIED","BODY:Not a user");
+						else if(!chatrooms.containsKey(chatroom)) //Does chatroom exist?
+							reply.setParameters("OPERATION:ERR");
+						else {
+							chatrooms.get(chatroom).addPartecipant(usersbyname.get(username));
+						}
+					}catch(IllegalArgumentException e) {
+						reply.setParameters("OPERATION:ERR","BODY:Invalid request format");
+					}
 					break;
 				case CHAT_CLOSING:
 					break;
@@ -192,6 +212,8 @@ public class RequestManager implements Runnable {
 		} catch(IllegalArgumentException e) {
 			
 		}
+		
+		//Sending reply to client
 	}
 
 }
