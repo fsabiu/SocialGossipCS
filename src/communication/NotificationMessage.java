@@ -2,8 +2,8 @@ package communication;
 
 public class NotificationMessage extends Message {
 		@SuppressWarnings("unchecked")
-		public NotificationMessage(Operation op) {
+		public NotificationMessage() {
 			super();
-			message.put("OPERATION", op);
+			message.put("TYPE", "notification");
 		}
 }
