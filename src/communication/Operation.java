@@ -40,7 +40,10 @@ public enum Operation {
 	
 	// Server replies
 	OK(200),
-	ERR(503);
+	ERR(500),
+	USER_ALREADY_EXISTS(501),
+	CHATROOM_ALREADY_EXISTS(502),
+	PERMISSION_DENIED(503);
 	
 	private Long value;
 	private static Map<Long, Operation> map= new HashMap<Long,Operation>();
