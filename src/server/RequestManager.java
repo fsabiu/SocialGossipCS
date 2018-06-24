@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.UTFDataFormatException;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.simple.*;
@@ -169,9 +170,9 @@ public class RequestManager implements Runnable {
 						String chatroom= (String) message.getParameter("CHATROOM");
 						
 						//Is the sender a user?
-						if(!usersbyname.containsKey(username)) 
+						/*if(!usersbyname.containsKey(username)) 
 							reply.setParameters("OPERATION:PERMISSION_DENIED","BODY:Not a user");
-						else if(!chatrooms.containsKey(chatroom)) //Does chatroom exist?
+						else */if(!chatrooms.containsKey(chatroom)) //Does chatroom exist?
 							reply.setParameters("OPERATION:ERR");
 						else {
 							chatrooms.get(chatroom).addPartecipant(usersbyname.get(username));
@@ -187,10 +188,10 @@ public class RequestManager implements Runnable {
 						String chatroom= (String) message.getParameter("CHATROOM");
 						
 						//Is the sender a user?
-						if(!usersbyname.containsKey(username)) 
+						/*if(!usersbyname.containsKey(username)) 
 							reply.setParameters("OPERATION:PERMISSION_DENIED","BODY:Not a user");
 						
-						else if(!chatrooms.containsKey(chatroom)) //Does chatroom exist?
+						else */if(!chatrooms.containsKey(chatroom)) //Does chatroom exist?
 							reply.setParameters("OPERATION:ERR");
 						
 						else {//Is the user an administrator?
@@ -212,24 +213,39 @@ public class RequestManager implements Runnable {
 						String chatroom= (String) message.getParameter("CHATROOM");
 						
 						//Is the sender a user?
-						if(!usersbyname.containsKey(username)) 
+						/*if(!usersbyname.containsKey(username)) 
 							reply.setParameters("OPERATION:PERMISSION_DENIED","BODY:Not a user");
 						
-						else if(chatrooms.containsKey(chatroom)) //Does chatroom already exist?
+						else */if(chatrooms.containsKey(chatroom)) //Does chatroom already exist?
 							reply.setParameters("OPERATION:CHATROOM_ALREADY_EXISTS");
 						
 						else {//Creating new chatroom
 								Chatroom new_chatroom= new Chatroom(chatroom, usersbyname.get(username));
 								reply.setParameters("OPERATION:OK");
 							}
-						}
 					}catch(IllegalArgumentException e) {
 						reply.setParameters("OPERATION:ERR","BODY:Invalid request format");
 					}
 					break;
-				case CHAT_LISTING:
-					break;
-				case ERR:
+				case CHAT_LISTING: {
+					String username= (String) message.getParameter("USERNAME");
+					
+					//List of chatroom the user belongs to
+					ArrayList<String> belonglist= new ArrayList<String>();
+					
+					//List of chatroom the user does not belong to
+					ArrayList<String> notbelonglist= new ArrayList<String>();
+					
+					//Filling lists
+					for(Chatroom chatroom: chatrooms.values()) {
+						if(chatroom.isPartecipant(usersbyname.get(username)))
+							belonglist.add(chatroom.getName());
+						else notbelonglist.add(chatroom.getName());
+					}
+					
+					//Filling reply
+					reply.setParameters("OPERATION:OK", "BELONGS:"+belonglist, "NOT BELONGS:"+notbelonglist);
+				}
 					break;
 				case FILE_TO_FRIEND:
 					break;
@@ -237,9 +253,25 @@ public class RequestManager implements Runnable {
 					break;
 				case LIST_FRIENDS:
 					break;
-				case LOGIN:
+				case LOGIN: {
+					String username= (String) message.getParameter("USERNAME");
+					if(!usersbyname.containsKey(username)) 
+						reply.setParameters("OPERATION:PERMISSION_DENIED","BODY:Not a user");
+					else {
+						usersbyname.get(username).setOnline();
+						reply.setParameters("OPERATION:OK");
+					}
+				}
 					break;
-				case LOGOUT:
+				case LOGOUT:{
+					String username= (String) message.getParameter("USERNAME");
+					//chiudi questa connessione TCP
+					//if(non ha altre connessioni)
+					usersbyname.get(username).setOffline();
+					
+					//in ogni caso
+					reply.setParameters("OPERATION:OK");
+				}
 					break;
 				case LOOKUP:
 					break;
