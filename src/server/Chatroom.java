@@ -72,10 +72,18 @@ public class Chatroom {
 		else return false;
 	}
 	
+	/**
+	 * 
+	 * @param u
+	 * @return
+	 */
 	public boolean deleteChatroom(User u) {
 		if(!isAdministrator(u)) return false;
 		//TODO Notification to all users
 		return true;
-		
+	}
+	
+	public String getName() {
+		return this.name;
 	}
 }
