@@ -163,8 +163,7 @@ public class RequestManager implements Runnable {
 					break;
 				case UNREGISTER:
 					break;
-				case CHAT_ADDING:
-					try {
+				case CHAT_ADDING: {
 						//Extracting relevant fields
 						String username= (String) message.getParameter("USERNAME");
 						String chatroom= (String) message.getParameter("CHATROOM");
@@ -172,17 +171,16 @@ public class RequestManager implements Runnable {
 						//Is the sender a user?
 						/*if(!usersbyname.containsKey(username)) 
 							reply.setParameters("OPERATION:PERMISSION_DENIED","BODY:Not a user");
-						else */if(!chatrooms.containsKey(chatroom)) //Does chatroom exist?
-							reply.setParameters("OPERATION:ERR");
+						else */if(!chatrooms.containsKey(chatroom)) { //Does chatroom exist?
+							reply.setParameters("OPERATION:CHATROOM_DOES_NOT_EXIST");
+							
+						}
 						else {
 							chatrooms.get(chatroom).addPartecipant(usersbyname.get(username));
 						}
-					}catch(IllegalArgumentException e) {
-						reply.setParameters("OPERATION:ERR","BODY:Invalid request format");
 					}
 					break;
-				case CHAT_CLOSING:
-					try {
+				case CHAT_CLOSING: {
 						//Extracting relevant fields
 						String username= (String) message.getParameter("USERNAME");
 						String chatroom= (String) message.getParameter("CHATROOM");
@@ -192,7 +190,7 @@ public class RequestManager implements Runnable {
 							reply.setParameters("OPERATION:PERMISSION_DENIED","BODY:Not a user");
 						
 						else */if(!chatrooms.containsKey(chatroom)) //Does chatroom exist?
-							reply.setParameters("OPERATION:ERR");
+							reply.setParameters("OPERATION:CHATROOM_DOES_NOT_EXIST");
 						
 						else {//Is the user an administrator?
 							if(!chatrooms.get(chatroom).deleteChatroom(usersbyname.get(username))) {
@@ -202,12 +200,9 @@ public class RequestManager implements Runnable {
 								chatrooms.remove(chatroom);
 							}
 						}
-					}catch(IllegalArgumentException e) {
-						reply.setParameters("OPERATION:ERR","BODY:Invalid request format");
 					}
 					break;
-				case CHAT_CREATION:
-					try {
+				case CHAT_CREATION: {
 						//Extracting relevant fields
 						String username= (String) message.getParameter("USERNAME");
 						String chatroom= (String) message.getParameter("CHATROOM");
@@ -223,8 +218,6 @@ public class RequestManager implements Runnable {
 								Chatroom new_chatroom= new Chatroom(chatroom, usersbyname.get(username));
 								reply.setParameters("OPERATION:OK");
 							}
-					}catch(IllegalArgumentException e) {
-						reply.setParameters("OPERATION:ERR","BODY:Invalid request format");
 					}
 					break;
 				case CHAT_LISTING: {
@@ -255,9 +248,11 @@ public class RequestManager implements Runnable {
 					break;
 				case LOGIN: {
 					String username= (String) message.getParameter("USERNAME");
+					String password= (String) message.getParameter("PASSWORD");
 					if(!usersbyname.containsKey(username)) 
 						reply.setParameters("OPERATION:PERMISSION_DENIED","BODY:Not a user");
 					else {
+						//CONTROLLO PASSWORD
 						usersbyname.get(username).setOnline();
 						reply.setParameters("OPERATION:OK");
 					}
