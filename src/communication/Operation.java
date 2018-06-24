@@ -42,8 +42,10 @@ public enum Operation {
 	OK(200),
 	ERR(500),
 	USER_ALREADY_EXISTS(501),
-	CHATROOM_ALREADY_EXISTS(502),
-	PERMISSION_DENIED(503);
+	USER_DOES_NOT_EXIST(502),
+	CHATROOM_ALREADY_EXISTS(503),
+	PERMISSION_DENIED(504),
+	USER_OFFLINE(505);
 	
 	private Long value;
 	private static Map<Long, Operation> map= new HashMap<Long,Operation>();
