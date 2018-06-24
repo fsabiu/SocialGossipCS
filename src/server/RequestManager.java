@@ -181,6 +181,29 @@ public class RequestManager implements Runnable {
 					}
 					break;
 				case CHAT_CLOSING:
+					try {
+						//Extracting relevant fields
+						String username= (String) message.getParameter("USERNAME");
+						String chatroom= (String) message.getParameter("CHATROOM");
+						
+						//Is the sender a user?
+						if(!usersbyname.containsKey(username)) 
+							reply.setParameters("OPERATION:PERMISSION_DENIED","BODY:Not a user");
+						
+						else if(!chatrooms.containsKey(chatroom)) //Does chatroom exist?
+							reply.setParameters("OPERATION:ERR");
+						
+						else {//Is the user an administrator?
+							if(!chatrooms.get(chatroom).deleteChatroom(usersbyname.get(username))) {
+								reply.setParameters("OPERATION:PERMISSION_DENIED","BODY:Not an administrator");
+							} else {
+								reply.setParameters("OPERATION:OK");
+								chatrooms.remove(chatroom);
+							}
+						}
+					}catch(IllegalArgumentException e) {
+						reply.setParameters("OPERATION:ERR","BODY:Invalid request format");
+					}
 					break;
 				case CHAT_CREATION:
 					break;
