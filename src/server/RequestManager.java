@@ -263,7 +263,7 @@ public class RequestManager implements Runnable {
 					}
 				}
 					break;
-				case LOGOUT:{
+				case LOGOUT: {
 					String username= (String) message.getParameter("USERNAME");
 					//chiudi questa connessione TCP
 					//if(non ha altre connessioni)
@@ -273,11 +273,43 @@ public class RequestManager implements Runnable {
 					reply.setParameters("OPERATION:OK");
 				}
 					break;
-				case LOOKUP:
+				case LOOKUP: {
+					String username= (String) message.getParameter("USERNAME");
+					
+					//Setting reply
+					reply.setParameters("OPERATION:OK");
+					if(usersbyname.containsKey(username)) reply.setParameters("BODY:"+true);
+					else reply.setParameters("BODY:"+false);
+				}
 					break;
 				case MSG_TO_CHATROOM:
 					break;
 				case MSG_TO_FRIEND:
+					String sender= (String) message.getParameter("SENDER");
+					String receiver= (String) message.getParameter("RECEIVER");
+					
+					//To network nodes
+					User sender_user=usersbyname.get(sender);
+					User receiver_user=usersbyname.get(receiver);
+					
+					//Is receiver a user?
+					if(!usersbyname.containsKey(receiver)) {
+						reply.setParameters("OPERATION:USER_DOES_NOT_EXIST", "BODY:Selected user does not exist");
+						
+					} else if(!network.areAdj(sender_user, receiver_user)) { //Are they friends?
+						reply.setParameters("OPERATION:PERMISSION_DENIED", "BODY:You are not friends");
+						
+					}else { //Is receiver online?
+						boolean online;
+						synchronized(receiver_user) {
+							online=receiver_user.isOnline()
+							if(!online)
+							reply.setParameters("OPERATION:PERMISSION_DENIED", "BODY:You are not friends");
+						}
+						if(online) reply.setParameters("OPERATION:OK"); 
+					}
+					
+					//chiamata invio messaggio, probabilmente user.sendMessage
 					break;
 				default:
 					break;
