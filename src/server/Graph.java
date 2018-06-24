@@ -93,4 +93,8 @@ public class Graph<E> {
         return this.adjacencyList.get(e);
     }
     
+    public boolean areAdj(E e1, E e2) {
+    	if(this.adjacencyList.get(e1).contains(e2)) return true;
+    	else return false;
+    }
 }
