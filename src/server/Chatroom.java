@@ -71,4 +71,11 @@ public class Chatroom {
 		if(administrators.contains(u)) return true;
 		else return false;
 	}
+	
+	public boolean deleteChatroom(User u) {
+		if(!isAdministrator(u)) return false;
+		//TODO Notification to all users
+		return true;
+		
+	}
 }
