@@ -82,6 +82,8 @@ public class ChatroomManager extends Thread {
 		//creo il pacchetto da inviare
 		DatagramPacket message = new DatagramPacket(msg,msg.length,msAddress,socket.getLocalPort());
 		
+		//
+		
 		//invio il messaggio
 		socket.send(message);
 	}
