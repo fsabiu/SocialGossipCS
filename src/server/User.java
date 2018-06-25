@@ -1,6 +1,8 @@
 package server;
 import java.net.Socket;
 
+import communication.RMI.RMIClientNotifyEvent;
+
 
 /**
  * 
@@ -14,9 +16,12 @@ public class User{
 	private String password;
 	private String language;
 	private boolean online;
-	//Managing data
-	private transient Socket notificationMessageChannel;
-	//CANALE PER NOTIFICHE RMI
+	
+	//Managing connections
+	private transient Socket notificationChannel=null;
+	//RMI Channel
+	private RMIClientNotifyEvent RMIchannel = null;
+	
 	/**
 	 * 
 	 * @param username
@@ -53,10 +58,12 @@ public class User{
 	}
 	
 	public synchronized void setOnline() {
+		
 		this.online=true;
 	}
 	
 	public synchronized void setOffline() {
+		this.no
 		this.online=false;
 	}
 	

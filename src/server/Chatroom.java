@@ -15,6 +15,7 @@ public class Chatroom {
 	private HashSet<User> partecipants;
 	
 	// Configuration properties
+	
 	private static final int PORT= 6000;
 	
 	/**

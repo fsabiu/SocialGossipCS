@@ -9,6 +9,8 @@ import java.io.StringReader;
 import java.io.UTFDataFormatException;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.simple.*;
@@ -157,7 +159,7 @@ public class RequestManager implements Runnable {
 					reply=friendship(message);
 					break;
 				case LIST_FRIENDS:
-					
+					reply=listFriends(message);
 					break;
 				case LOGIN:
 					reply=login(message);
@@ -166,10 +168,10 @@ public class RequestManager implements Runnable {
 					reply=logout(message);
 					break;
 				case LOOKUP:
-					reply= lookup(message);
+					reply=lookup(message);
 					break;
 				case MSG_TO_CHATROOM:
-					
+					reply=msgToChatroom(message);
 					break;
 				case MSG_TO_FRIEND:
 					reply=msgToFriend(message);
@@ -186,10 +188,41 @@ public class RequestManager implements Runnable {
 		//Sending reply to client
 	}
 
+	private ResponseMessage msgToChatroom(RequestMessage message) {
+		//Creation reply message (conterrà ip e porta del destinatario)
+		ResponseMessage reply= new ResponseMessage();
+		
+		
+	}
+
+	private ResponseMessage listFriends(RequestMessage message) {
+		//Creation reply message (conterrà ip e porta del destinatario)
+		ResponseMessage reply= new ResponseMessage();
+		
+		//Getting relevant fields
+		String sender= (String) message.getParameter("SENDER");
+		
+		//To network node
+		User sender_user=usersbyname.get(sender);
+		
+		//Getting friends
+		Set<User> friends= network.getAdjVertices(sender_user);
+		
+		List<String> friendslist= new ArrayList<String>();
+		
+		for(User user: friends) {
+			friendslist.add(user.getUsername());
+		}
+		
+		reply.setParameters("OPERATION:OK", "BODY:"+friendslist);
+		return reply;
+	}
+
 	private ResponseMessage friendship(RequestMessage message) {
 		//Creation reply message (conterrà ip e porta del destinatario)
 		ResponseMessage reply= new ResponseMessage();
 		NotificationMessage notify_friendship;
+		
 		//Getting relevant fields
 		String sender= (String) message.getParameter("SENDER");
 		String receiver= (String) message.getParameter("RECEIVER");
@@ -389,7 +422,7 @@ public class RequestManager implements Runnable {
 			
 		//Creating new chatroom
 		Chatroom new_chatroom= new Chatroom(chatroom, usersbyname.get(username));
-		chatrooms.put(chatroom, new_chatroom);
+		chatrooms.putIfAbsent(chatroom, new_chatroom);
 		reply.setParameters("OPERATION:OK");
 		return reply;
 	}
@@ -469,7 +502,7 @@ public class RequestManager implements Runnable {
 			User new_user= new User(username, password, language);
 			
 			//User is now online because of User constructor
-			usersbyname.put(username, new_user);
+			usersbyname.putIfAbsent(username, new_user);
 			network.addVertex(new_user);
 			
 			//Setting up reply
