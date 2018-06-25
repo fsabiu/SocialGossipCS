@@ -4,6 +4,6 @@ public class NotificationMessage extends Message {
 		@SuppressWarnings("unchecked")
 		public NotificationMessage() {
 			super();
-			message.put("TYPE", "notification");
+			j_message.put("TYPE", "notification");
 		}
 }
