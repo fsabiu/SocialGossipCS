@@ -5,22 +5,20 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.StringReader;
-import java.io.UTFDataFormatException;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.json.simple.*;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
 import communication.NotificationMessage;
 import communication.Operation;
 import communication.RequestMessage;
 import communication.ResponseMessage;
+import util.Config;
 
 import org.json.*;
 
@@ -31,7 +29,8 @@ import org.json.*;
  *
  */
 public class RequestManager implements Runnable {
-	private Socket client;
+	private Socket client_control;
+	private Socket client_messages;
 	private Graph<User> network;
 	private ConcurrentHashMap<String, Chatroom> chatrooms;
 	private ConcurrentHashMap<String, User> usersbyname;
@@ -44,12 +43,13 @@ public class RequestManager implements Runnable {
 	 * @param usersbyname
 	 * @throws IllegalArgumentException
 	 */
-	public RequestManager(Socket client,Graph<User> network, ConcurrentHashMap<String, Chatroom> chatrooms, ConcurrentHashMap<String, User> usersbyname) throws IllegalArgumentException {
+	public RequestManager(Socket client_control,Graph<User> network, ConcurrentHashMap<String, Chatroom> chatrooms, ConcurrentHashMap<String, User> usersbyname) throws IllegalArgumentException {
 		super();
-		if(client==null || network==null || chatrooms==null || usersbyname==null) {
+		if(client_control==null || network==null || chatrooms==null || usersbyname==null) {
 			throw new IllegalArgumentException();
 		}
-		this.client=client;
+		this.client_control=client_control;
+		this.client_messages=null;
 		this.network=network;
 		this.chatrooms=chatrooms;
 		this.usersbyname=usersbyname;
@@ -58,32 +58,49 @@ public class RequestManager implements Runnable {
 	@Override
 	public void run() {
 		
-		//Declaring stream addresses
-		DataInputStream in = null;
-		DataOutputStream out = null;
-		
+		//Declaring control stream addresses
+		DataInputStream control_in = null;
+		DataOutputStream control_out = null;
+		DataInputStream messages_in = null;
+		DataOutputStream messages_out = null;		
 		
 		try {
-			in = new DataInputStream(new BufferedInputStream(client.getInputStream()));
-			out = new DataOutputStream(client.getOutputStream());
+			control_in = new DataInputStream(new BufferedInputStream(client_control.getInputStream()));
+			control_out = new DataOutputStream(client_control.getOutputStream());
+			
+			//Reading handshake data
+			String handshake = control_in.readUTF();
+			JSONParser parser= new JSONParser();
+			RequestMessage message= (RequestMessage) parser.parse(handshake);
+			
+			//Getting IP from handshake message
+			String IPString = (String) message.getParameter("IP");
+			String portString = (String) message.getParameter("PORT");
+			
+			//Converting
+			InetAddress IP= InetAddress.getByName(IPString);
+			int port= Integer.parseInt(portString);
+			
+			//Asking for connection
+			client_messages=new Socket(IP, port);
 			
 			//Repeat until the client is connected
 			while(true) {
 				try {
 					//Reading client message
-					String request = in.readUTF();
+					String request = control_in.readUTF();
 					
 					//Debug print
 					System.out.println("received: "+request);
 					
 					//Executing client request
-					executeRequest(request,out);
+					executeRequest(request,control_out);
 					
 					//se un thread che ha avviato un canale di notifica puo' terminare
 					//if(isNotificationThread)
 					//	break;
 				}
-				//client ha chiuso la connessione
+				//client closes connection
 				catch(EOFException e) {
 					System.out.println("Connection closed by client");
 					break;
@@ -95,7 +112,10 @@ public class RequestManager implements Runnable {
 			
 		} 
 		catch (IOException e1) {
-			System.out.println("IO Exception while nstantiating client connection");
+			System.out.println("IO Exception while instantiating client connection");
+		} catch (ParseException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
 		}
 		
 		//Closing 
@@ -103,15 +123,17 @@ public class RequestManager implements Runnable {
 			//if(!isNotificationThread)
 			//{
 				try {
-					if(client != null) client.close();
-					if(in != null) in.close();
-					if(out != null) out.close();
+					if(client_control != null) client_control.close();
+					if(client_messages != null) client_messages.close();
+					if(control_in != null) control_in.close();
+					if(control_out != null) control_out.close();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			//}
 		}
 	}
+
 
 	private void executeRequest(String request, DataOutputStream out) {
 		// TODO Auto-generated method stub
@@ -129,13 +151,14 @@ public class RequestManager implements Runnable {
 			//Validating operation field
 			if(op==null) {
 				System.out.println("Invalid operation type recived");
+				reply= new ResponseMessage();
 				reply.setParameters("OPERATION:ERR","BODY:Invalid request received");
 			}
 			
 			
 			switch(op) {
 				case REGISTER:
-					reply=registerUser(message, client);
+					reply=registerUser(message, client_control);
 					break;
 				/*case UNREGISTER:
 					break;
@@ -162,7 +185,7 @@ public class RequestManager implements Runnable {
 					reply=listFriends(message);
 					break;
 				case LOGIN:
-					reply=login(message, client);
+					reply=login(message, client_control, client_messages);
 					break;
 				case LOGOUT:
 					reply=logout(message);
@@ -192,7 +215,7 @@ public class RequestManager implements Runnable {
 		//Creation reply message (conterrà ip e porta del destinatario)
 		ResponseMessage reply= new ResponseMessage();
 		
-		
+		return reply;
 	}
 
 	private ResponseMessage listFriends(RequestMessage message) {
@@ -302,7 +325,7 @@ public class RequestManager implements Runnable {
 		reply.setParameters("OPERATION:OK"); 
 		
 		//Sending message
-		if(!sendMessage(sender_user, receiver_user, String body)) {
+		if(!sendMessage(sender_user, receiver_user, message)) {
 			reply.setParameters("OPERATION:ERR");
 		}
 		return reply;
@@ -314,9 +337,33 @@ public class RequestManager implements Runnable {
 	 * Se receiver è online, glie lo manda e restituisce true
 	 * Altrimenti restituisce falso
 	 */
-	private boolean sendMessage(User sender_user, User receiver_user, String body) {
-		// TODO 
-		return false;
+	/**
+	 * REQUIRES: 
+	 * 	-	sender_user and receiver user are friends
+	 * The function translates the message into the receiver language
+	 * If receiver_user is online, the message is sent
+	 * - Translate 
+	 * @param sender_user
+	 * @param receiver_user
+	 * @param message
+	 * @return true if the message is sent, false otherwise
+	 */
+	private boolean sendMessage(User sender_user, User receiver_user, RequestMessage message) {
+		if(receiver_user.isOnline()) {
+			
+			//Getting translated string
+			String mess=message.translate(sender_user.getLanguage(), receiver_user.getLanguage()).toJSONString();
+			
+			//Getting receiver output stream
+			try {
+				DataOutputStream control_out = new DataOutputStream(receiver_user.getMessagesSocket().getOutputStream());
+				//Sending
+				control_out.writeUTF(mess);
+			}catch(IOException e) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private ResponseMessage lookup(RequestMessage message) {
@@ -350,7 +397,7 @@ public class RequestManager implements Runnable {
 		return reply;
 	}
 
-	private ResponseMessage login(RequestMessage message, Socket client) {
+	private ResponseMessage login(RequestMessage message, Socket client_control, Socket client_messages) {
 		//Creation reply message
 		ResponseMessage reply= new ResponseMessage();
 		
@@ -371,7 +418,7 @@ public class RequestManager implements Runnable {
 		}
 
 		//else
-		usersbyname.get(username).setOnline(client);
+		usersbyname.get(username).setOnline(client_control, client_messages);
 		reply.setParameters("OPERATION:OK");
 		return reply;
 		}
@@ -419,12 +466,52 @@ public class RequestManager implements Runnable {
 			reply.setParameters("OPERATION:CHATROOM_ALREADY_EXISTS");
 			return reply;
 		}
-			
+		
+		//Getting new chatroom parameters
+		String msName= createChatroomAddress();
+		
+		//Checking chatroom address
+		if(msName==null) {
+			reply.setParameters("OPERATION:ERR", "BODY:Cannot create chatroom");
+			return reply;
+		}
+		
+		//multicast address
+		InetAddress msAddress = null;
+		try {
+			msAddress = InetAddress.getByName(msName);
+		} catch (UnknownHostException e1) {
+			reply.setParameters("OPERATION:ERR", "BODY:Network error while creating server socket");
+			return reply;
+		}
+		InetAddress listenAddress = null;
+		try {
+			listenAddress = InetAddress.getByName(Config.SERVER_HOST_NAME);
+		} catch (UnknownHostException e1) {
+			reply.setParameters("OPERATION:ERR", "BODY:Network error while defining server address");
+			return reply;
+		}
+		
 		//Creating new chatroom
-		Chatroom new_chatroom= new Chatroom(chatroom, usersbyname.get(username));
-		chatrooms.putIfAbsent(chatroom, new_chatroom);
-		reply.setParameters("OPERATION:OK");
-		return reply;
+		try {
+			Chatroom new_chatroom= new Chatroom(chatroom, usersbyname.get(username), msAddress, listenAddress);
+			chatrooms.putIfAbsent(chatroom, new_chatroom);
+			reply.setParameters("OPERATION:OK");
+			return reply;
+		} catch (Exception e) {
+			reply.setParameters("OPERATION:ERR", "BODY:Network error while creating chatroom");
+			return reply;
+		}	
+	}
+
+	private synchronized String createChatroomAddress() {
+		String[] IP= Config.FIRST_MULTICAST_ADDR.split("\\.");
+		Integer offset= Integer.parseInt(IP[3]);
+		offset=offset+chatrooms.size();
+		
+		if(offset.equals(256)) return null;
+		
+		return new String(IP[0]+"."+IP[1]+"."+IP[2]+"."+offset.toString());
 	}
 
 	private ResponseMessage closeChat(RequestMessage message) {
@@ -504,7 +591,7 @@ public class RequestManager implements Runnable {
 			network.addVertex(new_user);
 			
 			//Setting online user
-			new_user.setOnline(client);
+			new_user.setOnline(client_control, client_messages);
 			
 			//Setting up reply
 			reply.setParameters("OPERATION:OK");
