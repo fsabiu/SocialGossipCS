@@ -4,7 +4,6 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.util.HashSet;
 
-import server.thread.DispatcherChatRoomMessage;
 import util.PortScanner;
 
 /**
@@ -16,7 +15,7 @@ import util.PortScanner;
 public class Chatroom {
 	// Properties 
 	private final String name;
-	private final HashSet<User> administrators;
+	private HashSet<User> administrators;
 	private HashSet<User> partecipants;
 	
 	// Configuration properties
@@ -46,8 +45,8 @@ public class Chatroom {
 		this.msAddress=msAddress;
 		this.msPort=PortScanner.freePort();
 		if(msPort == -1) throw new Exception();
-		MulticastSocket ms = new MulticastSocket(msPort);
-		this.socket = ms;
+		
+		this.socket = new MulticastSocket(msPort);
 		
 		//Listener configuration
 		this.listenAddress=listenAddress;
@@ -63,7 +62,7 @@ public class Chatroom {
 	 * @param u
 	 * @throws IllegalArgumentException
 	 */
-	public void addPartecipant(User u) {
+	public synchronized void addPartecipant(User u) {
 			if(partecipants.contains(u)) throw new IllegalArgumentException();
 			else this.partecipants.add(u);
 	}
@@ -73,7 +72,7 @@ public class Chatroom {
 	 * @param u
 	 * @throws IllegalArgumentException
 	 */
-	public void removePartecipant(User u) {
+	public synchronized void removePartecipant(User u) {
 		if(!partecipants.contains(u)) throw new IllegalArgumentException();
 		else this.partecipants.remove(u);
 	}
@@ -84,7 +83,7 @@ public class Chatroom {
 	 * @return true if the user u belongs to this chatroom,
 	 * 			false otherwise
 	 */
-	public boolean isPartecipant(User u) {
+	public synchronized boolean isPartecipant(User u) {
 		if(partecipants.contains(u)) return true;
 		else return false;
 	}
@@ -95,7 +94,7 @@ public class Chatroom {
 	 * @return true if the user u is an administrator of this chatroom,
 	 * 			false otherwise
 	 */
-	public boolean isAdministrator(User u) {
+	public synchronized boolean isAdministrator(User u) {
 		if(administrators.contains(u)) return true;
 		else return false;
 	}
@@ -105,13 +104,13 @@ public class Chatroom {
 	 * @param u
 	 * @return
 	 */
-	public boolean deleteChatroom(User u) {
+	public synchronized boolean deleteChatroom(User u) {
 		if(!isAdministrator(u)) return false;
 		//TODO Notification to all users
 		return true;
 	}
 	
-	public String getName() {
+	public synchronized String getName() {
 		return this.name;
 	}
 }
