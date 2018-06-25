@@ -2,6 +2,8 @@ package server;
 import java.io.Serializable;
 import java.net.Socket;
 
+import communication.RMIServerNotifier;
+
 
 
 /**
@@ -11,6 +13,10 @@ import java.net.Socket;
  * The class represent a subscribed user, identified by unique username.
  */
 public class User implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	//Personal data
 	private String username;
 	private String password;
@@ -18,9 +24,10 @@ public class User implements Serializable {
 	private boolean online;
 	
 	//Managing connections
-	private transient Socket notificationChannel=null;
+	private transient Socket control_socket=null;
+	private transient Socket messages_socket=null;
 	//RMI Channel
-	private RMIClientNotifyEvent RMIchannel = null;
+	private RMIServerNotifier RMIchannel = null;
 	
 	/**
 	 * 
@@ -56,13 +63,15 @@ public class User implements Serializable {
 		return false;
 	}
 	
-	public synchronized void setOnline(Socket client) {
-		setNotificationChannel(client);
+	public synchronized void setOnline(Socket control, Socket messages) {
+		setControlSocket(control);
+		setMessagesSocket(messages);
 		this.online=true;
 	}
 	
 	public synchronized void setOffline() {
-		setNotificationChannel(null);
+		setControlSocket(null);
+		setMessagesSocket(null);
 		this.online=false;
 	}
 	
@@ -71,11 +80,19 @@ public class User implements Serializable {
 		return this.getUsername();
 	}
 	
-	private void setNotificationChannel(Socket sock_address) {
-		this.notificationChannel=sock_address;
+	private void setControlSocket(Socket control) {
+		this.control_socket=control;
 	}
 	
-	public Socket getNotificationChannel() {
-		return this.notificationChannel;
+	private void setMessagesSocket(Socket messages) {
+		this.messages_socket=messages;
+	}
+	
+	public Socket getControlSocket() {
+		return this.control_socket;
+	}
+	
+	public Socket getMessagesSocket() {
+		return this.getMessagesSocket();
 	}
 }
