@@ -135,7 +135,7 @@ public class RequestManager implements Runnable {
 			
 			switch(op) {
 				case REGISTER:
-					reply=registerUser(message);
+					reply=registerUser(message, client);
 					break;
 				/*case UNREGISTER:
 					break;
@@ -162,7 +162,7 @@ public class RequestManager implements Runnable {
 					reply=listFriends(message);
 					break;
 				case LOGIN:
-					reply=login(message);
+					reply=login(message, client);
 					break;
 				case LOGOUT:
 					reply=logout(message);
@@ -350,7 +350,7 @@ public class RequestManager implements Runnable {
 		return reply;
 	}
 
-	private ResponseMessage login(RequestMessage message) {
+	private ResponseMessage login(RequestMessage message, Socket client) {
 		//Creation reply message
 		ResponseMessage reply= new ResponseMessage();
 		
@@ -371,7 +371,7 @@ public class RequestManager implements Runnable {
 		}
 
 		//else
-		usersbyname.get(username).setOnline();
+		usersbyname.get(username).setOnline(client);
 		reply.setParameters("OPERATION:OK");
 		return reply;
 		}
@@ -483,7 +483,7 @@ public class RequestManager implements Runnable {
 		return reply;
 	}
 
-	private ResponseMessage registerUser(RequestMessage message) {
+	private ResponseMessage registerUser(RequestMessage message, Socket client) {
 		//Creation reply message
 		ResponseMessage reply= new ResponseMessage();
 		
@@ -500,10 +500,11 @@ public class RequestManager implements Runnable {
 			}
 			//Adding user to data structures
 			User new_user= new User(username, password, language);
-			
-			//User is now online because of User constructor
 			usersbyname.putIfAbsent(username, new_user);
 			network.addVertex(new_user);
+			
+			//Setting online user
+			new_user.setOnline(client);
 			
 			//Setting up reply
 			reply.setParameters("OPERATION:OK");

@@ -1,7 +1,7 @@
 package server;
+import java.io.Serializable;
 import java.net.Socket;
 
-import communication.RMI.RMIClientNotifyEvent;
 
 
 /**
@@ -10,7 +10,7 @@ import communication.RMI.RMIClientNotifyEvent;
  * @author Francesco Sabiu
  * The class represent a subscribed user, identified by unique username.
  */
-public class User{
+public class User implements Serializable {
 	//Personal data
 	private String username;
 	private String password;
@@ -37,7 +37,6 @@ public class User{
 		this.username=username;
 		this.password=password;
 		this.language=language;
-		this.online=true;
 	}
 	
 	public String getUsername() {
@@ -57,18 +56,26 @@ public class User{
 		return false;
 	}
 	
-	public synchronized void setOnline() {
-		
+	public synchronized void setOnline(Socket client) {
+		setNotificationChannel(client);
 		this.online=true;
 	}
 	
 	public synchronized void setOffline() {
-		this.no
+		setNotificationChannel(null);
 		this.online=false;
 	}
 	
 	@Override
 	public String toString() {
 		return this.getUsername();
+	}
+	
+	private void setNotificationChannel(Socket sock_address) {
+		this.notificationChannel=sock_address;
+	}
+	
+	public Socket getNotificationChannel() {
+		return this.notificationChannel;
 	}
 }

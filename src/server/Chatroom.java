@@ -1,6 +1,11 @@
 package server;
 
+import java.net.InetAddress;
+import java.net.MulticastSocket;
 import java.util.HashSet;
+
+import server.thread.DispatcherChatRoomMessage;
+import util.PortScanner;
 
 /**
  * Class which represents the chatroom of SocialGossipCS
@@ -15,20 +20,42 @@ public class Chatroom {
 	private HashSet<User> partecipants;
 	
 	// Configuration properties
+	private InetAddress msAddress; //Multicast socket IP address
+	private int msPort; //Multicast port
+	private InetAddress listenAddress; //Dispatcher IP address
+	private int listenPort;  //Dispatcher port
 	
-	private static final int PORT= 6000;
+	private transient MulticastSocket socket;
+	
+	//Chatroom message dispatcher thread
+	private transient ChatroomManager dispatcher;
 	
 	/**
 	 * 
 	 * @param name: name of the chatroom
 	 * @param u: creator user
 	 */
-	public Chatroom(String name, User u) {
+	public Chatroom(String name, User u,InetAddress msAddress,InetAddress listenAddress) throws Exception {
 		this.administrators= new HashSet<User>();
 		this.partecipants= new HashSet<User>();
 		this.name=name;
 		this.administrators.add(u);
 		this.partecipants.add(u);
+		
+		//Multicast configuration
+		this.msAddress=msAddress;
+		this.msPort=PortScanner.freePort();
+		if(msPort == -1) throw new Exception();
+		MulticastSocket ms = new MulticastSocket(msPort);
+		this.socket = ms;
+		
+		//Listener configuration
+		this.listenAddress=listenAddress;
+		dispatcher= new ChatroomManager(socket,msAddress);
+		this.listenPort = dispatcher.getListeningPort();
+		
+		//Starting Chatroom manager
+		dispatcher.start();
 	}
 	
 	/**
