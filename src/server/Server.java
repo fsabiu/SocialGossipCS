@@ -5,8 +5,7 @@ import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
-
-import server.thread.UserRequestHandler;
+import util.Config;
 
 
 /**
@@ -37,6 +36,7 @@ public class Server implements Runnable{
 		listenerSocket = new ServerSocket(port);
 	}
 	
+	
 	@Override
 	public void run() {
 		try {
@@ -62,7 +62,7 @@ public class Server implements Runnable{
 	public static void main() {
 		try {
 			//Creating instance of the Server
-			Server CSServer= new Server(5500);
+			Server CSServer= new Server(Config.SERVER_TCP_PORT);
 			
 			//Running the server
 			CSServer.run();
@@ -72,4 +72,7 @@ public class Server implements Runnable{
 			e.printStackTrace();
 		}
 	}
+	
+
+	
 }
