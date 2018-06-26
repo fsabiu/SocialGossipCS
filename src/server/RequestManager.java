@@ -14,13 +14,11 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import communication.NotificationMessage;
 import communication.Operation;
 import communication.RequestMessage;
 import communication.ResponseMessage;
 import util.Config;
 
-import org.json.*;
 
 /**
  * Client request manager class implementation
@@ -34,6 +32,7 @@ public class RequestManager implements Runnable {
 	private Graph<User> network;
 	private ConcurrentHashMap<String, Chatroom> chatrooms;
 	private ConcurrentHashMap<String, User> usersbyname;
+	private PrivateMessageManager message_manager;
 		
 	/**
 	 * Constructor
@@ -53,6 +52,7 @@ public class RequestManager implements Runnable {
 		this.network=network;
 		this.chatrooms=chatrooms;
 		this.usersbyname=usersbyname;
+		this.message_manager=null;
 	}
 	
 	@Override
@@ -60,15 +60,14 @@ public class RequestManager implements Runnable {
 		
 		//Declaring control stream addresses
 		DataInputStream control_in = null;
-		DataOutputStream control_out = null;
-		DataInputStream messages_in = null;
-		DataOutputStream messages_out = null;		
+		DataOutputStream control_out = null;	
 		
 		try {
 			control_in = new DataInputStream(new BufferedInputStream(client_control.getInputStream()));
 			control_out = new DataOutputStream(client_control.getOutputStream());
 			
 			//Reading handshake data
+			client_control.setSoTimeout(1500);
 			String handshake = control_in.readUTF();
 			JSONParser parser= new JSONParser();
 			RequestMessage message= (RequestMessage) parser.parse(handshake);
@@ -160,9 +159,6 @@ public class RequestManager implements Runnable {
 				case REGISTER:
 					reply=registerUser(message, client_control);
 					break;
-				/*case UNREGISTER:
-					break;
-				*/
 				case CHAT_ADDING:
 					reply=addToChat(message);
 					break;
@@ -212,14 +208,37 @@ public class RequestManager implements Runnable {
 	}
 
 	private ResponseMessage msgToChatroom(RequestMessage message) {
-		//Creation reply message (conterrà ip e porta del destinatario)
+		//Creation reply message
 		ResponseMessage reply= new ResponseMessage();
 		
+		//Getting relevant fields
+		String sender= (String) message.getParameter("SENDER");
+		String chat= (String) message.getParameter("CHATROOM");
+		
+		//To network node
+		User sender_user=usersbyname.get(sender);
+		Chatroom chatroom= chatrooms.get(chat);
+		
+		//if user does not belong to chatroom
+		if(!chatroom.isPartecipant(sender_user)) {
+			reply.setParameters("OPERATION:PERMISSION_DENIED", "BODY: Not a member of "+chat+" chatroom");
+			return reply;
+		}
+		
+		//All fine. Getting dispatcher
+		ChatroomManager dispatcher= chatroom.getDispatcher(chatroom);
+		if(!dispatcher.sendMessage(message.toString())){
+			reply.setParameters("OPERATION:ERR", "BODY: Error while dispatching message to chatroom");
+			return reply;
+		}
+		
+		//All fine
+		reply.setParameters("OPERATION:OK");
 		return reply;
 	}
 
 	private ResponseMessage listFriends(RequestMessage message) {
-		//Creation reply message (conterrà ip e porta del destinatario)
+		//Creation reply message
 		ResponseMessage reply= new ResponseMessage();
 		
 		//Getting relevant fields
@@ -242,9 +261,8 @@ public class RequestManager implements Runnable {
 	}
 
 	private ResponseMessage friendship(RequestMessage message) {
-		//Creation reply message (conterrà ip e porta del destinatario)
+		//Creation reply message 
 		ResponseMessage reply= new ResponseMessage();
-		NotificationMessage notify_friendship;
 		
 		//Getting relevant fields
 		String sender= (String) message.getParameter("SENDER");
@@ -254,38 +272,87 @@ public class RequestManager implements Runnable {
 		User sender_user=usersbyname.get(sender);
 		User receiver_user=usersbyname.get(receiver);
 		
-		synchronized(receiver_user) {
-			if(receiver_user.isOnline()) {
-				network.addEdge(sender_user, receiver_user);
-				notify_friendship= new NotificationMessage();
-				notify_friendship.setParameters("OPERATION:NOTIFY_FRIENDSHIP", "USER:"+sender);
-			}
-			
+		//Is receiver a user?
+		if(!usersbyname.containsKey(receiver)) {
+			reply.setParameters("OPERATION:USER_DOES_NOT_EXIST", "BODY:Selected user does not exist");
+			return reply;
 		}
 		
+		//Are sender and receiver friends?	
+		if(network.areAdj(sender_user, receiver_user)) {
+			reply.setParameters("OPERATION:ERR", "BODY:You and "+receiver+" are already friends");
+			return reply;
+		}
+		
+		//Online checking
+		boolean online;
+		synchronized(receiver_user) {
+			online=receiver_user.isOnline();
+		}
+		if(online) {
+			network.addEdge(sender_user, receiver_user);
+			reply.setParameters("OPERATION:OK");
+			//NOTIFICATION
+		}else {
+			reply.setParameters("OPERATION:USER_OFFLINE");
+		}
 		return reply;
-		//Estraggo RMI da receiver_user
-		//Chiamo il metodo NotifyEvent(notify_frienship)
 	}
 
 	private ResponseMessage fileToFriend(RequestMessage message) {
-		//Creation reply message (conterrà ip e porta del destinatario)
+		//Creation reply message (it will contain both receiver IP and port)
 		ResponseMessage reply= new ResponseMessage();
 		
 		//Getting relevant fields
 		String sender= (String) message.getParameter("SENDER");
 		String receiver= (String) message.getParameter("RECEIVER");
 		
-		//Contatto il destinatario scrivendogli di aprire un socket per ricevere il file
-		//Aspetto risposta del destinatario
+		//To network nodes
+		User sender_user=usersbyname.get(sender);
+		User receiver_user=usersbyname.get(receiver);
 		
-		//Leggo risposta
+		//Is receiver a user?
+		if(!usersbyname.containsKey(receiver)) {
+			reply.setParameters("OPERATION:USER_DOES_NOT_EXIST", "BODY:Selected user does not exist");
+			return reply;
+		}
 		
-		//La scrivo in Reply
+		//Are sender and receiver friends?	
+		if(!network.areAdj(sender_user, receiver_user)) {
+			reply.setParameters("OPERATION:PERMISSION_DENIED", "BODY:You and "+receiver+" are not friends");
+			return reply;
+		}
 		
+		//Is receiver online?
+		boolean online;
+		synchronized(receiver_user) {
+			online=receiver_user.isOnline();
+			if(!online) {
+				reply.setParameters("OPERATION:ERR", "BODY:"+receiver+" is offline");
+				return reply;
+			}
+		}
+		
+		//Getting receiver IP and port and writing them into reply
+		reply=message_manager.getReceiverFileSocket(message, sender_user, receiver_user);
+		if(reply==null) {//In case of error
+			reply= new ResponseMessage();
+			reply.setParameters("OPERATION:ERR", "BODY:Error while contacting with "+receiver);
+		} else {//Else
+			reply.setParameters("OPERATION:OK");
+		}
 		return reply;
 	}
 
+
+	/**
+	 * REQUIRES: 
+	 * 	-	sender_user and receiver user are friends
+	 * The function translates the message into the receiver language
+	 * If receiver_user is online, the message is sent
+	 * @param message
+	 * @return
+	 */
 	private ResponseMessage msgToFriend(RequestMessage message) {
 		//Creation reply message
 		ResponseMessage reply= new ResponseMessage();
@@ -293,12 +360,17 @@ public class RequestManager implements Runnable {
 		//Getting relevant fields
 		String sender= (String) message.getParameter("SENDER");
 		String receiver= (String) message.getParameter("RECEIVER");
-		String body= (String) message.getParameter("BODY");
 		
 		//To network nodes
 		User sender_user=usersbyname.get(sender);
 		User receiver_user=usersbyname.get(receiver);
 		
+		//If user doesn't exist
+		if(!usersbyname.containsKey(sender)) {
+			reply.setParameters("OPERATION:PERMISSION_DENIED","BODY:Not a user");
+			return reply;
+		}
+				
 		//Is receiver a user?
 		if(!usersbyname.containsKey(receiver)) {
 			reply.setParameters("OPERATION:USER_DOES_NOT_EXIST", "BODY:Selected user does not exist");
@@ -316,54 +388,19 @@ public class RequestManager implements Runnable {
 		synchronized(receiver_user) {
 			online=receiver_user.isOnline();
 			if(!online) {
-				reply.setParameters("OPERATION:PERMISSION_DENIED", "BODY:You are not friends");
+				reply.setParameters("OPERATION:ERR", "BODY:"+receiver+" is offline");
 				return reply;
 			}
 		}
 		
-		//
+		//Setting reply
 		reply.setParameters("OPERATION:OK"); 
 		
 		//Sending message
-		if(!sendMessage(sender_user, receiver_user, message)) {
+		if(!message_manager.sendMessage(message, sender_user, receiver_user)) {
 			reply.setParameters("OPERATION:ERR");
 		}
 		return reply;
-	}
-
-	/*
-	 * Sappiamo gia che sono amici e che entrambi esistono
-	 * TRADUCE IL MESSAGGIO secondo la lingua di receiver
-	 * Se receiver è online, glie lo manda e restituisce true
-	 * Altrimenti restituisce falso
-	 */
-	/**
-	 * REQUIRES: 
-	 * 	-	sender_user and receiver user are friends
-	 * The function translates the message into the receiver language
-	 * If receiver_user is online, the message is sent
-	 * - Translate 
-	 * @param sender_user
-	 * @param receiver_user
-	 * @param message
-	 * @return true if the message is sent, false otherwise
-	 */
-	private boolean sendMessage(User sender_user, User receiver_user, RequestMessage message) {
-		if(receiver_user.isOnline()) {
-			
-			//Getting translated string
-			String mess=message.translate(sender_user.getLanguage(), receiver_user.getLanguage()).toJSONString();
-			
-			//Getting receiver output stream
-			try {
-				DataOutputStream control_out = new DataOutputStream(receiver_user.getMessagesSocket().getOutputStream());
-				//Sending
-				control_out.writeUTF(mess);
-			}catch(IOException e) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	private ResponseMessage lookup(RequestMessage message) {
@@ -371,8 +408,15 @@ public class RequestManager implements Runnable {
 		ResponseMessage reply= new ResponseMessage();
 		
 		//Getting username
+		String sender= (String) message.getParameter("SENDER");
 		String username= (String) message.getParameter("USERNAME");
 		
+		//If user doesn't exist
+		if(!usersbyname.containsKey(sender)) {
+			reply.setParameters("OPERATION:PERMISSION_DENIED","BODY:Not a user");
+			return reply;
+		}
+				
 		//Setting reply
 		reply.setParameters("OPERATION:OK");
 		if(usersbyname.containsKey(username)) reply.setParameters("BODY:"+true);
@@ -385,7 +429,13 @@ public class RequestManager implements Runnable {
 		ResponseMessage reply= new ResponseMessage();
 		
 		//Getting username
-		String username= (String) message.getParameter("USERNAME");
+		String username= (String) message.getParameter("SENDER");
+		
+		//If user doesn't exist
+		if(!usersbyname.containsKey(username)) {
+			reply.setParameters("OPERATION:PERMISSION_DENIED","BODY:Not a user");
+			return reply;
+		}
 		
 		//Getting user
 		User user=usersbyname.get(username);
@@ -397,12 +447,20 @@ public class RequestManager implements Runnable {
 		return reply;
 	}
 
+	/**
+	 * Assigns the current user to the PrivateMessageManager
+	 * Checks for errors and sets the user online
+	 * @param message
+	 * @param client_control
+	 * @param client_messages
+	 * @return
+	 */
 	private ResponseMessage login(RequestMessage message, Socket client_control, Socket client_messages) {
 		//Creation reply message
 		ResponseMessage reply= new ResponseMessage();
 		
 		//Getting relevant fields
-		String username= (String) message.getParameter("USERNAME");
+		String username= (String) message.getParameter("SENDER");
 		String password= (String) message.getParameter("PASSWORD");
 		
 		//If user doesn't exist
@@ -417,9 +475,17 @@ public class RequestManager implements Runnable {
 			return reply;
 		}
 
-		//else
-		usersbyname.get(username).setOnline(client_control, client_messages);
+		//Getting user
+		User user=usersbyname.get(username);
+		
+		//Setting user online
+		user.setOnline(client_control, client_messages);
+		
+		//Setting reply
 		reply.setParameters("OPERATION:OK");
+		
+		//Adding user to PrivateMessageManager for future message requests
+		message_manager.setSender(user);
 		return reply;
 		}
 
@@ -428,7 +494,7 @@ public class RequestManager implements Runnable {
 		ResponseMessage reply= new ResponseMessage();
 		
 		//Getting username
-		String username= (String) message.getParameter("USERNAME");
+		String username= (String) message.getParameter("SENDER");
 		
 		//List of chatroom the user belongs to
 		ArrayList<String> belonglist= new ArrayList<String>();
@@ -453,7 +519,7 @@ public class RequestManager implements Runnable {
 		ResponseMessage reply= new ResponseMessage();
 		
 		//Extracting relevant fields
-		String username= (String) message.getParameter("USERNAME");
+		String username= (String) message.getParameter("SENDER");
 		String chatroom= (String) message.getParameter("CHATROOM");
 		
 		//Is the sender a user?
@@ -519,7 +585,7 @@ public class RequestManager implements Runnable {
 		ResponseMessage reply= new ResponseMessage();
 		
 		//Extracting relevant fields
-		String username= (String) message.getParameter("USERNAME");
+		String username= (String) message.getParameter("SENDER");
 		String chatroom= (String) message.getParameter("CHATROOM");
 		
 		//Is the sender a user?
@@ -550,8 +616,8 @@ public class RequestManager implements Runnable {
 		ResponseMessage reply= new ResponseMessage();
 		
 		//Extracting relevant fields
-		String username= (String) message.getParameter("USERNAME");
-		String chatroom= (String) message.getParameter("CHATROOM");
+		String username= (String) message.getParameter("SENDER");
+		String chat= (String) message.getParameter("CHATROOM");
 		
 		//Is the sender is not a user
 		/*if(!usersbyname.containsKey(username)) 
@@ -559,14 +625,17 @@ public class RequestManager implements Runnable {
 			return reply;*/
 		
 		//If chatroom doesn't exist
-		if(!chatrooms.containsKey(chatroom)) { //Does chatroom exist?
+		if(!chatrooms.containsKey(chat)) { //Does chatroom exist?
 			reply.setParameters("OPERATION:CHATROOM_DOES_NOT_EXIST");
 			return reply;
 		}
 
 		//Adding user to chatroom
-		chatrooms.get(chatroom).addPartecipant(usersbyname.get(username));
+		Chatroom chatroom=chatrooms.get(chat);
+		chatroom.addPartecipant(usersbyname.get(username));
 		reply.setParameters("OPERATION:OK");
+		reply.setParameters("IP:"+chatroom.getAddress());
+		reply.setParameters("PORT:"+chatroom.getPort());
 		return reply;
 	}
 
@@ -575,7 +644,7 @@ public class RequestManager implements Runnable {
 		ResponseMessage reply= new ResponseMessage();
 		
 		//Extracting relevant fields
-		String username= (String) message.getParameter("USERNAME");
+		String username= (String) message.getParameter("SENDER");
 		String password= (String) message.getParameter("PASSWORD");
 		String language= (String) message.getParameter("LANGUAGE");
 		
@@ -602,24 +671,3 @@ public class RequestManager implements Runnable {
 		}
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

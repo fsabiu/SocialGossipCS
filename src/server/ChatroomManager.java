@@ -65,10 +65,8 @@ public class ChatroomManager extends Thread {
 				e.printStackTrace();
 			}
 		}
-		
 		//Closing socket
 		serverSock.close();
-	
 	}
 
 	public int getListeningPort() {
@@ -78,14 +76,22 @@ public class ChatroomManager extends Thread {
 	private void forwardMessage(byte[] msg) throws IOException {
 		if(msg == null)
 			throw new NullPointerException();
-				
-		//creo il pacchetto da inviare
+		//DatagramPacket creation
 		DatagramPacket message = new DatagramPacket(msg,msg.length,msAddress,socket.getLocalPort());
 		
-		//
-		
-		//invio il messaggio
+		//Sending message
 		socket.send(message);
 	}
+	
+	public boolean sendMessage(String message) {
+		try {
+			byte[] msg= message.getBytes();
+			forwardMessage(msg);
+			return true;
+		}catch(IOException e) {
+			return false;
+		}
+	}
+	
 
 }

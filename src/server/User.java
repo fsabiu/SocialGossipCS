@@ -2,8 +2,8 @@ package server;
 import java.io.Serializable;
 import java.net.Socket;
 
-import communication.RMIServerNotifier;
-
+import communication.RMIServerInterface;
+import communication.RMIClientInterface;
 
 
 /**
@@ -26,8 +26,9 @@ public class User implements Serializable {
 	//Managing connections
 	private transient Socket control_socket=null;
 	private transient Socket messages_socket=null;
+	
 	//RMI Channel
-	private RMIServerNotifier RMIchannel = null;
+	private RMIClientInterface RMIchannel = null;
 	
 	/**
 	 * 
@@ -93,6 +94,10 @@ public class User implements Serializable {
 	}
 	
 	public Socket getMessagesSocket() {
-		return this.getMessagesSocket();
+		return this.messages_socket;
+	}
+	
+	public void setRMIChannel(RMIClientInterface callback) {
+		this.RMIchannel=callback;
 	}
 }

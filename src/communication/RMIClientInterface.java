@@ -13,7 +13,7 @@ import server.User;
  * @author Marco Cardia
  *
  */
-public interface RMIServerNotifier extends Remote {
+public interface RMIClientInterface extends Remote {
 	
 	/**
 	 * Notify to all friends that the user 'friend' is now online 
@@ -24,7 +24,7 @@ public interface RMIServerNotifier extends Remote {
 	
 	/**
 	 * Notify new friendship
-	 * @param new_friend: user that need to be notified
+	 * @param new_friend: user that needs to be notified
 	 */
 	public void newFriendship(User new_friend) throws RemoteException;
 	
@@ -32,8 +32,9 @@ public interface RMIServerNotifier extends Remote {
 	 * Notify to chatroom members that there is a new subscriber
 	 * @param new_subscriber: new member of the chatroom
 	 * @throws RemoteException
-	 */
+	 
 	public void newChatroomSubscriber(User new_subscriber, Chatroom chatroom) throws RemoteException;
+	*/
 	
 	/**
 	 * Notify to chatroom members that chatroom is now closed
