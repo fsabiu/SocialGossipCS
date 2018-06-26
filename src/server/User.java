@@ -93,6 +93,6 @@ public class User implements Serializable {
 	}
 	
 	public Socket getMessagesSocket() {
-		return this.getMessagesSocket();
+		return this.messages_socket;
 	}
 }
