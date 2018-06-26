@@ -2,6 +2,7 @@ package server;
 
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.net.Socket;
 import java.util.HashSet;
 
 import util.PortScanner;
@@ -113,4 +114,21 @@ public class Chatroom {
 	public synchronized String getName() {
 		return this.name;
 	}
+	
+	public ChatroomManager getDispatcher(Chatroom chatroom) {
+		return this.dispatcher;
+	}
+	
+	public InetAddress getAddress(){
+		return this.msAddress;
+	}
+	
+	public synchronized String getIPAddress() {
+		return msAddress.toString().replaceAll("[^\\d.]","");
+	}
+	
+	public synchronized Integer getPort() {
+		return new Integer(msPort);
+	}
+
 }
