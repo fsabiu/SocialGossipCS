@@ -33,7 +33,7 @@ public class RequestManager implements Runnable {
 	private ConcurrentHashMap<String, Chatroom> chatrooms;
 	private ConcurrentHashMap<String, User> usersbyname;
 	private PrivateMessageManager message_manager;
-		
+	private NotificationManager notifier;	
 	/**
 	 * Constructor
 	 * @param client
@@ -53,6 +53,7 @@ public class RequestManager implements Runnable {
 		this.chatrooms=chatrooms;
 		this.usersbyname=usersbyname;
 		this.message_manager=null;
+		this.notifier= new NotificationManager(usersbyname, chatrooms);
 	}
 	
 	@Override
@@ -220,7 +221,7 @@ public class RequestManager implements Runnable {
 		Chatroom chatroom= chatrooms.get(chat);
 		
 		//if user does not belong to chatroom
-		if(!chatroom.isPartecipant(sender_user)) {
+		if(!chatroom.isParticipant(sender_user)) {
 			reply.setParameters("OPERATION:PERMISSION_DENIED", "BODY: Not a member of "+chat+" chatroom");
 			return reply;
 		}
@@ -504,7 +505,7 @@ public class RequestManager implements Runnable {
 		
 		//Filling lists
 		for(Chatroom chatroom: chatrooms.values()) {
-			if(chatroom.isPartecipant(usersbyname.get(username)))
+			if(chatroom.isParticipant(usersbyname.get(username)))
 				belonglist.add(chatroom.getName());
 			else notbelonglist.add(chatroom.getName());
 		}
@@ -586,8 +587,9 @@ public class RequestManager implements Runnable {
 		
 		//Extracting relevant fields
 		String username= (String) message.getParameter("SENDER");
-		String chatroom= (String) message.getParameter("CHATROOM");
+		String chat= (String) message.getParameter("CHATROOM");
 		
+
 		//Is the sender a user?
 		/*if(!usersbyname.containsKey(username)) 
 			reply.setParameters("OPERATION:PERMISSION_DENIED","BODY:Not a user");
@@ -598,16 +600,25 @@ public class RequestManager implements Runnable {
 			reply.setParameters("OPERATION:CHATROOM_DOES_NOT_EXIST");
 			return reply;
 		}
-			
+		
+		//Getting chatroom
+		Chatroom chatroom=chatrooms.get(chat);
+		
 		//Is the user an administrator?
-		if(!chatrooms.get(chatroom).deleteChatroom(usersbyname.get(username))) {
+		if(!chatroom.deleteChatroom(usersbyname.get(username))) {
 			reply.setParameters("OPERATION:PERMISSION_DENIED","BODY:Not an administrator");
 			return reply;
 		} 
 		
 		//else
 		reply.setParameters("OPERATION:OK");
-		chatrooms.remove(chatroom);
+		
+		//Notify users
+		notifier.notifyChatroomClosing(chatroom);
+		
+		//Deleting chat
+		chatrooms.remove(chat);
+		
 		return reply;
 	}
 
@@ -632,10 +643,14 @@ public class RequestManager implements Runnable {
 
 		//Adding user to chatroom
 		Chatroom chatroom=chatrooms.get(chat);
-		chatroom.addPartecipant(usersbyname.get(username));
+		User user= usersbyname.get(username);
+		chatroom.addParticipant(user);
 		reply.setParameters("OPERATION:OK");
 		reply.setParameters("IP:"+chatroom.getAddress());
 		reply.setParameters("PORT:"+chatroom.getPort());
+		
+		//Notify users
+		notifier.notifyChatroomJoin(user, chatroom);
 		return reply;
 	}
 

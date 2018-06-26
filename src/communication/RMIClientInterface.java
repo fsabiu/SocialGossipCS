@@ -32,9 +32,9 @@ public interface RMIClientInterface extends Remote {
 	 * Notify to chatroom members that there is a new subscriber
 	 * @param new_subscriber: new member of the chatroom
 	 * @throws RemoteException
-	 
-	public void newChatroomSubscriber(User new_subscriber, Chatroom chatroom) throws RemoteException;
 	*/
+	public void newChatroomSubscriber(String new_subscriber, String chatroom) throws RemoteException;
+	
 	
 	/**
 	 * Notify to chatroom members that chatroom is now closed

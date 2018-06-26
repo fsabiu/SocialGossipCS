@@ -17,7 +17,7 @@ public class Chatroom {
 	// Properties 
 	private final String name;
 	private HashSet<User> administrators;
-	private HashSet<User> partecipants;
+	private HashSet<User> participants;
 	
 	// Configuration properties
 	private InetAddress msAddress; //Multicast socket IP address
@@ -37,10 +37,10 @@ public class Chatroom {
 	 */
 	public Chatroom(String name, User u,InetAddress msAddress,InetAddress listenAddress) throws Exception {
 		this.administrators= new HashSet<User>();
-		this.partecipants= new HashSet<User>();
+		this.participants= new HashSet<User>();
 		this.name=name;
 		this.administrators.add(u);
-		this.partecipants.add(u);
+		this.participants.add(u);
 		
 		//Multicast configuration
 		this.msAddress=msAddress;
@@ -63,9 +63,9 @@ public class Chatroom {
 	 * @param u
 	 * @throws IllegalArgumentException
 	 */
-	public synchronized void addPartecipant(User u) {
-			if(partecipants.contains(u)) throw new IllegalArgumentException();
-			else this.partecipants.add(u);
+	public synchronized void addParticipant(User u) {
+			if(participants.contains(u)) throw new IllegalArgumentException();
+			else this.participants.add(u);
 	}
 	
 	/**
@@ -73,9 +73,9 @@ public class Chatroom {
 	 * @param u
 	 * @throws IllegalArgumentException
 	 */
-	public synchronized void removePartecipant(User u) {
-		if(!partecipants.contains(u)) throw new IllegalArgumentException();
-		else this.partecipants.remove(u);
+	public synchronized void removeParticipant(User u) {
+		if(!participants.contains(u)) throw new IllegalArgumentException();
+		else this.participants.remove(u);
 	}
 	
 	/**
@@ -84,8 +84,8 @@ public class Chatroom {
 	 * @return true if the user u belongs to this chatroom,
 	 * 			false otherwise
 	 */
-	public synchronized boolean isPartecipant(User u) {
-		if(partecipants.contains(u)) return true;
+	public synchronized boolean isParticipant(User u) {
+		if(participants.contains(u)) return true;
 		else return false;
 	}
 	
@@ -131,4 +131,7 @@ public class Chatroom {
 		return new Integer(msPort);
 	}
 
+	public synchronized HashSet<User> getParticipants() {
+		return this.participants;
+	}
 }

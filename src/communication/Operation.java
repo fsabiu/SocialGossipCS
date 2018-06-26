@@ -29,14 +29,14 @@ public enum Operation {
 	// Files
 	FILE_TO_FRIEND(40),
 	
-	//Notifications
+	/*Notifications
 	NOTIFY_ONLINE_FRIEND(50),
 	NOTIFY_FRIENDSHIP(51),
 	NOTIFY_SUBSCRIPTION(52),
 	NOTIFY_CHATROOM_CLOSED(53),
 	NOTIFY_CHATROOM_MESSAGE(54),
 	NOTIFY_FILE_TO_FRIEND(55),
-	
+	*/
 	
 	// Server replies
 	OK(200),

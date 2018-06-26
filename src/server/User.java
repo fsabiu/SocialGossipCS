@@ -100,4 +100,8 @@ public class User implements Serializable {
 	public void setRMIChannel(RMIClientInterface callback) {
 		this.RMIchannel=callback;
 	}
+	
+	public RMIClientInterface getRMIChannel() {
+		return this.RMIchannel;
+	}
 }
