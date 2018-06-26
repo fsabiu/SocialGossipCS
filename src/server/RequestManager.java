@@ -596,7 +596,7 @@ public class RequestManager implements Runnable {
 		else */
 		
 		//If the chatroom doesn't exists
-		if(!chatrooms.containsKey(chatroom)) {
+		if(!chatrooms.containsKey(chat)) {
 			reply.setParameters("OPERATION:CHATROOM_DOES_NOT_EXIST");
 			return reply;
 		}
