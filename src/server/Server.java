@@ -48,7 +48,8 @@ public class Server implements Runnable{
 		try {
 			
 			//Initializating RMI
-			startRMI();
+			//startRMI();
+			
 			while(true) {
 				//The server is ready to listen new requests
 				Socket Client = listenerSocket.accept();
