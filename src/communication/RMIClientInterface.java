@@ -26,7 +26,7 @@ public interface RMIClientInterface extends Remote {
 	 * Notify new friendship
 	 * @param new_friend: user that needs to be notified
 	 */
-	public void newFriendship(User new_friend) throws RemoteException;
+	public void newFriendship(String username) throws RemoteException;
 	
 	/**
 	 * Notify to chatroom members that there is a new subscriber
@@ -41,19 +41,20 @@ public interface RMIClientInterface extends Remote {
 	 * @param chatroom chatroom to be removed
 	 * @throws RemoteException RMI protocol error
 	 */
-	public void closeChatroom(Chatroom chatroom) throws RemoteException;
+	public void closeChatroom(String chatroom) throws RemoteException;
 	
 	/**
 	 * Notify to chatroom members a new chatroom message
 	 * @param chatroom 
 	 * @throws RemoteException
-	 */
+	 
 	public void chatroomMessage(Chatroom chatroom) throws RemoteException;
-	
+	*/
 	/**
 	 * Notify to a friend a new request to receive a file
 	 * @param friend receiver of the new file
 	 * @throws RemoteException
-	 */
+	 
 	public void fileToFriend(User friend) throws RemoteException;
+	*/
 }

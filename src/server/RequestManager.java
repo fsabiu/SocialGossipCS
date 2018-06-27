@@ -55,7 +55,7 @@ public class RequestManager implements Runnable {
 		this.usersbyname=usersbyname;
 		this.message_manager=null;
 		this.response_manager= new ReplyMessageManager();
-		this.notifier= new NotificationManager(usersbyname, chatrooms);
+		this.notifier= new NotificationManager(usersbyname, chatrooms, network);
 	}
 	
 	@Override
@@ -97,14 +97,13 @@ public class RequestManager implements Runnable {
 					
 					//Executing client request
 					executeRequest(request,control_out);
-					
-					//se un thread che ha avviato un canale di notifica puo' terminare
-					//if(isNotificationThread)
-					//	break;
 				}
 				//client closes connection
 				catch(EOFException e) {
 					System.out.println("Connection closed by client");
+					//SE ERA UN UTENTE LOGGATO, SETTALO OFFLINE
+					//come recuperare l'utente? Propongo che executerequest restituisca 
+					//l'utente (eventuale, altrimenti null) associato alla richiesta
 					break;
 				}
 				catch (IOException e1) {
@@ -122,7 +121,6 @@ public class RequestManager implements Runnable {
 		
 		//Closing 
 		finally {
-			//if(!isNotificationThread)
 			//{
 				try {
 					if(client_control != null) client_control.close();
@@ -207,6 +205,7 @@ public class RequestManager implements Runnable {
 			System.exit(-1);
 		}
 		
+		//Replying to sender
 		if(message_manager!=null) {//replying to user 
 			response_manager.sendMessageToUser(reply, message_manager.getSender());
 		}else {//Sender was not a user
@@ -299,7 +298,7 @@ public class RequestManager implements Runnable {
 		if(online) {
 			network.addEdge(sender_user, receiver_user);
 			reply.setParameters("OPERATION:OK");
-			//NOTIFICATION
+			notifier.notifyFriendship(sender_user, receiver_user);
 		}else {
 			reply.setParameters("OPERATION:USER_OFFLINE");
 		}
@@ -490,6 +489,9 @@ public class RequestManager implements Runnable {
 		
 		//Setting reply
 		reply.setParameters("OPERATION:OK");
+		
+		//Notify friends
+		notifier.notifyOnlineFriend(user);
 		
 		//Adding user to PrivateMessageManager for future message requests
 		message_manager.setSender(user);

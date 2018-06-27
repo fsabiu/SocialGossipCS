@@ -43,9 +43,9 @@ public class PrivateMessageManager implements MessageManager {
 			String mess=translateMessage(message, sender.getLanguage(), receiver.getLanguage()).toJSONString();
 			//Getting receiver output stream
 			try {
-				DataOutputStream control_out = new DataOutputStream(receiver.getMessagesSocket().getOutputStream());
+				DataOutputStream messages_out = new DataOutputStream(receiver.getMessagesSocket().getOutputStream());
 				//Sending
-				control_out.writeUTF(mess);
+				messages_out.writeUTF(mess);
 				return true;
 			}catch(IOException e) {
 				return false;
@@ -57,6 +57,22 @@ public class PrivateMessageManager implements MessageManager {
 		this.sender=sender;
 	}
 	
+	public boolean sendRequestToUser(Message message, User receiver) throws IllegalArgumentException {
+		if(receiver.isOnline()) {
+			String mess=translateMessage(message, sender.getLanguage(), receiver.getLanguage()).toJSONString();
+			//Getting receiver output stream
+			try {
+				DataOutputStream control_out = new DataOutputStream(receiver.getControlSocket().getOutputStream());
+				//Sending
+				control_out.writeUTF(mess);
+				return true;
+			}catch(IOException e) {
+				return false;
+			}
+		} else return false;
+	}
+	
+	
 	public User getSender() {
 		return this.sender;
 	}
@@ -66,7 +82,7 @@ public class PrivateMessageManager implements MessageManager {
 	 * @return fileSock
 	 */
 	public ResponseMessage getReceiverFileSocket(RequestMessage message, User sender, User receiver) {
-		sendMessageToUser(message, receiver);
+		sendRequestToUser(message, receiver);
 		//Get response message from receiver
 		ResponseMessage received= receiveControlMessage(receiver);
 		return received;
