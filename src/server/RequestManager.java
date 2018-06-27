@@ -33,7 +33,7 @@ public class RequestManager implements Runnable {
 	private ConcurrentHashMap<String, Chatroom> chatrooms;
 	private ConcurrentHashMap<String, User> usersbyname;
 	private PrivateMessageManager message_manager;
-	private ResponseMessageManager response_manager;
+	private ReplyMessageManager response_manager;
 	private NotificationManager notifier;	
 	/**
 	 * Constructor
@@ -54,7 +54,7 @@ public class RequestManager implements Runnable {
 		this.chatrooms=chatrooms;
 		this.usersbyname=usersbyname;
 		this.message_manager=null;
-		this.response_manager= new ResponseMessageManager();
+		this.response_manager= new ReplyMessageManager();
 		this.notifier= new NotificationManager(usersbyname, chatrooms);
 	}
 	

@@ -5,9 +5,9 @@ import java.io.IOException;
 
 import communication.Message;
 
-public class ResponseMessageManager implements MessageManager {
+public class ReplyMessageManager implements MessageManager {
 
-	public ResponseMessageManager() {
+	public ReplyMessageManager() {
 		
 	}
 	/**
