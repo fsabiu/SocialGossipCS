@@ -1,15 +1,11 @@
 package client;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.nio.channels.ServerSocketChannel;
-
 import communication.RequestMessage;
 import util.Config;
 import util.PortScanner;
@@ -21,7 +17,6 @@ public class Client implements Runnable{
 	private static LoginGUI loginGUI;
 	
 	public Client() {
-		Client.loginGUI=new LoginGUI();
 	}
 	
 	@Override
@@ -35,14 +30,12 @@ public class Client implements Runnable{
 			setMessageConnection();
 			
 			//Creating class used to send new requests 
-			RequestSender request_sender= new RequestSender(server_control_socket,server_message_socket,loginGUI);
-			
+			RequestMaker request_maker= new RequestMaker(server_control_socket,server_message_socket,loginGUI);
+			loginGUI=new LoginGUI(request_maker);
+			loginGUI.setVisible(true);
 			//Creating a thread used to listen private messages 
-			MessageListener message_listener= new MessageListener();
-			message_listener.start();
-			
-			//GUI GESTIONE RICHIESTE!!!!!
-			request_sender.start();
+			//MessageListener message_listener= new MessageListener();
+			//message_listener.start();
 			
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
@@ -96,8 +89,6 @@ public class Client implements Runnable{
 		
 		//Client client=new Client(args[0]);
 		Client client=new Client("localhost");
-		
-		loginGUI.setVisible(true);
 		client.run();
 	}
 
