@@ -30,7 +30,12 @@ public class ReplyMessageManager implements MessageManager {
 	}
 
 	public boolean sendReply(Message message, DataOutputStream control_out){
-		return false;
-		
+		try {
+			//Sending
+			control_out.writeUTF(message.toString());
+			return true;
+		}catch(IOException e) {
+			return false;
+		}
 	}
 }
