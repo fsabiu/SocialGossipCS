@@ -19,7 +19,7 @@ public class ReplyMessageManager implements MessageManager {
 			String mess=message.toString();
 			//Getting receiver output stream
 			try {
-				DataOutputStream control_out = new DataOutputStream(receiver.getMessagesSocket().getOutputStream());
+				DataOutputStream control_out = receiver.getOutputStream();
 				//Sending
 				control_out.writeUTF(mess);
 				return true;

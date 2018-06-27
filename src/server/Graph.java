@@ -97,4 +97,5 @@ public class Graph<E> {
     	if(this.adjacencyList.get(e1).contains(e2)) return true;
     	else return false;
     }
+    
 }

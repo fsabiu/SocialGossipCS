@@ -12,11 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import communication.Operation;
 import communication.RequestMessage;
 import communication.ResponseMessage;
 import util.Config;
@@ -199,7 +194,7 @@ public class RequestManager implements Runnable {
 					reply=listFriends(message);
 					break;
 				case "LOGIN":
-					reply=login(message, client_control, client_messages);
+					reply=login(message, client_control, client_messages, out);
 					break;
 				case "LOGOUT":
 					reply=logout(message);
@@ -478,7 +473,7 @@ public class RequestManager implements Runnable {
 	 * @param client_messages
 	 * @return
 	 */
-	private ResponseMessage login(RequestMessage message, Socket client_control, Socket client_messages) {
+	private ResponseMessage login(RequestMessage message, Socket client_control, Socket client_messages, DataOutputStream out) {
 		//Creation reply message
 		ResponseMessage reply= new ResponseMessage();
 		
@@ -503,8 +498,8 @@ public class RequestManager implements Runnable {
 		//Getting user
 		User user=usersbyname.get(username);
 		
-		//Setting user online
-		user.setOnline(client_control, client_messages);
+		//Setting user as online
+		user.setOnline(client_control, client_messages, out);
 		
 		//Setting reply
 		reply.setParameters("OPERATION:OK");

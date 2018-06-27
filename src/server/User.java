@@ -1,4 +1,5 @@
 package server;
+import java.io.DataOutputStream;
 import java.io.Serializable;
 import java.net.Socket;
 
@@ -26,6 +27,7 @@ public class User implements Serializable {
 	//Managing connections
 	private transient Socket control_socket=null;
 	private transient Socket messages_socket=null;
+	DataOutputStream out=null;
 	
 	//RMI Channel
 	private RMIClientInterface RMIchannel = null;
@@ -64,9 +66,10 @@ public class User implements Serializable {
 		return false;
 	}
 	
-	public synchronized void setOnline(Socket control, Socket messages) {
+	public synchronized void setOnline(Socket control, Socket messages, DataOutputStream out) {
 		setControlSocket(control);
 		setMessagesSocket(messages);
+		this.out=out;
 		this.online=true;
 	}
 	
@@ -103,5 +106,9 @@ public class User implements Serializable {
 	
 	public RMIClientInterface getRMIChannel() {
 		return this.RMIchannel;
+	}
+	
+	public DataOutputStream getOutputStream() {
+		return this.out;
 	}
 }
