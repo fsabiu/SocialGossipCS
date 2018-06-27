@@ -25,14 +25,16 @@ public class Client implements Runnable{
 			//Starting new control connection with Server
 			Socket server_control= new Socket(InetAddress.getByName(Config.SERVER_HOST_NAME),Config.SERVER_TCP_PORT);
 			setServerControlSocket(server_control);
-			
 			//Setting new message connection with Server
 			setMessageConnection();
 			
-			//Creating class used to send new requests 
+			System.out.println("Connection established with server");
 			RequestMaker request_maker= new RequestMaker(server_control_socket,server_message_socket,loginGUI);
 			loginGUI=new LoginGUI(request_maker);
 			loginGUI.setVisible(true);
+			//Creating class used to send new requests 
+			
+			
 			//Creating a thread used to listen private messages 
 			//MessageListener message_listener= new MessageListener();
 			//message_listener.start();
@@ -43,14 +45,14 @@ public class Client implements Runnable{
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} finally {
+		} finally {/*
 			try {
 				server_control_socket.close();
 				server_message_socket.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
+			}*/
 		}
 	}
 	
@@ -89,6 +91,7 @@ public class Client implements Runnable{
 		
 		//Client client=new Client(args[0]);
 		Client client=new Client("localhost");
+		System.out.println("Client started");
 		client.run();
 	}
 

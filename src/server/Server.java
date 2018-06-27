@@ -45,6 +45,8 @@ public class Server implements Runnable{
 				//The server is ready to listen new requests
 				Socket Client = listenerSocket.accept();
 				
+				System.out.println("Server: client accepted");
+				
 				//Submitting client requests to the thread pool
 				performer.submit(new RequestManager(Client,network,chatrooms, usersbyname));
 				
@@ -60,10 +62,12 @@ public class Server implements Runnable{
 	/**
 	 * It creates the instance of the server through its constructor
 	 */
-	public static void main() {
+	public static void main(String[] args) {
 		try {
 			//Creating instance of the Server
 			Server CSServer= new Server(Config.SERVER_TCP_PORT);
+			
+			System.out.println("New server created");
 			
 			//Running the server
 			CSServer.run();

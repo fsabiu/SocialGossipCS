@@ -101,8 +101,8 @@ public class LoginGUI extends GUI{
 		btnSignIn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				setVisible(false);
-				RegistrationGUI registrationGUI=new RegistrationGUI(frmSocialgossip);
-				
+				System.out.println("Creo interfaccia registrazione");
+				new RegistrationGUI(frmSocialgossip);
 			}
 		});
 		btnSignIn.setToolTipText("Registrati a SocialGossip");

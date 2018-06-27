@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import communication.Operation;
@@ -60,6 +62,8 @@ public class RequestManager implements Runnable {
 	
 	@Override
 	public void run() {
+		System.out.println("SERVER: Sono il request manager");
+		
 		
 		//Declaring control stream addresses
 		DataInputStream control_in = null;
@@ -72,38 +76,51 @@ public class RequestManager implements Runnable {
 			//Reading handshake data
 			client_control.setSoTimeout(1500);
 			String handshake = control_in.readUTF();
-			JSONParser parser= new JSONParser();
-			RequestMessage message= (RequestMessage) parser.parse(handshake);
+			
+			RequestMessage handshake_message=new RequestMessage();
+			handshake_message.parseToMessage(handshake);
 			
 			//Getting IP from handshake message
-			String IPString = (String) message.getParameter("IP");
-			String portString = (String) message.getParameter("PORT");
+			String IPString = (String) handshake_message.getParameter("IP");
+			String portString = (String) handshake_message.getParameter("PORT");
 			
 			//Converting
 			InetAddress IP= InetAddress.getByName(IPString);
 			int port= Integer.parseInt(portString);
 			
+			System.out.println("Server: asking for connection to "+IPString+":"+portString);
+			
 			//Asking for connection
 			client_messages=new Socket(IP, port);
+			
+			System.out.println("Server: hanshake with client terminated");
+			
+			User connection_user=null;
 			
 			//Repeat until the client is connected
 			while(true) {
 				try {
 					//Reading client message
 					String request = control_in.readUTF();
+
+					//Parsing String to Message
+					RequestMessage message=new RequestMessage();
+					message.parseToMessage(request);
 					
 					//Debug print
-					System.out.println("received: "+request);
+					System.out.println("SERVER: received: "+request);
 					
 					//Executing client request
-					executeRequest(request,control_out);
+					connection_user= executeRequest(message,control_out);
 				}
 				//client closes connection
 				catch(EOFException e) {
 					System.out.println("Connection closed by client");
 					//SE ERA UN UTENTE LOGGATO, SETTALO OFFLINE
-					//come recuperare l'utente? Propongo che executerequest restituisca 
-					//l'utente (eventuale, altrimenti null) associato alla richiesta
+					if (connection_user!=null) {
+						message_manager.setSender(null);
+						connection_user.setOffline();
+					}
 					break;
 				}
 				catch (IOException e1) {
@@ -114,9 +131,6 @@ public class RequestManager implements Runnable {
 		} 
 		catch (IOException e1) {
 			System.out.println("IO Exception while instantiating client connection");
-		} catch (ParseException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
 		}
 		
 		//Closing 
@@ -135,18 +149,23 @@ public class RequestManager implements Runnable {
 	}
 
 
-	private void executeRequest(String request, DataOutputStream out) {
-		// TODO Auto-generated method stub
-
+	private User executeRequest(RequestMessage message, DataOutputStream out) {
+		
+		User connection_user=null;
+		
 		//Creation reply message
 		ResponseMessage reply=null;
-		try {
-			//Parsing JSON message
-			JSONParser parser= new JSONParser();
-			RequestMessage message= (RequestMessage) parser.parse(request);
+		try {		
+			//Getting operation from RequestMessage
+			//Operation op = (Operation) message.getParameter("OPERATION");
+			String op = (String) message.getParameter("OPERATION");
+			String sender= (String) message.getParameter("SENDER");
 			
-			//Getting operation from JSONObject
-			Operation op = (Operation) message.getParameter("OPERATION");
+			//Getting the user of current connection, if it exists
+			//In this way, if he closes the connection we can set it offline 
+			connection_user= usersbyname.get(sender);
+			
+			System.out.println("Server: l'operazione è: "+op);
 			
 			//Validating operation field
 			if(op==null) {
@@ -154,63 +173,61 @@ public class RequestManager implements Runnable {
 				reply= new ResponseMessage();
 				reply.setParameters("OPERATION:ERR","BODY:Invalid request received");
 			}
-			
-			
 			switch(op) {
-				case REGISTER:
+				case "REGISTER":
 					reply=registerUser(message);
 					break;
-				case CHAT_ADDING:
+				case "CHAT_ADDING":
 					reply=addToChat(message);
 					break;
-				case CHAT_CLOSING:
+				case "CHAT_CLOSING":
 					reply=closeChat(message);
 					break;
-				case CHAT_CREATION: 
+				case "CHAT_CREATION": 
 					reply=createChat(message);
 					break;
-				case CHAT_LISTING:
+				case "CHAT_LISTING":
 					reply=listChat(message);
 					break;
-				case FILE_TO_FRIEND:
+				case "FILE_TO_FRIEND":
 					reply=fileToFriend(message);
 					break;
-				case FRIENDSHIP:
+				case "FRIENDSHIP":
 					reply=friendship(message);
 					break;
-				case LIST_FRIENDS:
+				case "LIST_FRIENDS":
 					reply=listFriends(message);
 					break;
-				case LOGIN:
+				case "LOGIN":
 					reply=login(message, client_control, client_messages);
 					break;
-				case LOGOUT:
+				case "LOGOUT":
 					reply=logout(message);
 					break;
-				case LOOKUP:
+				case "LOOKUP":
 					reply=lookup(message);
 					break;
-				case MSG_TO_CHATROOM:
+				case "MSG_TO_CHATROOM":
 					reply=msgToChatroom(message);
 					break;
-				case MSG_TO_FRIEND:
+				case "MSG_TO_FRIEND":
 					reply=msgToFriend(message);
 					break;
 				default:
 					break;
 			}
-		} catch(ParseException e) {
-			
 		} catch(IllegalArgumentException e) {
 			System.exit(-1);
 		}
 		
 		//Replying to sender
 		if(message_manager!=null) {//replying to user 
+			System.out.println("Sender: "+message_manager.getSender()+" è online? "+message_manager.getSender().isOnline());
 			response_manager.sendMessageToUser(reply, message_manager.getSender());
 		}else {//Sender was not a user
 			response_manager.sendReply(reply, out);
 		}
+		return connection_user;
 	}
 
 	private ResponseMessage msgToChatroom(RequestMessage message) {
@@ -469,6 +486,8 @@ public class RequestManager implements Runnable {
 		String username= (String) message.getParameter("SENDER");
 		String password= (String) message.getParameter("PASSWORD");
 		
+		System.out.println("Il sender è "+username+" la password "+password);
+		
 		//If user doesn't exist
 		if(!usersbyname.containsKey(username)) {
 			reply.setParameters("OPERATION:PERMISSION_DENIED","BODY:Not a user");
@@ -493,8 +512,13 @@ public class RequestManager implements Runnable {
 		//Notify friends
 		notifier.notifyOnlineFriend(user);
 		
+		System.out.println("Nome utente "+user.toString());
+		
 		//Adding user to PrivateMessageManager for future message requests
+		message_manager=new PrivateMessageManager();
 		message_manager.setSender(user);
+		
+		System.out.println("Terminato il login");
 		return reply;
 		}
 
@@ -670,7 +694,7 @@ public class RequestManager implements Runnable {
 		String username= (String) message.getParameter("SENDER");
 		String password= (String) message.getParameter("PASSWORD");
 		String language= (String) message.getParameter("LANGUAGE");
-		
+		System.out.println("Server: sono in register");
 		try {
 			//If user already exists
 			if(usersbyname.containsKey(username)) {

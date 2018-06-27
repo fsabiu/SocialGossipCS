@@ -12,4 +12,10 @@ public class RequestMessage extends Message {
 		j_message.put("TYPE", "request");
 		j_message.put("SENDER", sender);		
 	}
+	
+	@SuppressWarnings("unchecked")
+	public RequestMessage() {
+		super();
+		j_message.put("TYPE", "request");
+	}
 }

@@ -39,6 +39,7 @@ public class RegistrationGUI extends GUI{
 		
 		private void initWindowContent(){
 			RegistrationGUI registrationGui=this;
+			setVisible(true);
 			this.setResizable(false);
 			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			setBounds(100, 100, 800, 600);
@@ -60,7 +61,7 @@ public class RegistrationGUI extends GUI{
 			btnInvia = new JButton("Invia");
 			btnInvia.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					
+					System.out.println(e.getActionCommand());
 					//Sending registration request
 					request_maker.eventsHandler(registrationGui,e.getActionCommand());
 				}
@@ -113,7 +114,7 @@ public class RegistrationGUI extends GUI{
 			btnTornaALogin = new JButton("Torna a Login");
 			btnTornaALogin.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					contentPane.setVisible(false);
+					registrationGui.setVisible(false);
 					logInPage.setVisible(true);
 				}
 			});

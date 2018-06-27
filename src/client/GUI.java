@@ -3,10 +3,14 @@ package client;
 import javax.swing.JFrame;
 
 public class GUI extends JFrame{
-	protected RequestMaker request_maker;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	protected static RequestMaker request_maker;
 	
 	public GUI(RequestMaker request_maker) {
-		this.request_maker=request_maker;
+		GUI.request_maker=request_maker;
 	}
 	
 	public GUI() {
