@@ -30,6 +30,7 @@ public class RegistrationGUI extends GUI{
 		private JButton btnInvia;
 		private JComboBox<String> comboBox;
 		private JFrame logInPage;
+		private JLabel registrationReply;
 
 		public RegistrationGUI(JFrame logInPage) {
 			super();
@@ -50,12 +51,12 @@ public class RegistrationGUI extends GUI{
 			
 			JLabel lblPassword = new JLabel("Password");
 			lblPassword.setFont(new Font("Dialog", Font.BOLD, 19));
-			lblPassword.setBounds(51, 228, 165, 35);
+			lblPassword.setBounds(46, 264, 165, 35);
 			contentPane.add(lblPassword);
 			
 			JLabel lblUsername = new JLabel("Username");
 			lblUsername.setFont(new Font("Dialog", Font.BOLD, 19));
-			lblUsername.setBounds(51, 148, 165, 15);
+			lblUsername.setBounds(46, 184, 165, 15);
 			contentPane.add(lblUsername);
 			
 			btnInvia = new JButton("Invia");
@@ -72,12 +73,12 @@ public class RegistrationGUI extends GUI{
 			
 			comboBox = new JComboBox<String>();
 			comboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"it", "en", "fr", "de", "es", "ja", "la", "pt", "ro", "ru", "sk", "sl", "sq"}));
-			comboBox.setBounds(260, 360, 101, 35);
+			comboBox.setBounds(255, 396, 101, 35);
 			contentPane.add(comboBox);
 			
 			JLabel linguaLabel = new JLabel("Seleziona Lingua");
 			linguaLabel.setFont(new Font("Dialog", Font.BOLD, 19));
-			linguaLabel.setBounds(50, 360, 216, 29);
+			linguaLabel.setBounds(45, 396, 216, 29);
 			contentPane.add(linguaLabel);
 			
 			usernameField = new JTextField();
@@ -85,7 +86,7 @@ public class RegistrationGUI extends GUI{
 			usernameField.setForeground(new Color(150, 150, 150));
 			usernameField.setFont(new Font("Dialog", Font.PLAIN, 18));
 			usernameField.setColumns(10);
-			usernameField.setBounds(51, 169, 310, 48);
+			usernameField.setBounds(46, 205, 310, 48);
 			contentPane.add(usernameField);
 			
 			JLabel lblRegistratiSuSocialgossip = new JLabel("Registrati su SocialGossip");
@@ -103,7 +104,7 @@ public class RegistrationGUI extends GUI{
 			
 			passwordField = new JPasswordField();
 			passwordField.setFont(new Font("Dialog", Font.PLAIN, 17));
-			passwordField.setBounds(51, 259, 310, 48);
+			passwordField.setBounds(46, 295, 310, 48);
 			contentPane.add(passwordField);
 			
 			JLabel lblSeiGiaRegistrato = new JLabel("Sei gia' registrato?");
@@ -121,10 +122,18 @@ public class RegistrationGUI extends GUI{
 			btnTornaALogin.setActionCommand("BackToLogIn");
 			btnTornaALogin.setBounds(503, 460, 180, 50);
 			contentPane.add(btnTornaALogin);
+			
+			registrationReply = new JLabel("");
+			registrationReply.setBounds(46, 92, 310, 64);
+			contentPane.add(registrationReply);
 		}
 		
 		public JComboBox<String> getComboBox() {
 			return comboBox;
+		}
+		
+		public JLabel getRegistrationReply() {
+			return registrationReply;
 		}
 		
 		public JButton getBtnInvia() {

@@ -29,6 +29,7 @@ public class LoginGUI extends GUI{
 	private JTextField usernameField;
 	private JButton btnLogin;
 	private JButton btnSignIn;
+	private JLabel loginResponse;
 
 	/**
 	 * Create the application.
@@ -74,6 +75,9 @@ public class LoginGUI extends GUI{
 		btnLogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				request_maker.eventsHandler(loginGui, e.getActionCommand());
+				usernameField.setText("");
+				passwordField.setText("");
+				loginResponse.setText("");
 			}
 		});
 		btnLogin.setToolTipText("Invia richiesta di Login");
@@ -103,6 +107,9 @@ public class LoginGUI extends GUI{
 				setVisible(false);
 				System.out.println("Creo interfaccia registrazione");
 				new RegistrationGUI(frmSocialgossip);
+				usernameField.setText("");
+				passwordField.setText("");
+				loginResponse.setText("");
 			}
 		});
 		btnSignIn.setToolTipText("Registrati a SocialGossip");
@@ -120,6 +127,11 @@ public class LoginGUI extends GUI{
 		separator.setBackground(new Color(0, 0, 0));
 		separator.setBounds(0, 120, 800, 10);
 		frmSocialgossip.getContentPane().add(separator);
+		
+		loginResponse = new JLabel("");
+		loginResponse.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		loginResponse.setBounds(250, 503, 310, 43);
+		frmSocialgossip.getContentPane().add(loginResponse);
 	}
 	/*
 	public void setLoginListener(RequestSender listener) {
@@ -127,8 +139,18 @@ public class LoginGUI extends GUI{
 		btnSignIn.addActionListener(listener);
 	}
 	*/
+	
 	public JButton getBtnLogin() {
 		return btnLogin;
+	}
+	
+	public void createSGHome(){
+		setVisible(false);
+		new SocialGossipHomeGUI(frmSocialgossip);
+	}
+	
+	public JLabel getLoginResponse() {
+		return loginResponse;
 	}
 
 	public JButton getBtnSignIn() {
