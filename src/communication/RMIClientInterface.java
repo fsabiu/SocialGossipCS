@@ -3,8 +3,6 @@ package communication;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-import server.Chatroom;
-import server.User;
 
 /**
  * 

@@ -2,8 +2,6 @@ package server;
 import java.io.DataOutputStream;
 import java.io.Serializable;
 import java.net.Socket;
-
-import communication.RMIServerInterface;
 import communication.RMIClientInterface;
 
 

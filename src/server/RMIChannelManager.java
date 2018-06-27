@@ -1,6 +1,6 @@
 package server;
 
-import java.rmi.RemoteException;
+
 import java.rmi.server.RemoteObject;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -9,6 +9,10 @@ import communication.RMIServerInterface;
 
 public class RMIChannelManager extends RemoteObject implements RMIServerInterface /* implements RMIServerInterface */ {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private ConcurrentHashMap<String, User> usersbyname;
 	
 	public RMIChannelManager(ConcurrentHashMap<String, User> usersbyname) {
