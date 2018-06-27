@@ -68,4 +68,16 @@ public abstract class Message {
 		} 
 		return j_message;
 	}
+	
+	public Message parseToMessage(String str) {
+		JSONParser parser= new JSONParser();
+		try {
+			JSONObject message= (JSONObject) parser.parse(str);
+			this.j_message=message;
+			return this;
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			return null;
+		}
+	}
 }
