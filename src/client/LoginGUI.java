@@ -12,25 +12,29 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 
 import javax.swing.JSeparator;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 /**
- * GUI della form di registrazione
- * @author Gionatha Sturba
+ * Login GUI
+ * @author Marco Cardia
+ * @author Francesco Sabiu
  *
  */
-public class LoginGUI {
+public class LoginGUI extends GUI{
 
+	private static final long serialVersionUID = 1L;
 	private JFrame frmSocialgossip;
 	private JPasswordField passwordField;
 	private JTextField usernameField;
 	private JButton btnLogin;
-	private JButton RegisterButton;
+	private JButton btnSignIn;
 
 	/**
 	 * Create the application.
 	 */
-	public LoginGUI() 
-	{
+	public LoginGUI(RequestMaker request_maker) {
+		super(request_maker);
 		initializeWindowContent();
 	}
 	
@@ -38,6 +42,7 @@ public class LoginGUI {
 	 * Inizializza il contenuto della finestra
 	 */
 	private void initializeWindowContent() {
+		LoginGUI loginGui=this;
 		frmSocialgossip = new JFrame();
 		frmSocialgossip.setTitle("SocialGossip");
 		frmSocialgossip.setResizable(false);
@@ -65,6 +70,12 @@ public class LoginGUI {
 		frmSocialgossip.getContentPane().add(passwordField);
 		
 		btnLogin = new JButton("Login");
+		btnLogin.setActionCommand("LOGIN");
+		btnLogin.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				request_maker.eventsHandler(loginGui, e.getActionCommand());
+			}
+		});
 		btnLogin.setToolTipText("Invia richiesta di Login");
 		btnLogin.setFont(new Font("Dialog", Font.BOLD, 14));
 		btnLogin.setBackground(UIManager.getColor("Button.disabledText"));
@@ -85,11 +96,19 @@ public class LoginGUI {
 		lblBenvenutoInSocialgossip.setBounds(205, 38, 460, 55);
 		frmSocialgossip.getContentPane().add(lblBenvenutoInSocialgossip);
 		
-		RegisterButton = new JButton("Registrati");
-		RegisterButton.setToolTipText("Registrati a SocialGossip");
-		RegisterButton.setFont(new Font("Dialog", Font.BOLD, 14));
-		RegisterButton.setBounds(250, 430, 310, 48);
-		frmSocialgossip.getContentPane().add(RegisterButton);
+		btnSignIn = new JButton("Registrati");
+		btnSignIn.setActionCommand("REGISTER");
+		btnSignIn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setVisible(false);
+				RegistrationGUI registrationGUI=new RegistrationGUI(frmSocialgossip);
+				
+			}
+		});
+		btnSignIn.setToolTipText("Registrati a SocialGossip");
+		btnSignIn.setFont(new Font("Dialog", Font.BOLD, 14));
+		btnSignIn.setBounds(250, 430, 310, 48);
+		frmSocialgossip.getContentPane().add(btnSignIn);
 		
 		JLabel lblOppure = new JLabel("oppure");
 		lblOppure.setForeground(Color.BLACK);
@@ -102,18 +121,18 @@ public class LoginGUI {
 		separator.setBounds(0, 120, 800, 10);
 		frmSocialgossip.getContentPane().add(separator);
 	}
-	
+	/*
 	public void setLoginListener(RequestSender listener) {
 		btnLogin.addActionListener(listener);
-		RegisterButton.addActionListener(listener);
+		btnSignIn.addActionListener(listener);
 	}
-	
+	*/
 	public JButton getBtnLogin() {
 		return btnLogin;
 	}
 
-	public JButton getRegisterButton() {
-		return RegisterButton;
+	public JButton getBtnSignIn() {
+		return btnSignIn;
 	}
 
 	public JFrame getFrame() {
