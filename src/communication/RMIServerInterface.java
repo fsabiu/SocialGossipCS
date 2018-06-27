@@ -1,14 +1,5 @@
 package communication;
-
-import java.rmi.server.RemoteObject;
-
-
 import java.rmi.Remote;
-import java.rmi.RemoteException;
-
-import server.Chatroom;
-import server.Graph;
-import server.User;
 
 /**
  * 
