@@ -252,6 +252,7 @@ public class RequestManager implements Runnable {
 		
 		//All fine
 		reply.setParameters("OPERATION:OK");
+		reply.setParameters("BODY:Messaggio inviato correttamente a "+chat+".");
 		return reply;
 	}
 
@@ -310,6 +311,7 @@ public class RequestManager implements Runnable {
 		if(online) {
 			network.addEdge(sender_user, receiver_user);
 			reply.setParameters("OPERATION:OK");
+			reply.setParameters("BODY:Tu e "+receiver+" siete ora amici!");
 			notifier.notifyFriendship(sender_user, receiver_user);
 		}else {
 			reply.setParameters("OPERATION:USER_OFFLINE");
@@ -358,6 +360,7 @@ public class RequestManager implements Runnable {
 			reply.setParameters("OPERATION:ERR", "BODY:Error while contacting with "+receiver);
 		} else {//Else
 			reply.setParameters("OPERATION:OK");
+			reply.setParameters("BODY:File inviato con successo!");
 		}
 		return reply;
 	}
@@ -406,13 +409,14 @@ public class RequestManager implements Runnable {
 		synchronized(receiver_user) {
 			online=receiver_user.isOnline();
 			if(!online) {
-				reply.setParameters("OPERATION:ERR", "BODY:"+receiver+" is offline");
+				reply.setParameters("OPERATION:ERR", "BODY:"+receiver+" è offline!");
 				return reply;
 			}
 		}
 		
 		//Setting reply
 		reply.setParameters("OPERATION:OK"); 
+		reply.setParameters("BODY:Messaggio inviato con successo");
 		
 		//Sending message
 		if(!message_manager.sendMessageToUser(message, receiver_user)) {
@@ -437,8 +441,8 @@ public class RequestManager implements Runnable {
 				
 		//Setting reply
 		reply.setParameters("OPERATION:OK");
-		if(usersbyname.containsKey(username)) reply.setParameters("BODY:"+true);
-		else reply.setParameters("BODY:"+false);
+		if(usersbyname.containsKey(username)) reply.setParameters("BODY:"+username+" è iscritto!");
+		else reply.setParameters("BODY:"+"Ci dispiace, "+sender+". "+username+" non è ancora iscritto. Perchè non lo inviti?");
 		return reply;
 	}
 
@@ -462,6 +466,7 @@ public class RequestManager implements Runnable {
 		user.setOffline();
 		
 		reply.setParameters("OPERATION:OK");
+		reply.setParameters("BODY:A presto, "+username+"!");
 		return reply;
 	}
 
@@ -503,6 +508,7 @@ public class RequestManager implements Runnable {
 		
 		//Setting reply
 		reply.setParameters("OPERATION:OK");
+		reply.setParameters("BODY:Bentornato, "+username+". Inizia a chattare!");
 		
 		//Notify friends
 		notifier.notifyOnlineFriend(user);
@@ -591,6 +597,7 @@ public class RequestManager implements Runnable {
 			Chatroom new_chatroom= new Chatroom(chatroom, usersbyname.get(username), msAddress, listenAddress);
 			chatrooms.putIfAbsent(chatroom, new_chatroom);
 			reply.setParameters("OPERATION:OK");
+			reply.setParameters("BODY:Chatroom "+chatroom+" creata con successo!");
 			return reply;
 		} catch (Exception e) {
 			reply.setParameters("OPERATION:ERR", "BODY:Network error while creating chatroom");
@@ -704,10 +711,46 @@ public class RequestManager implements Runnable {
 			
 			//Setting up reply
 			reply.setParameters("OPERATION:OK");
+			reply.setParameters("BODY:Benvenuto in SocialGossip, "+username+": ora sei un utente!");
 			return reply;
 		}catch(IllegalArgumentException e) {
 			reply.setParameters("OPERATION:ERR","BODY:Invalid parameters");
 			return reply;
+		}
+	}
+
+	void chatState(ConcurrentHashMap<String, Chatroom> chatrooms, ConcurrentHashMap<String, User> usersbyname, Graph<User> network) {
+		
+		//PRINT USERS
+		System.out.println("UTENTI");
+		for(String user: usersbyname.keySet()) {
+			System.out.println(user);
+		}
+		
+		//PRINT ONLINE USERS
+		System.out.println("\nUTENTI ONLINE");
+		for(String user: usersbyname.keySet()) {
+			if(usersbyname.get(user).isOnline())
+				System.out.println(user);
+		}
+		
+		//PRINT FRIENDSHIPS
+		System.out.println("\nAMICIZIE");
+		for(String user: usersbyname.keySet()) {
+			 Set<User> friends= network.getAdjVertices((usersbyname.get(user)));
+			 for(User u: friends) {
+				 System.out.println(user+" - "+u.getUsername());
+			 }
+		}
+		
+		//PRINT CHATROOMS
+		System.out.println("\nCHATROOMS");
+		for(String chatroom: chatrooms.keySet()) {
+				 System.out.println(chatroom);
+				 System.out.println("Partecipanti: ");
+				 for (User u:chatrooms.get(chatroom).getParticipants()) {
+					 System.out.println(u.getUsername());
+				 }
 		}
 	}
 }
