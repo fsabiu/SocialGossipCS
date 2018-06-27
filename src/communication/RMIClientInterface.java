@@ -20,7 +20,14 @@ public interface RMIClientInterface extends Remote {
 	 * @param friend: user that is now online
 	 * @throws RemoteException
 	 */
-	public void notifyOnlineFriend(User friend) throws RemoteException;
+	public void notifyOnlineFriend(String friend) throws RemoteException;
+	
+	/**
+	 * Notify to all friends that the user 'friend' is now offline 
+	 * @param friend: user that is now offline
+	 * @throws RemoteException
+	 */
+	public void notifyOfflineFriend(String friend) throws RemoteException;
 	
 	/**
 	 * Notify new friendship
