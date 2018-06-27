@@ -33,6 +33,7 @@ public class RequestManager implements Runnable {
 	private ConcurrentHashMap<String, Chatroom> chatrooms;
 	private ConcurrentHashMap<String, User> usersbyname;
 	private PrivateMessageManager message_manager;
+	private ResponseMessageManager response_manager;
 	private NotificationManager notifier;	
 	/**
 	 * Constructor
@@ -53,6 +54,7 @@ public class RequestManager implements Runnable {
 		this.chatrooms=chatrooms;
 		this.usersbyname=usersbyname;
 		this.message_manager=null;
+		this.response_manager= new ResponseMessageManager();
 		this.notifier= new NotificationManager(usersbyname, chatrooms);
 	}
 	
@@ -137,10 +139,10 @@ public class RequestManager implements Runnable {
 
 	private void executeRequest(String request, DataOutputStream out) {
 		// TODO Auto-generated method stub
+
+		//Creation reply message
+		ResponseMessage reply=null;
 		try {
-			//Creation reply message
-			ResponseMessage reply;
-			
 			//Parsing JSON message
 			JSONParser parser= new JSONParser();
 			RequestMessage message= (RequestMessage) parser.parse(request);
@@ -158,7 +160,7 @@ public class RequestManager implements Runnable {
 			
 			switch(op) {
 				case REGISTER:
-					reply=registerUser(message, client_control);
+					reply=registerUser(message);
 					break;
 				case CHAT_ADDING:
 					reply=addToChat(message);
@@ -202,10 +204,14 @@ public class RequestManager implements Runnable {
 		} catch(ParseException e) {
 			
 		} catch(IllegalArgumentException e) {
-			
+			System.exit(-1);
 		}
 		
-		//Sending reply to client
+		if(message_manager!=null) {//replying to user 
+			response_manager.sendMessageToUser(reply, message_manager.getSender());
+		}else {//Sender was not a user
+			response_manager.sendReply(reply, out);
+		}
 	}
 
 	private ResponseMessage msgToChatroom(RequestMessage message) {
@@ -398,7 +404,7 @@ public class RequestManager implements Runnable {
 		reply.setParameters("OPERATION:OK"); 
 		
 		//Sending message
-		if(!message_manager.sendMessage(message, sender_user, receiver_user)) {
+		if(!message_manager.sendMessageToUser(message, receiver_user)) {
 			reply.setParameters("OPERATION:ERR");
 		}
 		return reply;
@@ -654,7 +660,7 @@ public class RequestManager implements Runnable {
 		return reply;
 	}
 
-	private ResponseMessage registerUser(RequestMessage message, Socket client) {
+	private ResponseMessage registerUser(RequestMessage message) {
 		//Creation reply message
 		ResponseMessage reply= new ResponseMessage();
 		
@@ -669,13 +675,11 @@ public class RequestManager implements Runnable {
 				reply.setParameters("OPERATION:USER_ALREADY_EXISTS","BODY:Username already exists");
 				return reply;
 			}
+			
 			//Adding user to data structures
 			User new_user= new User(username, password, language);
 			usersbyname.putIfAbsent(username, new_user);
 			network.addVertex(new_user);
-			
-			//Setting online user
-			new_user.setOnline(client_control, client_messages);
 			
 			//Setting up reply
 			reply.setParameters("OPERATION:OK");

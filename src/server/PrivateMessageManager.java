@@ -12,19 +12,33 @@ import communication.Message;
 import communication.RequestMessage;
 import communication.ResponseMessage;
 
-public class PrivateMessageManager {
+public class PrivateMessageManager implements MessageManager {
 	User sender;
 	
 	public PrivateMessageManager() {
 		this.sender=null;
 	}
 	
+	/**
+	 * It translates the message
+	 * @param message
+	 * @param from
+	 * @param to
+	 * @return
+	 */
 	private JSONObject translateMessage(Message message, String from, String to) {
 		return message.translate(from, to);
 	}
 	
-	public boolean sendMessage(Message message, User sender, User receiver) throws IllegalArgumentException {
-		if (this.sender!=sender) throw new IllegalArgumentException();
+	/**
+	 * It translates the message and sends it through receiver messagesSocket socket
+	 * @param message
+	 * @param sender
+	 * @param receiver
+	 * @return
+	 * @throws IllegalArgumentException
+	 */
+	public boolean sendMessageToUser(Message message, User receiver) throws IllegalArgumentException {
 		if(receiver.isOnline()) {
 			String mess=translateMessage(message, sender.getLanguage(), receiver.getLanguage()).toJSONString();
 			//Getting receiver output stream
@@ -43,18 +57,27 @@ public class PrivateMessageManager {
 		this.sender=sender;
 	}
 	
+	public User getSender() {
+		return this.sender;
+	}
 	/**
 	 * REQUIRES: sender and receiver are both users and friends.
 	 * @param message
-	 * @return
+	 * @return fileSock
 	 */
 	public ResponseMessage getReceiverFileSocket(RequestMessage message, User sender, User receiver) {
-		sendMessage(message, sender, receiver);
-		ResponseMessage received= receiveMessage(receiver);
+		sendMessageToUser(message, receiver);
+		//Get response message from receiver
+		ResponseMessage received= receiveControlMessage(receiver);
 		return received;
 	}
 	
-	public ResponseMessage receiveMessage(User sender) {
+	/**
+	 * The method receives a control message by the specified sender
+	 * @param sender
+	 * @return
+	 */
+	public ResponseMessage receiveControlMessage(User sender) {
 		try {
 			DataInputStream control_in = new DataInputStream(sender.getControlSocket().getInputStream());
 			
