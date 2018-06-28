@@ -69,7 +69,7 @@ public class RequestManager implements Runnable {
 			control_out = new DataOutputStream(client_control.getOutputStream());
 			
 			//Reading handshake data
-			client_control.setSoTimeout(1500);
+			//client_control.setSoTimeout(1500);
 			String handshake = control_in.readUTF();
 			
 			RequestMessage handshake_message=new RequestMessage();
@@ -215,11 +215,15 @@ public class RequestManager implements Runnable {
 			System.exit(-1);
 		}
 		
+		System.out.println("Out normale: "+out);
+		if(message_manager!=null) System.out.println("Out del manager: "+message_manager.getSender().getOutputStream());
+		
 		//Replying to sender
 		if(message_manager!=null) {//replying to user 
 			System.out.println("Sender: "+message_manager.getSender()+" è online? "+message_manager.getSender().isOnline());
 			response_manager.sendMessageToUser(reply, message_manager.getSender());
 		}else {//Sender was not a user
+			System.out.println("Logout cassau");
 			response_manager.sendReply(reply, out);
 		}
 		return connection_user;
@@ -468,6 +472,9 @@ public class RequestManager implements Runnable {
 
 		//Setting offline
 		user.setOffline();
+		
+		//Unbounding message manager
+		message_manager=null;
 		
 		reply.setParameters("OPERATION:OK");
 		reply.setParameters("BODY:A presto, "+username+"!");

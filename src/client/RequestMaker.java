@@ -1,7 +1,5 @@
 package client;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -92,7 +90,9 @@ public class RequestMaker {
 				//Sending request
 				sendRequest(req);
 				
-				checkResponse();
+				//Printing the reponse
+				ResponseMessage response=checkResponse();
+				((RegistrationGUI) gui).getRegistrationReply().setText((String) response.getParameter("BODY"));
 			}
 			break;
 			case "LOGIN":{
@@ -107,16 +107,44 @@ public class RequestMaker {
 				for(char c: pass) password=password+c;
 				req.setParameters("PASSWORD:"+password);
 				
-				//Sending request
+				//Sending request to server
 				sendRequest(req);
 				
-				checkResponse();
+				//Getting result from server
+				ResponseMessage response=checkResponse();
+				
+				//Showing the result to user
+				((LoginGUI) gui).getLoginResponse().setText((String) response.getParameter("BODY"));
+				
+				if (response.getParameter("OPERATION").equals("OK")) {
+					//Opening chat interface to user
+					((LoginGUI) gui).createSGHome();
+				}
+			}
+			break;
+			case "LOGOUT":{
+				System.out.println("Inviata richiesta logout");
+				
+				//Setting username
+				req.setParameters("SENDER:"+username,"OPERATION:"+event);
+				
+				//Sending request to server
+				sendRequest(req);
+				
+				//Getting response from server
+				ResponseMessage response=checkResponse();
+
+				if (response.getParameter("OPERATION").equals("OK")) {
+					//Opening chat interface to user
+					((SocialGossipHomeGUI) gui).logoutGUI();
+					System.out.println("Logout utente");
+				}
 			}
 			break;
 		}
 	}
 	
-	public void checkResponse() {
+	public ResponseMessage checkResponse() {
 		//Receiving request
 		ResponseMessage reply=receiveResponse();
 		String op= (String) reply.getParameter("OPERATION");
@@ -141,6 +169,8 @@ public class RequestMaker {
 			System.out.println("Operation "+op);
 			break;
 		}
+		
+		return reply;
 	}
 	
 	public ResponseMessage receiveResponse() {
