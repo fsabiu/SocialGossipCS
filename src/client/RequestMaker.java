@@ -6,6 +6,11 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+
+import javax.swing.JOptionPane;
+
+import org.json.simple.JSONArray;
 
 import communication.Operation;
 import communication.RequestMessage;
@@ -75,6 +80,7 @@ public class RequestMaker {
 				req.setParameters("SENDER:"+username,"OPERATION:"+event);
 				
 				//Setting up password
+				password="";
 				char[] pass=((RegistrationGUI) gui).getPasswordField().getPassword();
 				for(char c: pass) {
 					password=password+c;
@@ -138,6 +144,68 @@ public class RequestMaker {
 					//Opening chat interface to user
 					((SocialGossipHomeGUI) gui).logoutGUI();
 					System.out.println("Logout utente");
+				}
+			}
+			break;
+			case "LOOKUP":{
+				System.out.println("Inviata richiesta di ricerca dell'utente");
+				
+				//Setting username and operation field
+				req.setParameters("SENDER:"+username,"OPERATION:"+event);
+				
+				//Setting username to search
+				String user_to_search= ((SocialGossipHomeGUI) gui).getUserSearchField().getText();
+				req.setParameters("USERNAME:"+user_to_search);
+				
+				//Sending request to server
+				sendRequest(req);
+				
+				//Getting response from server
+				ResponseMessage response=checkResponse();
+				
+				if (response.getParameter("OPERATION").equals("OK")) {
+					JOptionPane.showMessageDialog(null, response.getParameter("BODY"));
+				}
+			}
+			break;
+			case "FRIENDSHIP":{
+				System.out.println("Inviata richiesta di amicizia all'utente");
+				
+				//Setting username and operation field
+				req.setParameters("SENDER:"+username,"OPERATION:"+event);
+				
+				//Setting username to search
+				String user_to_add= ((SocialGossipHomeGUI) gui).getUserToAddField().getText();
+				req.setParameters("RECEIVER:"+user_to_add);
+				
+				//Sending request to server
+				sendRequest(req);
+				
+				//Getting response from server
+				ResponseMessage response=checkResponse();
+				
+				if (response.getParameter("OPERATION").equals("OK")) {
+					JOptionPane.showMessageDialog(null, response.getParameter("BODY"));
+					//System.out.println("L'utente è stato aggiunto"+response.getParameter("BODY"));
+				}
+				
+				//RICHIEDO LA LISTA DI AMICI
+				//Setting username and operation field
+				RequestMessage second_req = new RequestMessage(username);
+				second_req.setParameters("OPERATION:LIST_FRIENDS");
+				
+				//Sending request to server
+				sendRequest(second_req);
+				
+				//Getting response from server
+				ResponseMessage second_response=checkResponse();
+				
+				if (second_response.getParameter("OPERATION").equals("OK")) {
+					//Server returns an ArrayList of strings
+					((SocialGossipHomeGUI) gui).setListFriends((String) second_response.getParameter("BODY"));
+					
+					//JSONArray friends= (JSONArray) second_response.getParameter("BODY");
+					//((SocialGossipHomeGUI) gui).setListFriends(friends);
 				}
 			}
 			break;
