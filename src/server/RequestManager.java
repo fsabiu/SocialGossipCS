@@ -119,7 +119,13 @@ public class RequestManager implements Runnable {
 					break;
 				}
 				catch (IOException e1) {
-					System.out.println("IO Exception while reading client message");
+					System.out.println("Connection closed by client");
+					//SE ERA UN UTENTE LOGGATO, SETTALO OFFLINE
+					if (connection_user!=null) {
+						message_manager.setSender(null);
+						connection_user.setOffline();
+					}
+					break;
 				}
 			}
 			
@@ -144,6 +150,7 @@ public class RequestManager implements Runnable {
 	}
 
 
+	@SuppressWarnings("null")
 	private User executeRequest(RequestMessage message, DataOutputStream out) {
 		
 		User connection_user=null;
@@ -161,13 +168,22 @@ public class RequestManager implements Runnable {
 			connection_user= usersbyname.get(sender);
 			
 			System.out.println("Server: l'operazione è: "+op);
-			
+			reply= new ResponseMessage();
 			//Validating operation field
 			if(op==null) {
 				System.out.println("Invalid operation type recived");
-				reply= new ResponseMessage();
 				reply.setParameters("OPERATION:ERR","BODY:Invalid request received");
+			}else {//Checking for self-messages
+				String receiver= (String) message.getParameter("RECEIVER");
+				if(receiver!=null) {
+					if(sender.equals(receiver)){
+						reply.setParameters("OPERATION:ERR","BODY:Non puoi essere tu il destinatario del messaggio!");
+						op="";
+					}
+				}
 			}
+			
+			
 			switch(op) {
 				case "REGISTER":
 					reply=registerUser(message);
@@ -223,9 +239,10 @@ public class RequestManager implements Runnable {
 			System.out.println("Sender: "+message_manager.getSender()+" è online? "+message_manager.getSender().isOnline());
 			response_manager.sendMessageToUser(reply, message_manager.getSender());
 		}else {//Sender was not a user
-			System.out.println("Logout cassau");
 			response_manager.sendReply(reply, out);
 		}
+		
+		System.out.println("Risposta inviata");
 		return connection_user;
 	}
 
@@ -301,13 +318,13 @@ public class RequestManager implements Runnable {
 		
 		//Is receiver a user?
 		if(!usersbyname.containsKey(receiver)) {
-			reply.setParameters("OPERATION:USER_DOES_NOT_EXIST", "BODY:Selected user does not exist");
+			reply.setParameters("OPERATION:USER_DOES_NOT_EXIST", "BODY:L'utente "+receiver+" non esiste!");
 			return reply;
 		}
 		
 		//Are sender and receiver friends?	
 		if(network.areAdj(sender_user, receiver_user)) {
-			reply.setParameters("OPERATION:ERR", "BODY:You and "+receiver+" are already friends");
+			reply.setParameters("OPERATION:ERR", "BODY:Tu e "+receiver+" siete già amici.");
 			return reply;
 		}
 		
@@ -323,6 +340,7 @@ public class RequestManager implements Runnable {
 			notifier.notifyFriendship(sender_user, receiver_user);
 		}else {
 			reply.setParameters("OPERATION:USER_OFFLINE");
+			reply.setParameters("BODY:"+receiver+" non è online, riprova più tardi!");
 		}
 		return reply;
 	}
@@ -341,13 +359,14 @@ public class RequestManager implements Runnable {
 		
 		//Is receiver a user?
 		if(!usersbyname.containsKey(receiver)) {
-			reply.setParameters("OPERATION:USER_DOES_NOT_EXIST", "BODY:Selected user does not exist");
+			reply.setParameters("OPERATION:USER_DOES_NOT_EXIST", "BODY:L'utente "+receiver+" non esiste!");
 			return reply;
 		}
 		
 		//Are sender and receiver friends?	
 		if(!network.areAdj(sender_user, receiver_user)) {
-			reply.setParameters("OPERATION:PERMISSION_DENIED", "BODY:You and "+receiver+" are not friends");
+			reply.setParameters("OPERATION:PERMISSION_DENIED", "BODY:Tu e "+receiver+" non siete amici. Aggiungilo"
+					+ " ai tuoi amici per inviargli un file.");
 			return reply;
 		}
 		
@@ -356,7 +375,7 @@ public class RequestManager implements Runnable {
 		synchronized(receiver_user) {
 			online=receiver_user.isOnline();
 			if(!online) {
-				reply.setParameters("OPERATION:ERR", "BODY:"+receiver+" is offline");
+				reply.setParameters("OPERATION:USER_OFFLINE", "BODY:"+receiver+" is offline");
 				return reply;
 			}
 		}
@@ -396,13 +415,13 @@ public class RequestManager implements Runnable {
 		
 		//If user doesn't exist
 		if(!usersbyname.containsKey(sender)) {
-			reply.setParameters("OPERATION:PERMISSION_DENIED","BODY:Not a user");
+			reply.setParameters("OPERATION:PERMISSION_DENIED","BODY:L'utente "+sender+" non esiste!");
 			return reply;
 		}
 				
 		//Is receiver a user?
 		if(!usersbyname.containsKey(receiver)) {
-			reply.setParameters("OPERATION:USER_DOES_NOT_EXIST", "BODY:Selected user does not exist");
+			reply.setParameters("OPERATION:USER_DOES_NOT_EXIST", "BODY:L'utente "+receiver+" non esiste!");
 			return reply;
 		}
 		
@@ -443,7 +462,7 @@ public class RequestManager implements Runnable {
 		
 		//If user doesn't exist
 		if(!usersbyname.containsKey(sender)) {
-			reply.setParameters("OPERATION:PERMISSION_DENIED","BODY:Not a user");
+			reply.setParameters("OPERATION:PERMISSION_DENIED","BODY:L'utente "+sender+" non esiste!");
 			return reply;
 		}
 				
@@ -499,12 +518,18 @@ public class RequestManager implements Runnable {
 		
 		System.out.println("Il sender è "+username+" la password "+password);
 		
-		//If user doesn't exist
-		if(!usersbyname.containsKey(username)) {
-			reply.setParameters("OPERATION:PERMISSION_DENIED","BODY:Not a user");
+		//If username is not valid
+		if(username.length()==0) {
+			reply.setParameters("OPERATION:ERR","BODY:Invalid username");
 			return reply;
 		}
-			
+		
+		//If user doesn't exist
+		if(!usersbyname.containsKey(username)) {
+			reply.setParameters("OPERATION:PERMISSION_DENIED","BODY:"+username+" non è un utente di SocialGossip. "
+					+ "Registrati per accedere");
+			return reply;
+		}
 		
 		if(!password.equals(usersbyname.get(username).getPassword())) {
 			reply.setParameters("OPERATION:INVALID_CREDENTIALS");
@@ -640,7 +665,7 @@ public class RequestManager implements Runnable {
 			reply.setParameters("OPERATION:PERMISSION_DENIED","BODY:Not a user");
 		else */
 		
-		//If the chatroom doesn't exists
+		//If the chatroom doesn't exist
 		if(!chatrooms.containsKey(chat)) {
 			reply.setParameters("OPERATION:CHATROOM_DOES_NOT_EXIST");
 			return reply;
@@ -676,9 +701,10 @@ public class RequestManager implements Runnable {
 		String chat= (String) message.getParameter("CHATROOM");
 		
 		//Is the sender is not a user
-		/*if(!usersbyname.containsKey(username)) 
-			reply.setParameters("OPERATION:PERMISSION_DENIED","BODY:Not a user");
-			return reply;*/
+		if(!usersbyname.containsKey(username)) {
+			reply.setParameters("OPERATION:PERMISSION_DENIED","BODY:L'utente "+username+" non esiste!");
+			return reply;
+		}
 		
 		//If chatroom doesn't exist
 		if(!chatrooms.containsKey(chat)) { //Does chatroom exist?
@@ -711,7 +737,7 @@ public class RequestManager implements Runnable {
 		try {
 			//If user already exists
 			if(usersbyname.containsKey(username)) {
-				reply.setParameters("OPERATION:USER_ALREADY_EXISTS","BODY:Username already exists");
+				reply.setParameters("OPERATION:USER_ALREADY_EXISTS","BODY:Il nome utente "+username+" esiste già!");
 				return reply;
 			}
 			
