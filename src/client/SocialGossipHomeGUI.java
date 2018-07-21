@@ -47,7 +47,7 @@ public class SocialGossipHomeGUI extends GUI{
 	 * Create the frame.
 	 */
 	public SocialGossipHomeGUI(JFrame loginGUI) {
-		//setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		SocialGossipHomeGUI socialGossipHomeGUI=this;
 		this.loginGUI=loginGUI;
 		setTitle("Social Gossip");

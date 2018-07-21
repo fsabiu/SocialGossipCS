@@ -77,7 +77,6 @@ public class LoginGUI extends GUI{
 				request_maker.eventsHandler(loginGui, e.getActionCommand());
 				usernameField.setText("");
 				passwordField.setText("");
-				loginResponse.setText("");
 			}
 		});
 		btnLogin.setToolTipText("Invia richiesta di Login");
@@ -130,7 +129,7 @@ public class LoginGUI extends GUI{
 		
 		loginResponse = new JLabel("");
 		loginResponse.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		loginResponse.setBounds(250, 503, 310, 43);
+		loginResponse.setBounds(250, 503, 439, 43);
 		frmSocialgossip.getContentPane().add(loginResponse);
 	}
 	/*

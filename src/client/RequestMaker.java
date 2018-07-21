@@ -76,7 +76,11 @@ public class RequestMaker {
 			case "REGISTER":{
 				System.out.println("Inviata richiesta registrazione");
 				//Setting up username
-				username=((RegistrationGUI) gui).getUsernameField().getText();
+				if ((username=((RegistrationGUI) gui).getUsernameField().getText()).equals("")) {
+					//Username is empty
+					((RegistrationGUI) gui).getRegistrationReply().setText("Username field cannot be empty");
+					break;
+				}
 				req.setParameters("SENDER:"+username,"OPERATION:"+event);
 				
 				//Setting up password
@@ -96,7 +100,7 @@ public class RequestMaker {
 				//Sending request
 				sendRequest(req);
 				
-				//Printing the reponse
+				//Printing the response
 				ResponseMessage response=checkResponse();
 				((RegistrationGUI) gui).getRegistrationReply().setText((String) response.getParameter("BODY"));
 			}
@@ -104,7 +108,11 @@ public class RequestMaker {
 			case "LOGIN":{
 				System.out.println("Inviata richiesta login");
 				//Setting username
-				username=((LoginGUI) gui).getUsernameField().getText();
+				if ((username=((LoginGUI) gui).getUsernameField().getText()).equals("")) {
+					//Username is empty
+					((LoginGUI) gui).getLoginResponse().setText("Username field cannot be empty");
+					break;
+				}
 				req.setParameters("SENDER:"+username,"OPERATION:"+event);
 				
 				//Setting password
@@ -184,10 +192,17 @@ public class RequestMaker {
 				//Getting response from server
 				ResponseMessage response=checkResponse();
 				
-				if (response.getParameter("OPERATION").equals("OK")) {
+				JOptionPane.showMessageDialog(null, response.getParameter("BODY"));
+				//TODO SWITCH CASE
+				/*if (response.getParameter("OPERATION").equals("OK")) {
 					JOptionPane.showMessageDialog(null, response.getParameter("BODY"));
 					//System.out.println("L'utente è stato aggiunto"+response.getParameter("BODY"));
 				}
+				//Other user is offline, show error message
+				else if (response.getParameter("OPERATION").equals("USER_OFFLINE")) {
+					JOptionPane.showMessageDialog(null, response.getParameter("BODY"));
+				}
+				else if */
 				
 				//RICHIEDO LA LISTA DI AMICI
 				//Setting username and operation field
@@ -232,6 +247,7 @@ public class RequestMaker {
 				break;
 			case "ERR":
 				System.out.println("Errore generico");
+				System.out.println("Errore: "+reply.getParameter("BODY"));
 				break;
 		default:
 			System.out.println("Operation "+op);
