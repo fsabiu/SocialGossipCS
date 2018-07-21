@@ -18,31 +18,31 @@ public class NotificationReceiver extends RemoteObject implements RMIClientInter
 	
 	@Override
 	public void notifyOnlineFriend(String friend) throws RemoteException {
-		// TODO Auto-generated method stub
+		// Show notification to GUI
 		
 	}
 
 	@Override
 	public void notifyOfflineFriend(String friend) throws RemoteException {
-		// TODO Auto-generated method stub
+		// Show notification to GUI
 		
 	}
 
 	@Override
 	public void newFriendship(String username) throws RemoteException {
-		// TODO Auto-generated method stub
+		// Show notification to GUI
 		
 	}
 
 	@Override
 	public void newChatroomSubscriber(String new_subscriber, String chatroom) throws RemoteException {
-		// TODO Auto-generated method stub
+		// Show notification to GUI
 		
 	}
 
 	@Override
 	public void closeChatroom(String chatroom) throws RemoteException {
-		// TODO Auto-generated method stub
+		// Show notification to GUI
 		
 	}
 
