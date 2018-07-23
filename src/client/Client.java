@@ -89,8 +89,8 @@ public class Client implements Runnable{
 
 	public static void main(String args[]) {
 		
-		//Client client=new Client(args[0]);
-		Client client=new Client("localhost");
+		Client client=new Client(args[0]);
+		//Client client=new Client("localhost");
 		System.out.println("Client started");
 		client.run();
 	}

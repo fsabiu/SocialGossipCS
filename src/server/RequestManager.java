@@ -299,8 +299,8 @@ public class RequestManager implements Runnable {
 		reply.setParameters("OPERATION:OK", "BODY:"+friendslist);
 		
 		//Print
-		String res= (String) reply.getParameter("BODY");
-		System.out.println(res);
+		//String res= (String) reply.getParameter("BODY");
+		System.out.println(reply.toString());
 		return reply;
 	}
 

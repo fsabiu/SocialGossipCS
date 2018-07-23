@@ -11,10 +11,13 @@ import javax.swing.JTextField;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 
+import org.json.simple.JSONArray;
+
 import java.awt.Color;
 import java.awt.Font;
 import javax.swing.AbstractListModel;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 
 public class SocialGossipHomeGUI extends GUI{ 
@@ -26,13 +29,13 @@ public class SocialGossipHomeGUI extends GUI{
 	private JFrame loginGUI;
 	private JPanel contentPane;
 	private JLabel WelcomeText;
-	private JTextField textField;
+	private JTextField user_search_field;
 	private JButton btnLogout;
 	private JButton btnAvviaChat;
 	private JButton btnCerca;
 	private JButton btnUniscitiAChatroom;
 	private JButton btnCreaChatroom;
-	private JTextField textField_1;
+	private JTextField user_to_add_field;
 	private JList<String> friend_list;
 	private JList<String> chatroom_list;
 	//private JList<User> userFriendList;
@@ -44,7 +47,7 @@ public class SocialGossipHomeGUI extends GUI{
 	 * Create the frame.
 	 */
 	public SocialGossipHomeGUI(JFrame loginGUI) {
-		//setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		SocialGossipHomeGUI socialGossipHomeGUI=this;
 		this.loginGUI=loginGUI;
 		setTitle("Social Gossip");
@@ -64,16 +67,6 @@ public class SocialGossipHomeGUI extends GUI{
 		contentPane.add(scrollPane);
 		
 		friend_list = new JList<String>();
-		friend_list.setModel(new AbstractListModel<String>() {
-			private static final long serialVersionUID = 1L;
-			String[] values = new String[] {"Prova uno", "Prova due"};
-			public int getSize() {
-				return values.length;
-			}
-			public String getElementAt(int index) {
-				return values[index];
-			}
-		});
 		scrollPane.setViewportView(friend_list);
 		
 		/*userFriendList = new JList<User>();
@@ -114,12 +107,18 @@ public class SocialGossipHomeGUI extends GUI{
 		lblCercaUtente.setBounds(12, 18, 110, 15);
 		contentPane.add(lblCercaUtente);
 		
-		textField = new JTextField();
-		textField.setBounds(149, 11, 207, 30);
-		contentPane.add(textField);
-		textField.setColumns(10);
+		user_search_field = new JTextField();
+		user_search_field.setBounds(149, 11, 207, 30);
+		contentPane.add(user_search_field);
+		user_search_field.setColumns(10);
 		
 		btnCerca = new JButton("Cerca");
+		btnCerca.setActionCommand("LOOKUP");
+		btnCerca.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				request_maker.eventsHandler(socialGossipHomeGUI, e.getActionCommand());
+			}
+		});
 		btnCerca.setBounds(364, 13, 88, 25);
 		contentPane.add(btnCerca);
 		
@@ -158,12 +157,18 @@ public class SocialGossipHomeGUI extends GUI{
 		lblAggiungiAmico.setBounds(12, 47, 127, 30);
 		contentPane.add(lblAggiungiAmico);
 		
-		textField_1 = new JTextField();
-		textField_1.setColumns(10);
-		textField_1.setBounds(149, 51, 207, 30);
-		contentPane.add(textField_1);
+		user_to_add_field = new JTextField();
+		user_to_add_field.setColumns(10);
+		user_to_add_field.setBounds(149, 51, 207, 30);
+		contentPane.add(user_to_add_field);
 		
 		JButton btnAggiungi = new JButton("Aggiungi");
+		btnAggiungi.setActionCommand("FRIENDSHIP");
+		btnAggiungi.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				request_maker.eventsHandler(socialGossipHomeGUI, e.getActionCommand());
+			}
+		});
 		btnAggiungi.setBounds(364, 53, 88, 25);
 		contentPane.add(btnAggiungi);
 	}
@@ -176,6 +181,23 @@ public class SocialGossipHomeGUI extends GUI{
 		return modelChatRoomList;
 	}*/
 	
+	public void setListFriends(String arrayList) {
+		friend_list.setModel(new AbstractListModel<String>() {
+			private static final long serialVersionUID = 1L;
+			
+			String[] values = arrayList.split(", ");
+			
+			public int getSize() {
+				return values.length;
+			}
+			public String getElementAt(int index) {
+				values[index] = values[index].replace("[", "");
+				values[index] = values[index].replace("]", "");
+				return values[index];
+			}
+		});
+	}
+	
 	public void logoutGUI() {
 		setVisible(false);
 		loginGUI.setVisible(true);
@@ -185,8 +207,12 @@ public class SocialGossipHomeGUI extends GUI{
 		return contentPane;
 	}
 
-	public JTextField getTextField() {
-		return textField;
+	public JTextField getUserSearchField() {
+		return user_search_field;
+	}
+	
+	public JTextField getUserToAddField() {
+		return user_to_add_field;
 	}
 
 	public JButton getBtnLogout() {
