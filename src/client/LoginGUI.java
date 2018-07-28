@@ -143,9 +143,9 @@ public class LoginGUI extends GUI{
 		return btnLogin;
 	}
 	
-	public void createSGHome(){
+	public void createSGHome(String username){
 		setVisible(false);
-		new SocialGossipHomeGUI(frmSocialgossip);
+		new SocialGossipHomeGUI(frmSocialgossip,username);
 	}
 	
 	public JLabel getLoginResponse() {

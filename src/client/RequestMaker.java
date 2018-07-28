@@ -132,7 +132,7 @@ public class RequestMaker {
 				
 				if (response.getParameter("OPERATION").equals("OK")) {
 					//Opening chat interface to user
-					((LoginGUI) gui).createSGHome();
+					((LoginGUI) gui).createSGHome(username);
 				}
 			}
 			break;
@@ -224,6 +224,16 @@ public class RequestMaker {
 				}
 			}
 			break;
+			case "STARTCHAT": {
+				System.out.println("Apertura chat");
+				//Getting friend name
+				((SocialGossipHomeGUI) gui).getSelectedListFriend();
+				
+				//Creating chat to chat with the above friend
+				((SocialGossipHomeGUI) gui).createChatGUI();
+				
+			}
+			break;
 		}
 	}
 	
@@ -231,7 +241,7 @@ public class RequestMaker {
 		//Receiving request
 		ResponseMessage reply=receiveResponse();
 		String op= (String) reply.getParameter("OPERATION");
-		switch(op) {
+		switch(op) {  
 			case "OK":
 				System.out.println("Operazione avvenuta con successo");
 				break;
