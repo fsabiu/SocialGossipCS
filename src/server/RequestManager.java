@@ -175,6 +175,7 @@ public class RequestManager implements Runnable {
 				reply.setParameters("OPERATION:ERR","BODY:Invalid request received");
 			}else {//Checking for self-messages
 				String receiver= (String) message.getParameter("RECEIVER");
+				reply.setParameters("RESPONSE_TYPE", op);
 				if(receiver!=null) {
 					if(sender.equals(receiver)){
 						reply.setParameters("OPERATION:ERR","BODY:Non puoi essere tu il destinatario del messaggio!");
