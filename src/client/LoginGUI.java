@@ -34,7 +34,7 @@ public class LoginGUI extends GUI{
 	/**
 	 * Create the application.
 	 */
-	public LoginGUI(RequestMaker request_maker) {
+	public LoginGUI(MessageSender request_maker) {
 		super(request_maker);
 		initializeWindowContent();
 	}

@@ -29,8 +29,10 @@ public class Client implements Runnable{
 			setMessageConnection();
 			
 			System.out.println("Connection established with server");
-			RequestMaker request_maker= new RequestMaker(server_control_socket,server_message_socket,loginGUI);
-			loginGUI=new LoginGUI(request_maker);
+			MessageSender message_sender= new MessageSender(server_control_socket,server_message_socket,loginGUI);
+			MessageListener message_listener = new MessageListener(message_sender);
+			message_listener.start();
+			loginGUI=new LoginGUI(message_sender);
 			loginGUI.setVisible(true);
 			//Creating class used to send new requests 
 			

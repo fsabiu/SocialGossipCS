@@ -7,9 +7,9 @@ public class GUI extends JFrame{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	protected static RequestMaker request_maker;
+	protected static MessageSender request_maker;
 	
-	public GUI(RequestMaker request_maker) {
+	public GUI(MessageSender request_maker) {
 		GUI.request_maker=request_maker;
 	}
 	
