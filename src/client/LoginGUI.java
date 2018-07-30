@@ -34,7 +34,7 @@ public class LoginGUI extends GUI{
 	/**
 	 * Create the application.
 	 */
-	public LoginGUI(RequestMaker request_maker) {
+	public LoginGUI(MessageSender request_maker) {
 		super(request_maker);
 		initializeWindowContent();
 	}
@@ -143,9 +143,9 @@ public class LoginGUI extends GUI{
 		return btnLogin;
 	}
 	
-	public void createSGHome(){
+	public void createSGHome(String username){
 		setVisible(false);
-		new SocialGossipHomeGUI(frmSocialgossip);
+		new SocialGossipHomeGUI(frmSocialgossip,username);
 	}
 	
 	public JLabel getLoginResponse() {

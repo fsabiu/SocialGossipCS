@@ -14,6 +14,7 @@ import javax.swing.SwingConstants;
 import org.json.simple.JSONArray;
 
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.awt.Font;
 import javax.swing.AbstractListModel;
 import java.awt.event.ActionListener;
@@ -46,7 +47,7 @@ public class SocialGossipHomeGUI extends GUI{
 	/**
 	 * Create the frame.
 	 */
-	public SocialGossipHomeGUI(JFrame loginGUI) {
+	public SocialGossipHomeGUI(JFrame loginGUI, String username) {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		SocialGossipHomeGUI socialGossipHomeGUI=this;
 		this.loginGUI=loginGUI;
@@ -143,7 +144,14 @@ public class SocialGossipHomeGUI extends GUI{
 		contentPane.add(lblAmiciOnline);
 		
 		btnAvviaChat = new JButton("Avvia Chat");
+		btnAvviaChat.setActionCommand("STARTCHAT");
 		btnAvviaChat.setBounds(550, 478, 200, 35);
+		btnAvviaChat.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("Button avvia chat pressed");
+				request_maker.eventsHandler(socialGossipHomeGUI, e.getActionCommand());
+			}
+		});
 		contentPane.add(btnAvviaChat);
 		
 		JSeparator separator = new JSeparator();
@@ -171,6 +179,11 @@ public class SocialGossipHomeGUI extends GUI{
 		});
 		btnAggiungi.setBounds(364, 53, 88, 25);
 		contentPane.add(btnAggiungi);
+		
+		JLabel profileName = new JLabel("Profilo di "+username);
+		profileName.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		profileName.setBounds(550, 11, 200, 35);
+		contentPane.add(profileName);
 	}
 
 	/*public DefaultListModel<User> getModelUserFriendList() {
@@ -196,6 +209,12 @@ public class SocialGossipHomeGUI extends GUI{
 				return values[index];
 			}
 		});
+	}
+	
+	public String getSelectedListFriend() {
+		String friend=friend_list.getSelectedValue();
+		System.out.println("L'elemento selezionato è"+friend_list.getSelectedValue());
+		return friend;
 	}
 	
 	public void logoutGUI() {
@@ -249,5 +268,18 @@ public class SocialGossipHomeGUI extends GUI{
 
 	public void setWelcomeText(String welcomeText) {
 		WelcomeText.setText(welcomeText);
+	}
+	
+	public void createChatGUI() {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					ChatGUI frame = new ChatGUI("ciao");
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 }

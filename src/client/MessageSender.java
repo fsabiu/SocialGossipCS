@@ -16,7 +16,7 @@ import communication.Operation;
 import communication.RequestMessage;
 import communication.ResponseMessage;
 
-public class RequestMaker {
+public class MessageSender {
 	private Socket server_control_socket;
 	//private Socket server_message_socket;
 	private LoginGUI loginGUI;
@@ -26,7 +26,7 @@ public class RequestMaker {
 	private DataInputStream control_in;
 	private DataOutputStream control_out;
 
-	public RequestMaker(Socket server_control_socket, Socket server_message_socket, LoginGUI loginGUI) {
+	public MessageSender(Socket server_control_socket, Socket server_message_socket, LoginGUI loginGUI) {
 		this.password="";
 		this.server_control_socket=server_control_socket;
 		//this.server_message_socket=server_message_socket;
@@ -132,7 +132,7 @@ public class RequestMaker {
 				
 				if (response.getParameter("OPERATION").equals("OK")) {
 					//Opening chat interface to user
-					((LoginGUI) gui).createSGHome();
+					((LoginGUI) gui).createSGHome(username);
 				}
 			}
 			break;
@@ -224,6 +224,16 @@ public class RequestMaker {
 				}
 			}
 			break;
+			case "STARTCHAT": {
+				System.out.println("Apertura chat");
+				//Getting friend name
+				((SocialGossipHomeGUI) gui).getSelectedListFriend();
+				
+				//Creating chat to chat with the above friend
+				((SocialGossipHomeGUI) gui).createChatGUI();
+				
+			}
+			break;
 		}
 	}
 	
@@ -231,7 +241,7 @@ public class RequestMaker {
 		//Receiving request
 		ResponseMessage reply=receiveResponse();
 		String op= (String) reply.getParameter("OPERATION");
-		switch(op) {
+		switch(op) {  
 			case "OK":
 				System.out.println("Operazione avvenuta con successo");
 				break;
