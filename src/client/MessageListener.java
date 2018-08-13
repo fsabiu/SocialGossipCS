@@ -27,6 +27,7 @@ public class MessageListener extends Thread{
 		while(true) {
 			//Receiving request
 			received_message=receiveResponse();
+			ResponseMessage response;
 			String type = (String) received_message.getParameter("TYPE");
 			switch(type) {
 				case "request":{
@@ -34,7 +35,10 @@ public class MessageListener extends Thread{
 				}
 				break;
 				case "response":{
-					checkResponse((ResponseMessage) received_message);
+					response = (ResponseMessage) received_message;
+					if (received_message instanceof ResponseMessage) System.out.println("ok");
+					System.out.println(received_message.getClass());
+					checkResponse(response);
 				}
 				break;
 			}
@@ -192,18 +196,19 @@ public class MessageListener extends Thread{
 		}
 		
 	}*/
-	
-	// NON responde message ma message??????????
-	public Message receiveResponse() {
+
+	public ResponseMessage receiveResponse() {
 		String replyString= null;
 		try {
-			replyString= control_in.readUTF();
+			//replyString= control_in.readUTF();
+			replyString = DataInputStream.readUTF(control_in);
 		} catch (IOException e) {
 			System.out.println("In attesa di response");
 			e.printStackTrace();
 		}
+		if (replyString == null) System.out.println("La risposta è nulla");
 		
-		Message reply=new Message();
+		ResponseMessage reply=new ResponseMessage();
 		
 		// Mi serve sapere che tipo è, dovrei leggere il json?
 		reply.parseToMessage(replyString);

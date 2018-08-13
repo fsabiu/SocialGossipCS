@@ -168,22 +168,20 @@ public class RequestManager implements Runnable {
 			connection_user= usersbyname.get(sender);
 			
 			System.out.println("Server: l'operazione è: "+op);
-			reply= new ResponseMessage();
 			//Validating operation field
 			if(op==null) {
 				System.out.println("Invalid operation type recived");
 				reply.setParameters("OPERATION:ERR","BODY:Invalid request received");
-			}else {//Checking for self-messages
+			}/*else if (op == "MSG_TO_FRIEND"){//Checking for self-messages
 				String receiver= (String) message.getParameter("RECEIVER");
-				reply.setParameters("RESPONSE_TYPE", op);
 				if(receiver!=null) {
 					if(sender.equals(receiver)){
 						reply.setParameters("OPERATION:ERR","BODY:Non puoi essere tu il destinatario del messaggio!");
 						op="";
 					}
 				}
-			}
-			
+			}*/
+			System.out.println("Server dopo: l'operazione è: "+op);
 			
 			switch(op) {
 				case "REGISTER":
@@ -228,6 +226,7 @@ public class RequestManager implements Runnable {
 				default:
 					break;
 			}
+			reply.setParameters("RESPONSE_TYPE:"+op);
 		} catch(IllegalArgumentException e) {
 			System.exit(-1);
 		}
@@ -731,7 +730,7 @@ public class RequestManager implements Runnable {
 	private ResponseMessage registerUser(RequestMessage message) {
 		//Creation reply message
 		ResponseMessage reply= new ResponseMessage();
-		
+		System.out.println(message.toString());
 		//Extracting relevant fields
 		String username= (String) message.getParameter("SENDER");
 		String password= (String) message.getParameter("PASSWORD");

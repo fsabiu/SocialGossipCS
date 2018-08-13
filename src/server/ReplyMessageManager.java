@@ -32,6 +32,7 @@ public class ReplyMessageManager implements MessageManager {
 	public boolean sendReply(Message message, DataOutputStream control_out){
 		try {
 			//Sending
+			System.out.println("Messaggio è "+message.toString());
 			control_out.writeUTF(message.toString());
 			return true;
 		}catch(IOException e) {

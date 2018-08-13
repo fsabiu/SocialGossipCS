@@ -19,7 +19,7 @@ import communication.ResponseMessage;
 
 public class MessageSender {
 	//private Socket server_control_socket;
-	//private Socket server_message_socket;
+	private Socket server_message_socket;
 	private ConcurrentHashMap<String,GUI> interfaces;
 	private String username;
 	private String password;
@@ -31,7 +31,7 @@ public class MessageSender {
 	public MessageSender(DataOutputStream control_out, Socket server_message_socket, ConcurrentHashMap<String,GUI> interfaces) {
 		this.password="";
 		//this.server_control_socket=server_control_socket;
-		//this.server_message_socket=server_message_socket;
+		this.server_message_socket=server_message_socket;
 		
 		/*try {
 			//control_in= new DataInputStream(new BufferedInputStream(server_control_socket.getInputStream()));
@@ -41,6 +41,8 @@ public class MessageSender {
 			e.printStackTrace();
 		}*/
 		this.interfaces=interfaces;
+		this.control_out=control_out;
+	
 	}
 	
 	//public void run() {

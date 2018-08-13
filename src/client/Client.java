@@ -29,6 +29,7 @@ public class Client implements Runnable{
 			//Starting new control connection with Server
 			Socket server_control= new Socket(InetAddress.getByName(Config.SERVER_HOST_NAME),Config.SERVER_TCP_PORT);
 			setServerControlSocket(server_control);
+			
 			//Setting new message connection with Server
 			setMessageConnection();
 			
@@ -42,12 +43,14 @@ public class Client implements Runnable{
 				
 				MessageSender message_sender= new MessageSender(control_out,server_message_socket,interfaces);
 				
-				MessageListener message_listener = new MessageListener(control_in, message_sender,interfaces);
-				message_listener.start();
-				
 				loginGUI=new LoginGUI(message_sender);
 				interfaces.putIfAbsent("loginGUI", loginGUI);
 				loginGUI.setVisible(true); 
+				
+				MessageListener message_listener = new MessageListener(control_in, message_sender,interfaces);
+				message_listener.start();
+				
+				
 				
 			} catch (IOException e) {
 				System.out.println("Error creating Streams IN/OUT");
@@ -109,8 +112,8 @@ public class Client implements Runnable{
 
 	public static void main(String args[]) {
 		
-		Client client=new Client(args[0]);
-		//Client client=new Client("localhost");
+		//Client client=new Client(args[0]);
+		Client client=new Client("localhost");
 		System.out.println("Client started");
 		client.run();
 	}
