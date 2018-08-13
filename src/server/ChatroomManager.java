@@ -93,5 +93,10 @@ public class ChatroomManager extends Thread {
 		}
 	}
 	
+	/*
+	public InetAddress getAddress() {
+		return msAddress;
+	}
+	*/
 
 }

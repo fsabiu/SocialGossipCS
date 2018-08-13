@@ -545,6 +545,7 @@ public class RequestManager implements Runnable {
 		
 		//Setting reply
 		reply.setParameters("OPERATION:OK");
+		reply.setParameters("USER:"+username);
 		reply.setParameters("BODY:Bentornato, "+username+". Inizia a chattare!");
 		
 		//Notify friends
@@ -594,10 +595,11 @@ public class RequestManager implements Runnable {
 		String chatroom= (String) message.getParameter("CHATROOM");
 		
 		//Is the sender a user?
-		/*if(!usersbyname.containsKey(username)) 
+		if(!usersbyname.containsKey(username)) {
 			reply.setParameters("OPERATION:PERMISSION_DENIED","BODY:Not a user");
+			return reply;
+		}
 		
-		else */
 		//Does chatroom already exist?
 		if(chatrooms.containsKey(chatroom)) {
 			reply.setParameters("OPERATION:CHATROOM_ALREADY_EXISTS");
