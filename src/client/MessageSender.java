@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JOptionPane;
 
@@ -17,28 +18,29 @@ import communication.RequestMessage;
 import communication.ResponseMessage;
 
 public class MessageSender {
-	private Socket server_control_socket;
+	//private Socket server_control_socket;
 	//private Socket server_message_socket;
-	private LoginGUI loginGUI;
+	private ConcurrentHashMap<String,GUI> interfaces;
 	private String username;
 	private String password;
 	private String language;
-	private DataInputStream control_in;
+	//private DataInputStream control_in;
 	private DataOutputStream control_out;
 
-	public MessageSender(Socket server_control_socket, Socket server_message_socket, LoginGUI loginGUI) {
+	//public MessageSender(Socket server_control_socket, Socket server_message_socket, LoginGUI loginGUI) {
+	public MessageSender(DataOutputStream control_out, Socket server_message_socket, ConcurrentHashMap<String,GUI> interfaces) {
 		this.password="";
-		this.server_control_socket=server_control_socket;
+		//this.server_control_socket=server_control_socket;
 		//this.server_message_socket=server_message_socket;
 		
-		try {
-			control_in= new DataInputStream(new BufferedInputStream(server_control_socket.getInputStream()));
+		/*try {
+			//control_in= new DataInputStream(new BufferedInputStream(server_control_socket.getInputStream()));
 			control_out= new DataOutputStream(server_control_socket.getOutputStream());
 		} catch (IOException e) {
 			System.out.println("Error creating Streams IN/OUT");
 			e.printStackTrace();
-		}
-		this.loginGUI=loginGUI;		
+		}*/
+		this.interfaces=interfaces;
 	}
 	
 	//public void run() {
@@ -69,12 +71,15 @@ public class MessageSender {
 	 * COSA FARA IL METODO RUN? REQUEST MAKER POTREBBE NON ESSERE PIU UNA CLASSE CHE ESTENDE THREADS
 	 * (L'INTERFACCIA PERO SI BLOCCA!!!)
 	 * ALTRA SOLUZIONE: PER OGNI EVENTO CHIAMA RUN! 
+	 * 
+	 * TODO spostare tutti i checkResponse
 	 */
 	public void eventsHandler(GUI gui, String event) {
 		RequestMessage req = new RequestMessage(username);
 		switch(event) {
 			case "REGISTER":{
 				System.out.println("Inviata richiesta registrazione");
+				
 				//Setting up username
 				if ((username=((RegistrationGUI) gui).getUsernameField().getText()).equals("")) {
 					//Username is empty
@@ -100,9 +105,9 @@ public class MessageSender {
 				//Sending request
 				sendRequest(req);
 				
-				//Printing the response
-				ResponseMessage response=checkResponse();
-				((RegistrationGUI) gui).getRegistrationReply().setText((String) response.getParameter("BODY"));
+				//Printing the response --- NOW IN MessageListener
+				/*ResponseMessage response=checkResponse();
+				((RegistrationGUI) gui).getRegistrationReply().setText((String) response.getParameter("BODY"));*/
 			}
 			break;
 			case "LOGIN":{
@@ -125,7 +130,7 @@ public class MessageSender {
 				sendRequest(req);
 				
 				//Getting result from server
-				ResponseMessage response=checkResponse();
+				/*ResponseMessage response=checkResponse();
 				
 				//Showing the result to user
 				((LoginGUI) gui).getLoginResponse().setText((String) response.getParameter("BODY"));
@@ -133,7 +138,7 @@ public class MessageSender {
 				if (response.getParameter("OPERATION").equals("OK")) {
 					//Opening chat interface to user
 					((LoginGUI) gui).createSGHome(username);
-				}
+				}*/
 			}
 			break;
 			case "LOGOUT":{
@@ -146,13 +151,13 @@ public class MessageSender {
 				sendRequest(req);
 				
 				//Getting response from server
-				ResponseMessage response=checkResponse();
+				/*ResponseMessage response=checkResponse();
 
 				if (response.getParameter("OPERATION").equals("OK")) {
 					//Opening chat interface to user
 					((SocialGossipHomeGUI) gui).logoutGUI();
 					System.out.println("Logout utente");
-				}
+				}*/
 			}
 			break;
 			case "LOOKUP":{
@@ -169,11 +174,11 @@ public class MessageSender {
 				sendRequest(req);
 				
 				//Getting response from server
-				ResponseMessage response=checkResponse();
+				/*ResponseMessage response=checkResponse();
 				
 				if (response.getParameter("OPERATION").equals("OK")) {
 					JOptionPane.showMessageDialog(null, response.getParameter("BODY"));
-				}
+				}*/
 			}
 			break;
 			case "FRIENDSHIP":{
@@ -190,9 +195,9 @@ public class MessageSender {
 				sendRequest(req);
 				
 				//Getting response from server
-				ResponseMessage response=checkResponse();
+				/*ResponseMessage response=checkResponse();
 				
-				JOptionPane.showMessageDialog(null, response.getParameter("BODY"));
+				JOptionPane.showMessageDialog(null, response.getParameter("BODY"));*/
 				//TODO SWITCH CASE
 				/*if (response.getParameter("OPERATION").equals("OK")) {
 					JOptionPane.showMessageDialog(null, response.getParameter("BODY"));
@@ -213,7 +218,7 @@ public class MessageSender {
 				sendRequest(second_req);
 				
 				//Getting response from server
-				ResponseMessage second_response=checkResponse();
+				/*ResponseMessage second_response=checkResponse();
 				
 				if (second_response.getParameter("OPERATION").equals("OK")) {
 					//Server returns an ArrayList of strings
@@ -221,7 +226,7 @@ public class MessageSender {
 					
 					//JSONArray friends= (JSONArray) second_response.getParameter("BODY");
 					//((SocialGossipHomeGUI) gui).setListFriends(friends);
-				}
+				}*/
 			}
 			break;
 			case "STARTCHAT": {
@@ -237,7 +242,7 @@ public class MessageSender {
 		}
 	}
 	
-	public ResponseMessage checkResponse() {
+	/*public ResponseMessage checkResponse() {
 		//Receiving request
 		ResponseMessage reply=receiveResponse();
 		String op= (String) reply.getParameter("OPERATION");
@@ -265,9 +270,9 @@ public class MessageSender {
 		}
 		
 		return reply;
-	}
+	}*/
 	
-	public ResponseMessage receiveResponse() {
+	/*public ResponseMessage receiveResponse() {
 		String replyString= null;
 		try {
 			replyString= control_in.readUTF();
@@ -279,7 +284,7 @@ public class MessageSender {
 		ResponseMessage reply=new ResponseMessage();
 		reply.parseToMessage(replyString);
 		return reply;
-	}
+	}*/
 	
 	public void sendRequest(RequestMessage req) {
 		try {
@@ -288,5 +293,10 @@ public class MessageSender {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public void createRegistrationGUI() {
+		RegistrationGUI registrationGUI = new RegistrationGUI(((LoginGUI) interfaces.get("loginGUI")).getFrame());
+		interfaces.putIfAbsent("registrationGUI", registrationGUI);
 	}
 }

@@ -10,14 +10,14 @@ import java.net.URLEncoder;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-public abstract class Message {
+public class Message {
 	protected JSONObject j_message;
 	
 	/**
 	 * Constructor of a message
 	 * @param op operation of the message
 	 */
-	protected Message() {
+	public Message() {
 		j_message= new JSONObject();
 	}
 	

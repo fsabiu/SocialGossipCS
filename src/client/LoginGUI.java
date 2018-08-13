@@ -105,7 +105,8 @@ public class LoginGUI extends GUI{
 			public void actionPerformed(ActionEvent e) {
 				setVisible(false);
 				System.out.println("Creo interfaccia registrazione");
-				new RegistrationGUI(frmSocialgossip);
+				//new RegistrationGUI(frmSocialgossip);
+				request_maker.createRegistrationGUI();
 				usernameField.setText("");
 				passwordField.setText("");
 				loginResponse.setText("");
@@ -143,10 +144,11 @@ public class LoginGUI extends GUI{
 		return btnLogin;
 	}
 	
-	public void createSGHome(String username){
+	/*Replaced by HASH MAP
+	 * public void createSGHome(String username){
 		setVisible(false);
 		new SocialGossipHomeGUI(frmSocialgossip,username);
-	}
+	}*/
 	
 	public JLabel getLoginResponse() {
 		return loginResponse;

@@ -1,11 +1,15 @@
 package client;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.concurrent.ConcurrentHashMap;
+
 import communication.RequestMessage;
 import util.Config;
 import util.PortScanner;
@@ -29,14 +33,28 @@ public class Client implements Runnable{
 			setMessageConnection();
 			
 			System.out.println("Connection established with server");
-			MessageSender message_sender= new MessageSender(server_control_socket,server_message_socket,loginGUI);
-			MessageListener message_listener = new MessageListener(message_sender);
-			message_listener.start();
-			loginGUI=new LoginGUI(message_sender);
-			loginGUI.setVisible(true);
-			//Creating class used to send new requests 
 			
-			
+			try {
+				DataInputStream control_in= new DataInputStream(new BufferedInputStream(server_control_socket.getInputStream()));
+				DataOutputStream control_out= new DataOutputStream(server_control_socket.getOutputStream());
+				
+				ConcurrentHashMap<String,GUI> interfaces = new ConcurrentHashMap<String,GUI>();
+				
+				MessageSender message_sender= new MessageSender(control_out,server_message_socket,interfaces);
+				
+				MessageListener message_listener = new MessageListener(control_in, message_sender,interfaces);
+				message_listener.start();
+				
+				loginGUI=new LoginGUI(message_sender);
+				interfaces.putIfAbsent("loginGUI", loginGUI);
+				loginGUI.setVisible(true); 
+				
+			} catch (IOException e) {
+				System.out.println("Error creating Streams IN/OUT");
+				e.printStackTrace();
+			}
+
+			//Creating class used to send new requests
 			//Creating a thread used to listen private messages 
 			//MessageListener message_listener= new MessageListener();
 			//message_listener.start();
