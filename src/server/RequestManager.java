@@ -88,6 +88,9 @@ public class RequestManager implements Runnable {
 			//Asking for connection
 			client_messages=new Socket(IP, port);
 			
+			//DataInputStream message_in= new DataInputStream(new BufferedInputStream(client_messages.getInputStream()));
+			DataOutputStream message_out= new DataOutputStream(client_messages.getOutputStream());
+			
 			System.out.println("Server: hanshake with client terminated");
 			
 			User connection_user=null;
@@ -106,7 +109,7 @@ public class RequestManager implements Runnable {
 					System.out.println("SERVER: received: "+request);
 					
 					//Executing client request
-					connection_user= executeRequest(message,control_out);
+					connection_user= executeRequest(message,control_out,message_out);
 				}
 				//client closes connection
 				catch(EOFException e) {
@@ -151,7 +154,7 @@ public class RequestManager implements Runnable {
 
 
 	@SuppressWarnings("null")
-	private User executeRequest(RequestMessage message, DataOutputStream out) {
+	private User executeRequest(RequestMessage message, DataOutputStream control_out, DataOutputStream message_out) {
 		
 		User connection_user=null;
 		
@@ -209,7 +212,7 @@ public class RequestManager implements Runnable {
 					reply=listFriends(message);
 					break;
 				case "LOGIN":
-					reply=login(message, client_control, client_messages, out);
+					reply=login(message, client_control, client_messages, control_out, message_out);
 					break;
 				case "LOGOUT":
 					reply=logout(message);
@@ -231,15 +234,15 @@ public class RequestManager implements Runnable {
 			System.exit(-1);
 		}
 		
-		System.out.println("Out normale: "+out);
-		if(message_manager!=null) System.out.println("Out del manager: "+message_manager.getSender().getOutputStream());
+		System.out.println("Out normale: "+control_out);
+		if(message_manager!=null) System.out.println("Out del manager: "+message_manager.getSender().getControlOutputStream());
 		
 		//Replying to sender
 		if(message_manager!=null) {//replying to user 
 			System.out.println("Sender: "+message_manager.getSender()+" è online? "+message_manager.getSender().isOnline());
 			response_manager.sendMessageToUser(reply, message_manager.getSender());
 		}else {//Sender was not a user
-			response_manager.sendReply(reply, out);
+			response_manager.sendReply(reply, control_out);
 		}
 		
 		System.out.println("Risposta inviata");
@@ -508,7 +511,7 @@ public class RequestManager implements Runnable {
 	 * @param client_messages
 	 * @return
 	 */
-	private ResponseMessage login(RequestMessage message, Socket client_control, Socket client_messages, DataOutputStream out) {
+	private ResponseMessage login(RequestMessage message, Socket client_control, Socket client_messages, DataOutputStream control_out, DataOutputStream message_out) {
 		//Creation reply message
 		ResponseMessage reply= new ResponseMessage();
 		
@@ -540,7 +543,7 @@ public class RequestManager implements Runnable {
 		User user=usersbyname.get(username);
 		
 		//Setting user as online
-		user.setOnline(client_control, client_messages, out);
+		user.setOnline(client_control, client_messages, control_out, message_out);
 		
 		//Setting reply
 		reply.setParameters("OPERATION:OK");

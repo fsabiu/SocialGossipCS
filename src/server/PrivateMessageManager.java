@@ -38,12 +38,18 @@ public class PrivateMessageManager implements MessageManager {
 	 * @return
 	 * @throws IllegalArgumentException
 	 */
-	public boolean sendMessageToUser(Message message, User receiver) throws IllegalArgumentException {
+	public boolean sendMessageToUser(Message message, User receiver) {
+		String mess;
 		if(receiver.isOnline()) {
-			String mess=translateMessage(message, sender.getLanguage(), receiver.getLanguage()).toJSONString();
+			if(!sender.getLanguage().equals(receiver.getLanguage())) {
+				mess=translateMessage(message, sender.getLanguage(), receiver.getLanguage()).toJSONString();
+			} else {
+				mess=message.toString();
+			}
+			
 			//Getting receiver output stream
 			try {
-				DataOutputStream messages_out = new DataOutputStream(receiver.getMessagesSocket().getOutputStream());
+				DataOutputStream messages_out = receiver.getMessageOutputStream();
 				//Sending
 				messages_out.writeUTF(mess);
 				return true;

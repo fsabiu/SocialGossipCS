@@ -24,8 +24,9 @@ public class User implements Serializable {
 	
 	//Managing connections
 	private transient Socket control_socket=null;
-	private transient Socket messages_socket=null;
-	DataOutputStream out=null;
+	private transient Socket message_socket=null;
+	DataOutputStream control_out=null;
+	DataOutputStream message_out=null;
 	
 	//RMI Channel
 	private RMIClientInterface RMIchannel = null;
@@ -64,16 +65,17 @@ public class User implements Serializable {
 		return false;
 	}
 	
-	public synchronized void setOnline(Socket control, Socket messages, DataOutputStream out) {
+	public synchronized void setOnline(Socket control, Socket messages, DataOutputStream control_out, DataOutputStream message_out) {
 		setControlSocket(control);
-		setMessagesSocket(messages);
-		this.out=out;
+		setMessageSocket(messages);
+		this.control_out=control_out;
+		this.message_out=message_out;
 		this.online=true;
 	}
 	
 	public synchronized void setOffline() {
 		setControlSocket(null);
-		setMessagesSocket(null);
+		setMessageSocket(null);
 		this.online=false;
 	}
 	
@@ -86,16 +88,16 @@ public class User implements Serializable {
 		this.control_socket=control;
 	}
 	
-	private void setMessagesSocket(Socket messages) {
-		this.messages_socket=messages;
+	private void setMessageSocket(Socket message) {
+		this.message_socket=message;
 	}
 	
 	public Socket getControlSocket() {
 		return this.control_socket;
 	}
 	
-	public Socket getMessagesSocket() {
-		return this.messages_socket;
+	public Socket getMessageSocket() {
+		return this.message_socket;
 	}
 	
 	public void setRMIChannel(RMIClientInterface callback) {
@@ -106,7 +108,11 @@ public class User implements Serializable {
 		return this.RMIchannel;
 	}
 	
-	public DataOutputStream getOutputStream() {
-		return this.out;
+	public DataOutputStream getControlOutputStream() {
+		return this.control_out;
+	}
+	
+	public DataOutputStream getMessageOutputStream() {
+		return this.message_out;
 	}
 }

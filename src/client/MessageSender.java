@@ -181,6 +181,12 @@ public class MessageSender {
 				if (response.getParameter("OPERATION").equals("OK")) {
 					JOptionPane.showMessageDialog(null, response.getParameter("BODY"));
 				}*/
+				
+				req.setParameters("OPERATION:MSG_TO_FRIEND");
+				req.setParameters("RECEIVER:"+user_to_search);
+				req.setParameters("BODY:"+"Ciao, sono felice");
+				System.out.println(req);
+				sendRequest(req);
 			}
 			break;
 			case "FRIENDSHIP":{

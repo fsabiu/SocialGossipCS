@@ -30,8 +30,6 @@ public class Client implements Runnable{
 			Socket server_control= new Socket(InetAddress.getByName(Config.SERVER_HOST_NAME),Config.SERVER_TCP_PORT);
 			setServerControlSocket(server_control);
 			
-			//Setting new message connection with Server
-			setMessageConnection();
 			
 			System.out.println("Connection established with server");
 			
@@ -40,6 +38,9 @@ public class Client implements Runnable{
 				DataOutputStream control_out= new DataOutputStream(server_control_socket.getOutputStream());
 				
 				ConcurrentHashMap<String,GUI> interfaces = new ConcurrentHashMap<String,GUI>();
+				
+				//Setting new message connection with Server
+				setMessageConnection(interfaces);
 				
 				MessageSender message_sender= new MessageSender(control_out,server_message_socket,interfaces);
 				
@@ -79,7 +80,7 @@ public class Client implements Runnable{
 		}
 	}
 	
-	private void setMessageConnection() {
+	private void setMessageConnection(ConcurrentHashMap<String,GUI> interfaces) {
 		// TODO Auto-generated method stub
 		//Creating in/out streams
 		DataOutputStream control_out;
@@ -99,6 +100,12 @@ public class Client implements Runnable{
 		ServerSocket message_socket= new ServerSocket(message_port);
 		Socket server_message_socket=message_socket.accept();
 		setServerMessageSocket(server_message_socket);
+		
+		DataInputStream message_in= new DataInputStream(new BufferedInputStream(server_message_socket.getInputStream()));
+		
+		PrivateMessageListener privateMessageListener = new PrivateMessageListener(interfaces,message_in); 
+		privateMessageListener.start();
+		
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

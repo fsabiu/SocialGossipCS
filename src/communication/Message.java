@@ -61,7 +61,8 @@ public class Message {
 			
 			JSONObject temp= (JSONObject) parser.parse(sb.toString());
 			String new_body= (String) ((JSONObject) temp.get("responseData")).get("translatedText");
-			j_message.put(to, new_body);
+			//j_message.put(to, new_body);
+			j_message.put("BODY", new_body);
 		} catch (IOException | ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
