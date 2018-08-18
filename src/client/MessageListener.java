@@ -2,6 +2,7 @@ package client;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JOptionPane;
@@ -63,16 +64,23 @@ public class MessageListener extends Thread{
 			}
 			break;
 			case "LOGIN":{
+				GUI loginGUI = interfaces.get("loginGUI");
 				//Showing the result to user
-				((LoginGUI) interfaces.get("loginGUI")).getLoginResponse().setText((String) reply.getParameter("BODY"));
+				((LoginGUI) loginGUI).getLoginResponse().setText((String) reply.getParameter("BODY"));
 				
 				if (reply.getParameter("OPERATION").equals("OK")) {
 					
-					interfaces.get("loginGUI").setVisible(false);
+					loginGUI.setVisible(false);
 					
-					String user = (String) reply.getParameter("USER");
-					SocialGossipHomeGUI sgGUI = new SocialGossipHomeGUI( ((LoginGUI) interfaces.get("loginGUI")).getFrame() ,user);
+					/*String user = (String) reply.getParameter("USER");
+					SocialGossipHomeGUI sgGUI;
+					sgGUI=((LoginGUI) loginGUI).createSGHome(user);
+					interfaces.putIfAbsent("socialGossipHomeGUI", sgGUI);*/
+					
+					SocialGossipHomeGUI sgGUI = new SocialGossipHomeGUI( ((LoginGUI) interfaces.get("loginGUI")).getFrame(),(String) reply.getParameter("USER"));
+					sgGUI.setVisible(true);
 					interfaces.putIfAbsent("socialGossipHomeGUI", sgGUI);
+
 					//Opening chat interface to user
 					/*((LoginGUI) interfaces.get("loginGUI")).createSGHome((String) reply.getParameter("USER"));*/
 				}
@@ -151,8 +159,11 @@ public class MessageListener extends Thread{
 					//Server returns an ArrayList of strings
 					
 					//((SocialGossipHomeGUI) gui).setListFriends((String) second_response.getParameter("BODY"));
+					//String list_friends = (String) reply.getParameter("BODY");
 					
-					((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).setListFriends((String) reply.getParameter("BODY"));
+					if (reply.getParameter("BODY") != null) {
+						((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).setListFriends((String) reply.getParameter("BODY"));
+					}
 				}
 			}
 			break;
@@ -169,6 +180,16 @@ public class MessageListener extends Thread{
 				
 			}
 			break;
+			case "CHAT_LISTING": {
+				((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).setChatroomList((String) reply.getParameter("BELONGS"), (String) reply.getParameter("NOT_BELONGS"));
+			} 
+			break;
+			case "CHAT_CREATION": {
+				if (reply.getParameter("OPERATION").equals("OK")) {
+					JOptionPane.showMessageDialog(null, reply.getParameter("BODY"));
+				}
+				JOptionPane.showMessageDialog(null, reply.getParameter("BODY"));
+			}
 		}
 	}
 		/*String op= (String) reply.getParameter("OPERATION");

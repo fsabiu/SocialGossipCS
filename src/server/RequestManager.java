@@ -584,7 +584,7 @@ public class RequestManager implements Runnable {
 		}
 		
 		//Filling reply
-		reply.setParameters("OPERATION:OK", "BELONGS:"+belonglist, "NOT BELONGS:"+notbelonglist);
+		reply.setParameters("OPERATION:OK", "BELONGS:"+belonglist, "NOT_BELONGS:"+notbelonglist);
 		return reply;
 	}
 

@@ -141,6 +141,13 @@ public class MessageSender {
 					//Opening chat interface to user
 					((LoginGUI) gui).createSGHome(username);
 				}*/
+				
+				req.setParameters("OPERATION:LIST_FRIENDS");
+				//Sending request to server
+				sendRequest(req);
+				
+				req.setParameters("OPERATION:CHAT_LISTING");
+				sendRequest(req);
 			}
 			break;
 			case "LOGOUT":{
@@ -182,11 +189,13 @@ public class MessageSender {
 					JOptionPane.showMessageDialog(null, response.getParameter("BODY"));
 				}*/
 				
-				req.setParameters("OPERATION:MSG_TO_FRIEND");
+				/*
+				 * TODO Cancellare, test sui messaggi
+				 * req.setParameters("OPERATION:MSG_TO_FRIEND");
 				req.setParameters("RECEIVER:"+user_to_search);
 				req.setParameters("BODY:"+"Ciao, sono felice");
 				System.out.println(req);
-				sendRequest(req);
+				sendRequest(req);*/
 			}
 			break;
 			case "FRIENDSHIP":{
@@ -247,6 +256,23 @@ public class MessageSender {
 				
 			}
 			break;
+			case "CHAT_CREATION":{
+				System.out.println("Inviata richiesta di creazione all'utente");
+				
+				//Setting username and operation field
+				req.setParameters("SENDER:"+username,"OPERATION:"+event);
+				
+				//Setting chatroom name 
+				String new_chatroom= ((SocialGossipHomeGUI) gui).getNewChatroomField().getText();
+				req.setParameters("CHATROOM:"+new_chatroom);
+				
+				//Sending request to server
+				sendRequest(req);
+				
+				// Asking for list of chatrooms
+				req.setParameters("OPERATION:CHAT_LISTING");
+				sendRequest(req);
+			}
 		}
 	}
 	

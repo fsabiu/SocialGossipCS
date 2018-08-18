@@ -54,8 +54,6 @@ public class Chatroom {
 		dispatcher= new ChatroomManager(socket,msAddress);
 		this.listenPort = dispatcher.getListeningPort();
 		
-		//Starting Chatroom manager
-		dispatcher.start();
 	}
 	
 	/**

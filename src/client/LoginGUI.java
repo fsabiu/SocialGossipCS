@@ -77,6 +77,7 @@ public class LoginGUI extends GUI{
 				request_maker.eventsHandler(loginGui, e.getActionCommand());
 				usernameField.setText("");
 				passwordField.setText("");
+				//createSGHome(usernameField.getText());
 			}
 		});
 		btnLogin.setToolTipText("Invia richiesta di Login");
@@ -144,11 +145,11 @@ public class LoginGUI extends GUI{
 		return btnLogin;
 	}
 	
-	/*Replaced by HASH MAP
-	 * public void createSGHome(String username){
+	//Replaced by HASH MAP
+	public SocialGossipHomeGUI createSGHome(String username){
 		setVisible(false);
-		new SocialGossipHomeGUI(frmSocialgossip,username);
-	}*/
+		return new SocialGossipHomeGUI(frmSocialgossip,username);
+	}
 	
 	public JLabel getLoginResponse() {
 		return loginResponse;

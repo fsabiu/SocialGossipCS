@@ -20,6 +20,7 @@ import javax.swing.AbstractListModel;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.awt.event.ActionEvent;
+import javax.swing.border.BevelBorder;
 
 public class SocialGossipHomeGUI extends GUI{ 
 	
@@ -29,7 +30,6 @@ public class SocialGossipHomeGUI extends GUI{
 	private static final long serialVersionUID = 1L;
 	private JFrame loginGUI;
 	private JPanel contentPane;
-	private JLabel WelcomeText;
 	private JTextField user_search_field;
 	private JButton btnLogout;
 	private JButton btnAvviaChat;
@@ -39,6 +39,7 @@ public class SocialGossipHomeGUI extends GUI{
 	private JTextField user_to_add_field;
 	private JList<String> friend_list;
 	private JList<String> chatroom_list;
+	private JTextField new_chatroom_field;
 	//private JList<User> userFriendList;
 	//private DefaultListModel<User> modelUserFriendList = new DefaultListModel<User>();
 	//private JList<ChatRoom> chatRoomList;
@@ -53,15 +54,11 @@ public class SocialGossipHomeGUI extends GUI{
 		this.loginGUI=loginGUI;
 		setTitle("Social Gossip");
 		setResizable(false);
-		setVisible(true);
+		//setVisible(true);
 		setBounds(100, 100, 800,600);
 		contentPane = new JPanel();
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		
-		WelcomeText = new JLabel("");
-		WelcomeText.setBounds(12, 535, 290, 28);
-		contentPane.add(WelcomeText);
 		
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setBounds(550, 70, 200, 400);
@@ -70,37 +67,22 @@ public class SocialGossipHomeGUI extends GUI{
 		friend_list = new JList<String>();
 		scrollPane.setViewportView(friend_list);
 		
-		/*userFriendList = new JList<User>();
-		userFriendList.setModel(modelUserFriendList);
-		scrollPane.setViewportView(userFriendList);*/
-		
-		JScrollPane scrollPane_1 = new JScrollPane();
-		scrollPane_1.setBounds(12, 122, 440, 367);
-		contentPane.add(scrollPane_1);
-		
-		chatroom_list = new JList<String>();
-		chatroom_list.setModel(new AbstractListModel<String>() {
-			private static final long serialVersionUID = 1L;
-			String[] values = new String[] {"chatroom 1", "chatroom 2"};
-			public int getSize() {
-				return values.length;
-			}
-			public String getElementAt(int index) {
-				return values[index];
-			}
-		});
-		scrollPane_1.setViewportView(chatroom_list);
-		
 		/*chatRoomList = new JList<ChatRoom>();
 		chatRoomList.setModel(modelChatRoomList);
 		scrollPane_1.setViewportView(chatRoomList);*/
 		
 		btnCreaChatroom = new JButton("Crea ChatRoom");
-		btnCreaChatroom.setBounds(12, 499, 151, 35);
+		btnCreaChatroom.setActionCommand("CHAT_CREATION");
+		btnCreaChatroom.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				request_maker.eventsHandler(socialGossipHomeGUI, e.getActionCommand());
+			}
+		});
+		btnCreaChatroom.setBounds(301, 535, 151, 35);
 		contentPane.add(btnCreaChatroom);
 		
 		btnUniscitiAChatroom = new JButton("Unisciti a ChatRoom");
-		btnUniscitiAChatroom.setBounds(175, 499, 200, 35);
+		btnUniscitiAChatroom.setBounds(10, 500, 200, 35);
 		contentPane.add(btnUniscitiAChatroom);
 		
 		JLabel lblCercaUtente = new JLabel("Cerca Utente:");
@@ -184,6 +166,15 @@ public class SocialGossipHomeGUI extends GUI{
 		profileName.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		profileName.setBounds(550, 11, 200, 35);
 		contentPane.add(profileName);
+		
+		new_chatroom_field = new JTextField();
+		new_chatroom_field.setBounds(12, 543, 279, 20);
+		contentPane.add(new_chatroom_field);
+		new_chatroom_field.setColumns(10);
+		
+		JList<String> chatroom_list = new JList<String>();
+		chatroom_list.setBounds(25, 132, 427, 327);
+		//contentPane.add(chatroom_list);
 	}
 
 	/*public DefaultListModel<User> getModelUserFriendList() {
@@ -199,6 +190,23 @@ public class SocialGossipHomeGUI extends GUI{
 			private static final long serialVersionUID = 1L;
 			
 			String[] values = arrayList.split(", ");
+			
+			public int getSize() {
+				return values.length;
+			}
+			public String getElementAt(int index) {
+				values[index] = values[index].replace("[", "");
+				values[index] = values[index].replace("]", "");
+				return values[index];
+			}
+		});
+	}
+	
+	public void setChatroomList(String belongsList, String notBelongsList) {
+		chatroom_list.setModel(new AbstractListModel<String>() {
+			private static final long serialVersionUID = 1L;
+			
+			String[] values = belongsList.split(", ");
 			
 			public int getSize() {
 				return values.length;
@@ -233,6 +241,11 @@ public class SocialGossipHomeGUI extends GUI{
 	public JTextField getUserToAddField() {
 		return user_to_add_field;
 	}
+	
+	public JTextField getNewChatroomField() {
+		return new_chatroom_field;
+	}
+	
 
 	public JButton getBtnLogout() {
 		return btnLogout;
@@ -262,13 +275,13 @@ public class SocialGossipHomeGUI extends GUI{
 		return chatRoomList;
 	}*/
 
-	public JLabel getWelcomeText() {
-		return WelcomeText;
+	/*public JLabel getWelcomeText() {
+		return lblNewChatroom;
 	}
 
 	public void setWelcomeText(String welcomeText) {
-		WelcomeText.setText(welcomeText);
-	}
+		lblNewChatroom.setText(welcomeText);
+	}*/
 	
 	public void createChatGUI() {
 		EventQueue.invokeLater(new Runnable() {

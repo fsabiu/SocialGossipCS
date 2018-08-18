@@ -9,7 +9,7 @@ import java.net.SocketTimeoutException;
 
 import util.PortScanner;
 
-public class ChatroomManager extends Thread {
+public class ChatroomManager {
 	
 	//Listener configuration
 	private int listeningPort; //Listening port
@@ -44,30 +44,30 @@ public class ChatroomManager extends Thread {
 		serverSock.setSoTimeout(timeout);
 	}
 	
-	public void run() {
-		buffer = new byte[BUFFER_LEN];
-		DatagramPacket receivedPacket = new DatagramPacket(buffer,buffer.length);
-
-		while(!Thread.interrupted())
-		{
-			try {				
-				//Receiving and storing datagram
-				serverSock.receive(receivedPacket);
-				byte[] message = new byte[receivedPacket.getLength()];
-				
-				//Copying and sending
-				System.arraycopy(receivedPacket.getData(),receivedPacket.getOffset(),message,0,message.length);
-				forwardMessage(message);				
-			} 
-			//timeout
-			catch(SocketTimeoutException e) {}
-			catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		//Closing socket
-		serverSock.close();
-	}
+//	public void run() {
+//		buffer = new byte[BUFFER_LEN];
+//		DatagramPacket receivedPacket = new DatagramPacket(buffer,buffer.length);
+//
+//		while(!Thread.interrupted())
+//		{
+//			try {				
+//				//Receiving and storing datagram
+//				serverSock.receive(receivedPacket);
+//				byte[] message = new byte[receivedPacket.getLength()];
+//				
+//				//Copying and sending
+//				System.arraycopy(receivedPacket.getData(),receivedPacket.getOffset(),message,0,message.length);
+//				forwardMessage(message);				
+//			} 
+//			//timeout
+//			catch(SocketTimeoutException e) {}
+//			catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		//Closing socket
+//		serverSock.close();
+//	}
 
 	public int getListeningPort() {
 		return listeningPort;
