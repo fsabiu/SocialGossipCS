@@ -113,7 +113,7 @@ public class Chatroom {
 		return this.name;
 	}
 	
-	public ChatroomManager getDispatcher(Chatroom chatroom) {
+	public ChatroomManager getDispatcher() {
 		return this.dispatcher;
 	}
 	

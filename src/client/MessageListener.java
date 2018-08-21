@@ -2,6 +2,12 @@ package client;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
+import java.net.SocketException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -17,18 +23,23 @@ public class MessageListener extends Thread{
 	private DataInputStream control_in;
 	private ConcurrentHashMap<String,GUI> interfaces;
 	
-	public MessageListener(DataInputStream control_in, MessageSender message_sender, ConcurrentHashMap<String,GUI> interfaces) {
+	//It is used to receive Objects over socket
+	private ObjectInputStream object_control_in = null;
+	
+	public MessageListener(DataInputStream control_in, MessageSender message_sender, ConcurrentHashMap<String,GUI> interfaces) throws IOException {
 		this.interfaces = interfaces;
 		this.message_sender=message_sender;
 		this.control_in=control_in;
+		object_control_in = new ObjectInputStream(control_in);
 	}
 
 	public void run() {
-		Message received_message;
+		Object received_message;
 		while(true) {
+			System.out.println("In attesa di risposta");
 			//Receiving request
 			received_message=receiveResponse();
-			ResponseMessage response;
+			/*ResponseMessage response;
 			String type = (String) received_message.getParameter("TYPE");
 			switch(type) {
 				case "request":{
@@ -42,6 +53,13 @@ public class MessageListener extends Thread{
 					checkResponse(response);
 				}
 				break;
+			}*/
+			if (received_message instanceof RequestMessage) {
+				//TODO request
+			} else if(received_message instanceof ResponseMessage) {
+				ResponseMessage response = (ResponseMessage) received_message;
+				System.out.println("Il messaggio ricevuto è "+response.toString());
+				checkResponse(response);
 			}
 			
 		}
@@ -181,15 +199,65 @@ public class MessageListener extends Thread{
 			}
 			break;
 			case "CHAT_LISTING": {
+				System.out.println((String) reply.getParameter("BELONGS")+(String) reply.getParameter("NOT_BELONGS"));
 				((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).setChatroomList((String) reply.getParameter("BELONGS"), (String) reply.getParameter("NOT_BELONGS"));
 			} 
 			break;
 			case "CHAT_CREATION": {
+				//Ricevo la risposta 
+				System.out.println(reply.getParameter("OPERATION").equals("OK"));
+				if (reply.getParameter("OPERATION").equals("OK")) {
+					//Stampo il messaggio di creazione corretta
+					JOptionPane.showMessageDialog(null, reply.getParameter("BODY"));
+					
+					//Verifico la porta nel quale sto inviando il messaggio
+					System.out.println(reply.getParameter("PORT"));
+					
+					//Storie varie per i test sull'invio dei messaggi nella chatroom
+					/*try {
+						Integer port = new Integer((String) reply.getParameter("PORT"));
+						MulticastSocket msocket = new MulticastSocket(port);
+						InetAddress gruppo = InetAddress.getByName((String) reply.getParameter("INETADDRESS"));
+						msocket.joinGroup(gruppo);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}*/
+					
+				}
+			}
+			break;
+			case "CHAT_ADDING": {
 				if (reply.getParameter("OPERATION").equals("OK")) {
 					JOptionPane.showMessageDialog(null, reply.getParameter("BODY"));
+					System.out.println(reply.getParameter("PORT"));
+					
+					/*
+					 * Test sulla documentazione java 
+					 String msg = "Hello";
+					 InetAddress group = InetAddress.getByName("228.5.6.7");
+					 MulticastSocket s = new MulticastSocket(6789);
+					 s.joinGroup(group);
+					 DatagramPacket hi = new DatagramPacket(msg.getBytes(), msg.length(),
+					                             group, 6789);
+					*/
+					
+					//Storie varie per i test sull'invio dei messaggi nella chatroom
+					/*try {
+						Integer port = new Integer((String) reply.getParameter("PORT"));
+						MulticastSocket msocket = new MulticastSocket(port);
+						//msocket.send(receivedPacket);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}*/
 				}
+			}
+			break;
+			default: {
 				JOptionPane.showMessageDialog(null, reply.getParameter("BODY"));
 			}
+			break;
 		}
 	}
 		/*String op= (String) reply.getParameter("OPERATION");
@@ -218,21 +286,47 @@ public class MessageListener extends Thread{
 		
 	}*/
 
-	public ResponseMessage receiveResponse() {
-		String replyString= null;
+	public Object receiveResponse() {
+		/*String replyString= null;
 		try {
 			//replyString= control_in.readUTF();
-			replyString = DataInputStream.readUTF(control_in);
+			ObjectInputStream in = new ObjectInputStream(control_in);
+			
+	        Object comeON = in.readObject();
+			//replyString = DataInputStream.readUTF(control_in);
+			if (replyString == null) System.out.println("La risposta è nulla");
+			if (comeON instanceof ResponseMessage) {
+				System.out.println("È un response"+((ResponseMessage) comeON).toString());
+				// Mi serve sapere che tipo è, dovrei leggere il json?
+				//reply.parseToMessage(replyString);
+				
+				return (ResponseMessage) comeON;
+			}
+			else if(comeON instanceof RequestMessage) {
+				System.out.println("È un request");
+			}
+			else if(comeON instanceof Message) {
+				System.out.println("È un message");
+			}
 		} catch (IOException e) {
 			System.out.println("In attesa di response");
 			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		if (replyString == null) System.out.println("La risposta è nulla");
-		
-		ResponseMessage reply=new ResponseMessage();
-		
-		// Mi serve sapere che tipo è, dovrei leggere il json?
-		reply.parseToMessage(replyString);
-		return reply;
+		return null;*/
+        Object comeON = null;
+		try {
+			//in = new ObjectInputStream(control_in);
+			comeON = object_control_in.readObject();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return comeON;
 	}
 }

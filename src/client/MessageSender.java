@@ -256,14 +256,18 @@ public class MessageSender {
 				
 			}
 			break;
-			case "CHAT_CREATION":{
-				System.out.println("Inviata richiesta di creazione all'utente");
+			case "CHAT_CREATION": {
+				System.out.println("Inviata richiesta di creazione della chat");
 				
 				//Setting username and operation field
 				req.setParameters("SENDER:"+username,"OPERATION:"+event);
 				
 				//Setting chatroom name 
 				String new_chatroom= ((SocialGossipHomeGUI) gui).getNewChatroomField().getText();
+				if (new_chatroom.equals("")) {
+					JOptionPane.showMessageDialog(null, "Inserire il nome della chatroom");
+					return;
+				}
 				req.setParameters("CHATROOM:"+new_chatroom);
 				
 				//Sending request to server
@@ -273,6 +277,25 @@ public class MessageSender {
 				req.setParameters("OPERATION:CHAT_LISTING");
 				sendRequest(req);
 			}
+			break;
+			case "CHAT_ADDING": {
+				System.out.println("Inviata richiesta di iscrizione alla chat");
+				
+				//Setting username and operation field
+				req.setParameters("SENDER:"+username,"OPERATION:"+event);
+				
+				//Setting chatroom name
+				String new_chatroom = ((SocialGossipHomeGUI) gui).getSelectedListChatroom();
+				req.setParameters("CHATROOM:"+new_chatroom);
+				
+				sendRequest(req);
+				
+				//TODO remove TEST CHATROOM
+				req.setParameters("OPERATION:MSG_TO_CHATROOM");
+				req.setParameters("TEXT:Ciao");
+				sendRequest(req);
+			}
+			break;
 		}
 	}
 	

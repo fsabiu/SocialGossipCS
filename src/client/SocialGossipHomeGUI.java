@@ -11,16 +11,15 @@ import javax.swing.JTextField;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 
-import org.json.simple.JSONArray;
 
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
 import javax.swing.AbstractListModel;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.ActionEvent;
-import javax.swing.border.BevelBorder;
 
 public class SocialGossipHomeGUI extends GUI{ 
 	
@@ -78,11 +77,17 @@ public class SocialGossipHomeGUI extends GUI{
 				request_maker.eventsHandler(socialGossipHomeGUI, e.getActionCommand());
 			}
 		});
-		btnCreaChatroom.setBounds(301, 535, 151, 35);
+		btnCreaChatroom.setBounds(333, 533, 151, 35);
 		contentPane.add(btnCreaChatroom);
 		
 		btnUniscitiAChatroom = new JButton("Unisciti a ChatRoom");
-		btnUniscitiAChatroom.setBounds(10, 500, 200, 35);
+		btnUniscitiAChatroom.setActionCommand("CHAT_ADDING");
+		btnUniscitiAChatroom.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				request_maker.eventsHandler(socialGossipHomeGUI, e.getActionCommand());
+			}
+		});
+		btnUniscitiAChatroom.setBounds(25, 493, 200, 35);
 		contentPane.add(btnUniscitiAChatroom);
 		
 		JLabel lblCercaUtente = new JLabel("Cerca Utente:");
@@ -107,7 +112,7 @@ public class SocialGossipHomeGUI extends GUI{
 		
 		JLabel lblChatroomAttive = new JLabel("ChatRoom Attive:");
 		lblChatroomAttive.setFont(new Font("Dialog", Font.BOLD, 14));
-		lblChatroomAttive.setBounds(15, 106, 140, 15);
+		lblChatroomAttive.setBounds(25, 111, 140, 15);
 		contentPane.add(lblChatroomAttive);
 		
 		btnLogout = new JButton("Logout");
@@ -168,13 +173,22 @@ public class SocialGossipHomeGUI extends GUI{
 		contentPane.add(profileName);
 		
 		new_chatroom_field = new JTextField();
-		new_chatroom_field.setBounds(12, 543, 279, 20);
+		new_chatroom_field.setBounds(25, 540, 279, 20);
 		contentPane.add(new_chatroom_field);
 		new_chatroom_field.setColumns(10);
 		
-		JList<String> chatroom_list = new JList<String>();
-		chatroom_list.setBounds(25, 132, 427, 327);
-		//contentPane.add(chatroom_list);
+		chatroom_list = new JList<String>();
+		contentPane.add(chatroom_list);
+		chatroom_list.addMouseListener(new MouseAdapter() {
+		    public void mouseClicked(MouseEvent evt) {
+		        JList list = (JList)evt.getSource();
+		        if (evt.getClickCount() == 2) {
+		            // Double-click detected
+		            System.out.println("doppio click");
+		        }
+		    }
+		});
+		chatroom_list.setBounds(25, 137, 460, 333);
 	}
 
 	/*public DefaultListModel<User> getModelUserFriendList() {
@@ -202,11 +216,19 @@ public class SocialGossipHomeGUI extends GUI{
 		});
 	}
 	
+	public String getSelectedListFriend() {
+		String friend=friend_list.getSelectedValue();
+		System.out.println("L'amico selezionato è "+friend_list.getSelectedValue());
+		return friend;
+	}
+	
 	public void setChatroomList(String belongsList, String notBelongsList) {
 		chatroom_list.setModel(new AbstractListModel<String>() {
 			private static final long serialVersionUID = 1L;
 			
-			String[] values = belongsList.split(", ");
+			String[] first = belongsList.split(", ");
+			String[] second = notBelongsList.split(", ");
+			String[] values = combine(first,second);
 			
 			public int getSize() {
 				return values.length;
@@ -219,10 +241,18 @@ public class SocialGossipHomeGUI extends GUI{
 		});
 	}
 	
-	public String getSelectedListFriend() {
-		String friend=friend_list.getSelectedValue();
-		System.out.println("L'elemento selezionato è"+friend_list.getSelectedValue());
-		return friend;
+	public static String[] combine(String[] a, String[] b){
+        int length = a.length + b.length;
+        String[] result = new String[length];
+        System.arraycopy(a, 0, result, 0, a.length);
+        System.arraycopy(b, 0, result, a.length, b.length);
+        return result;
+    }
+	
+	public String getSelectedListChatroom() {
+		String chatroom=chatroom_list.getSelectedValue();
+		System.out.println("La chatroom selezionata è "+chatroom_list.getSelectedValue());
+		return chatroom;
 	}
 	
 	public void logoutGUI() {
@@ -245,7 +275,6 @@ public class SocialGossipHomeGUI extends GUI{
 	public JTextField getNewChatroomField() {
 		return new_chatroom_field;
 	}
-	
 
 	public JButton getBtnLogout() {
 		return btnLogout;

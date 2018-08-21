@@ -1,5 +1,7 @@
 package server;
 import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.Socket;
 import communication.RMIClientInterface;
@@ -11,7 +13,7 @@ import communication.RMIClientInterface;
  * @author Francesco Sabiu
  * The class represent a subscribed user, identified by unique username.
  */
-public class User implements Serializable {
+public class User {
 	/**
 	 * 
 	 */
@@ -25,8 +27,8 @@ public class User implements Serializable {
 	//Managing connections
 	private transient Socket control_socket=null;
 	private transient Socket message_socket=null;
-	DataOutputStream control_out=null;
-	DataOutputStream message_out=null;
+	private ObjectOutputStream control_out=null;
+	private DataOutputStream message_out=null;
 	
 	//RMI Channel
 	private RMIClientInterface RMIchannel = null;
@@ -65,7 +67,7 @@ public class User implements Serializable {
 		return false;
 	}
 	
-	public synchronized void setOnline(Socket control, Socket messages, DataOutputStream control_out, DataOutputStream message_out) {
+	public synchronized void setOnline(Socket control, Socket messages, ObjectOutputStream control_out, DataOutputStream message_out) throws IOException {
 		setControlSocket(control);
 		setMessageSocket(messages);
 		this.control_out=control_out;
@@ -108,7 +110,7 @@ public class User implements Serializable {
 		return this.RMIchannel;
 	}
 	
-	public DataOutputStream getControlOutputStream() {
+	public ObjectOutputStream getControlOutputStream() {
 		return this.control_out;
 	}
 	

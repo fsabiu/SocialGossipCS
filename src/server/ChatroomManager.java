@@ -93,6 +93,10 @@ public class ChatroomManager {
 		}
 	}
 	
+	public int getSocketPort() {
+		return socket.getLocalPort();
+	}
+	
 	/*
 	public InetAddress getAddress() {
 		return msAddress;

@@ -5,6 +5,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -62,11 +63,13 @@ public class RequestManager implements Runnable {
 		
 		//Declaring control stream addresses
 		DataInputStream control_in = null;
-		DataOutputStream control_out = null;	
+		DataOutputStream control_data_out = null;	
+		ObjectOutputStream control_out = null;
 		
 		try {
 			control_in = new DataInputStream(new BufferedInputStream(client_control.getInputStream()));
-			control_out = new DataOutputStream(client_control.getOutputStream());
+			control_data_out = new DataOutputStream(client_control.getOutputStream());
+			control_out = new ObjectOutputStream(control_data_out);
 			
 			//Reading handshake data
 			//client_control.setSoTimeout(1500);
@@ -154,7 +157,7 @@ public class RequestManager implements Runnable {
 
 
 	@SuppressWarnings("null")
-	private User executeRequest(RequestMessage message, DataOutputStream control_out, DataOutputStream message_out) {
+	private User executeRequest(RequestMessage message, ObjectOutputStream control_out, DataOutputStream message_out) {
 		
 		User connection_user=null;
 		
@@ -170,7 +173,6 @@ public class RequestManager implements Runnable {
 			//In this way, if he closes the connection we can set it offline 
 			connection_user= usersbyname.get(sender);
 			
-			System.out.println("Server: l'operazione è: "+op);
 			//Validating operation field
 			if(op==null) {
 				System.out.println("Invalid operation type recived");
@@ -184,7 +186,6 @@ public class RequestManager implements Runnable {
 					}
 				}
 			}*/
-			System.out.println("Server dopo: l'operazione è: "+op);
 			
 			switch(op) {
 				case "REGISTER":
@@ -234,9 +235,6 @@ public class RequestManager implements Runnable {
 			System.exit(-1);
 		}
 		
-		System.out.println("Out normale: "+control_out);
-		if(message_manager!=null) System.out.println("Out del manager: "+message_manager.getSender().getControlOutputStream());
-		
 		//Replying to sender
 		if(message_manager!=null) {//replying to user 
 			System.out.println("Sender: "+message_manager.getSender()+" è online? "+message_manager.getSender().isOnline());
@@ -268,7 +266,7 @@ public class RequestManager implements Runnable {
 		}
 		
 		//All fine. Getting dispatcher
-		ChatroomManager dispatcher= chatroom.getDispatcher(chatroom);
+		ChatroomManager dispatcher= chatroom.getDispatcher();
 		if(!dispatcher.sendMessage(message.toString())){
 			reply.setParameters("OPERATION:ERR", "BODY: Error while dispatching message to chatroom");
 			return reply;
@@ -303,7 +301,6 @@ public class RequestManager implements Runnable {
 		
 		//Print
 		//String res= (String) reply.getParameter("BODY");
-		System.out.println(reply.toString());
 		return reply;
 	}
 
@@ -511,7 +508,7 @@ public class RequestManager implements Runnable {
 	 * @param client_messages
 	 * @return
 	 */
-	private ResponseMessage login(RequestMessage message, Socket client_control, Socket client_messages, DataOutputStream control_out, DataOutputStream message_out) {
+	private ResponseMessage login(RequestMessage message, Socket client_control, Socket client_messages, ObjectOutputStream control_out, DataOutputStream message_out) {
 		//Creation reply message
 		ResponseMessage reply= new ResponseMessage();
 		
@@ -543,7 +540,12 @@ public class RequestManager implements Runnable {
 		User user=usersbyname.get(username);
 		
 		//Setting user as online
-		user.setOnline(client_control, client_messages, control_out, message_out);
+		try {
+			user.setOnline(client_control, client_messages, control_out, message_out);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		//Setting reply
 		reply.setParameters("OPERATION:OK");
@@ -552,8 +554,6 @@ public class RequestManager implements Runnable {
 		
 		//Notify friends
 		notifier.notifyOnlineFriend(user);
-		
-		System.out.println("Nome utente "+user.toString());
 		
 		//Adding user to PrivateMessageManager for future message requests
 		message_manager=new PrivateMessageManager();
@@ -637,8 +637,11 @@ public class RequestManager implements Runnable {
 		try {
 			Chatroom new_chatroom= new Chatroom(chatroom, usersbyname.get(username), msAddress, listenAddress);
 			chatrooms.putIfAbsent(chatroom, new_chatroom);
+			int port = new_chatroom.getPort(); 
 			reply.setParameters("OPERATION:OK");
 			reply.setParameters("BODY:Chatroom "+chatroom+" creata con successo!");
+			reply.setParameters("PORT:"+port);
+			reply.setParameters("INETADDRESS:"+msAddress);
 			return reply;
 		} catch (Exception e) {
 			reply.setParameters("OPERATION:ERR", "BODY:Network error while creating chatroom");
@@ -716,6 +719,12 @@ public class RequestManager implements Runnable {
 			reply.setParameters("OPERATION:CHATROOM_DOES_NOT_EXIST");
 			return reply;
 		}
+		
+		//If user already belongs to chatroom
+		if(chatrooms.get(chat).isParticipant(usersbyname.get(username))) {
+			reply.setParameters("OPERATION:ERR","BODY:L'utente "+username+" fa già parte della chatroom!");
+			return reply;
+		}
 
 		//Adding user to chatroom
 		Chatroom chatroom=chatrooms.get(chat);
@@ -723,7 +732,8 @@ public class RequestManager implements Runnable {
 		chatroom.addParticipant(user);
 		reply.setParameters("OPERATION:OK");
 		reply.setParameters("IP:"+chatroom.getAddress());
-		reply.setParameters("PORT:"+chatroom.getPort());
+		//reply.setParameters("PORT:"+chatroom.getPort());
+		reply.setParameters("PORT:"+chatroom.getDispatcher().getSocketPort());
 		
 		//Notify users
 		notifier.notifyChatroomJoin(user, chatroom);
