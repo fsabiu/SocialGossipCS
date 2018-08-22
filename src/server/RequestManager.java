@@ -5,6 +5,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -62,18 +63,20 @@ public class RequestManager implements Runnable {
 		
 		
 		//Declaring control stream addresses
-		DataInputStream control_in = null;
+		ObjectInputStream control_in = null;
+		DataInputStream control_data_in = null;
 		DataOutputStream control_data_out = null;	
 		ObjectOutputStream control_out = null;
 		
 		try {
-			control_in = new DataInputStream(new BufferedInputStream(client_control.getInputStream()));
+			control_data_in = new DataInputStream(new BufferedInputStream(client_control.getInputStream()));
 			control_data_out = new DataOutputStream(client_control.getOutputStream());
+			control_in = new ObjectInputStream(control_data_in);
 			control_out = new ObjectOutputStream(control_data_out);
 			
+			System.out.println("Waiting for connections...");
 			//Reading handshake data
-			//client_control.setSoTimeout(1500);
-			String handshake = control_in.readUTF();
+			String handshake = control_data_in.readUTF();
 			
 			RequestMessage handshake_message=new RequestMessage();
 			handshake_message.parseToMessage(handshake);
@@ -102,17 +105,23 @@ public class RequestManager implements Runnable {
 			while(true) {
 				try {
 					//Reading client message
-					String request = control_in.readUTF();
-
-					//Parsing String to Message
-					RequestMessage message=new RequestMessage();
-					message.parseToMessage(request);
+					Object message=null;
+					try {
+						message = (Object) control_in.readObject();
+					} catch (ClassNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					
-					//Debug print
-					System.out.println("SERVER: received: "+request);
+					if(message instanceof RequestMessage) {
+						//Executing client request if message is RequestMessage
+						connection_user= executeRequest((RequestMessage)message,control_out,message_out);
+					}
 					
-					//Executing client request
-					connection_user= executeRequest(message,control_out,message_out);
+					if(message instanceof ResponseMessage) {
+						//Processing client reply
+						connection_user= processResponse((RequestMessage)message,control_out,message_out);
+					}
 				}
 				//client closes connection
 				catch(EOFException e) {
@@ -156,9 +165,38 @@ public class RequestManager implements Runnable {
 	}
 
 
+	private User processResponse(RequestMessage message, ObjectOutputStream control_out, DataOutputStream message_out) {
+		//Creation reply message
+		ResponseMessage reply=null;
+		
+		//Getting operation from ResponseMessage
+		String op = (String) message.getParameter("OPERATION");
+		String sender= (String) message.getParameter("SENDER");
+		String receiver= (String) message.getParameter("RECEIVER");
+		
+		//To network node
+		User sender_user=usersbyname.get(sender);
+		User receiver_user=usersbyname.get(receiver);
+		
+		//Switching operation
+		switch(op) {
+		case "MSG_TO_FRIEND":
+			
+			//Online checking
+			boolean online;
+			synchronized(receiver_user) {
+				online=receiver_user.isOnline();
+			}
+			if(online) {
+				response_manager.sendReply(reply, control_out);
+			}
+			break;
+		}
+		return sender_user;
+	}
+
 	@SuppressWarnings("null")
 	private User executeRequest(RequestMessage message, ObjectOutputStream control_out, DataOutputStream message_out) {
-		
 		User connection_user=null;
 		
 		//Creation reply message
