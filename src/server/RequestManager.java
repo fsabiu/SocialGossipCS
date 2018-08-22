@@ -74,7 +74,6 @@ public class RequestManager implements Runnable {
 			control_in = new ObjectInputStream(control_data_in);
 			control_out = new ObjectOutputStream(control_data_out);
 			
-			System.out.println("Waiting for connections...");
 			//Reading handshake data
 			String handshake = control_data_in.readUTF();
 			
@@ -95,13 +94,14 @@ public class RequestManager implements Runnable {
 			client_messages=new Socket(IP, port);
 			
 			//DataInputStream message_in= new DataInputStream(new BufferedInputStream(client_messages.getInputStream()));
-			DataOutputStream message_out= new DataOutputStream(client_messages.getOutputStream());
+			DataOutputStream message_data_out= new DataOutputStream(client_messages.getOutputStream());
+			ObjectOutputStream message_out= new ObjectOutputStream(message_data_out);
 			
 			System.out.println("Server: hanshake with client terminated");
 			
 			User connection_user=null;
 			
-			//Repeat until the client is connected
+			//Repeat while the client is connected
 			while(true) {
 				try {
 					//Reading client message
@@ -112,6 +112,7 @@ public class RequestManager implements Runnable {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+					System.out.println("Dopo handshake: "+message.toString());
 					
 					if(message instanceof RequestMessage) {
 						//Executing client request if message is RequestMessage
@@ -125,20 +126,24 @@ public class RequestManager implements Runnable {
 				}
 				//client closes connection
 				catch(EOFException e) {
-					System.out.println("Connection closed by client");
 					//SE ERA UN UTENTE LOGGATO, SETTALO OFFLINE
 					if (connection_user!=null) {
 						message_manager.setSender(null);
 						connection_user.setOffline();
+						System.out.println(connection_user.getUsername()+" disconnected");
+					} else {
+						System.out.println("Connection closed by anonymous client");
 					}
 					break;
 				}
 				catch (IOException e1) {
-					System.out.println("Connection closed by client");
 					//SE ERA UN UTENTE LOGGATO, SETTALO OFFLINE
 					if (connection_user!=null) {
 						message_manager.setSender(null);
 						connection_user.setOffline();
+						System.out.println(connection_user.getUsername()+" disconnected");
+					} else {
+						System.out.println("Connection closed by anonymous client");
 					}
 					break;
 				}
@@ -165,7 +170,7 @@ public class RequestManager implements Runnable {
 	}
 
 
-	private User processResponse(RequestMessage message, ObjectOutputStream control_out, DataOutputStream message_out) {
+	private User processResponse(RequestMessage message, ObjectOutputStream control_out, ObjectOutputStream message_out) {
 		//Creation reply message
 		ResponseMessage reply=null;
 		
@@ -196,7 +201,7 @@ public class RequestManager implements Runnable {
 	}
 
 	@SuppressWarnings("null")
-	private User executeRequest(RequestMessage message, ObjectOutputStream control_out, DataOutputStream message_out) {
+	private User executeRequest(RequestMessage message, ObjectOutputStream control_out, ObjectOutputStream message_out) {
 		User connection_user=null;
 		
 		//Creation reply message
@@ -546,7 +551,7 @@ public class RequestManager implements Runnable {
 	 * @param client_messages
 	 * @return
 	 */
-	private ResponseMessage login(RequestMessage message, Socket client_control, Socket client_messages, ObjectOutputStream control_out, DataOutputStream message_out) {
+	private ResponseMessage login(RequestMessage message, Socket client_control, Socket client_messages, ObjectOutputStream control_out, ObjectOutputStream message_out) {
 		//Creation reply message
 		ResponseMessage reply= new ResponseMessage();
 		
@@ -781,7 +786,6 @@ public class RequestManager implements Runnable {
 	private ResponseMessage registerUser(RequestMessage message) {
 		//Creation reply message
 		ResponseMessage reply= new ResponseMessage();
-		System.out.println(message.toString());
 		//Extracting relevant fields
 		String username= (String) message.getParameter("SENDER");
 		String password= (String) message.getParameter("PASSWORD");

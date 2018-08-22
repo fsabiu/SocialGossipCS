@@ -48,7 +48,7 @@ public class Message implements Serializable{
 	}
 	
 	@SuppressWarnings("unchecked")
-	public JSONObject translate(String from, String to) {
+	public Message translate(String from, String to) {
 		String body= this.getParameter("BODY").toString();
 		JSONParser parser= new JSONParser();
 		try {
@@ -72,7 +72,7 @@ public class Message implements Serializable{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 
-		return j_message;
+		return this;
 	}
 	
 	public Message parseToMessage(String str) {
@@ -85,5 +85,17 @@ public class Message implements Serializable{
 			// TODO Auto-generated catch block
 			return null;
 		}
+	}
+
+	public static Message shallowCopy(Message message) {
+		Message copied;
+		if (message instanceof RequestMessage) {
+			copied= new RequestMessage();
+		}
+		else {
+			copied= new ResponseMessage();
+		}
+		copied.setParameters(message.toString().replace("{","").replace("}",""));
+		return copied;
 	}
 }

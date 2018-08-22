@@ -3,6 +3,7 @@ package server;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -26,7 +27,7 @@ public class PrivateMessageManager implements MessageManager {
 	 * @param to
 	 * @return
 	 */
-	private JSONObject translateMessage(Message message, String from, String to) {
+	private Message translateMessage(Message message, String from, String to) {
 		return message.translate(from, to);
 	}
 	
@@ -39,19 +40,19 @@ public class PrivateMessageManager implements MessageManager {
 	 * @throws IllegalArgumentException
 	 */
 	public boolean sendMessageToUser(Message message, User receiver) {
-		String mess;
+		RequestMessage mess;
 		if(receiver.isOnline()) {
 			if(!sender.getLanguage().equals(receiver.getLanguage())) {
-				mess=translateMessage(message, sender.getLanguage(), receiver.getLanguage()).toJSONString();
+				mess= (RequestMessage) translateMessage(message, sender.getLanguage(), receiver.getLanguage());
 			} else {
-				mess=message.toString();
+				mess= (RequestMessage) message;
 			}
 			
 			//Getting receiver output stream
 			try {
-				DataOutputStream messages_out = receiver.getMessageOutputStream();
+				ObjectOutputStream messages_out = receiver.getMessageOutputStream();
 				//Sending
-				messages_out.writeUTF(mess);
+				messages_out.writeObject(mess);
 				return true;
 			}catch(IOException e) {
 				return false;
@@ -65,12 +66,12 @@ public class PrivateMessageManager implements MessageManager {
 	
 	public boolean sendRequestToUser(Message message, User receiver) throws IllegalArgumentException {
 		if(receiver.isOnline()) {
-			String mess=translateMessage(message, sender.getLanguage(), receiver.getLanguage()).toJSONString();
+			Message mess=translateMessage(message, sender.getLanguage(), receiver.getLanguage());
 			//Getting receiver output stream
 			try {
-				DataOutputStream control_out = new DataOutputStream(receiver.getControlSocket().getOutputStream());
+				ObjectOutputStream control_out = receiver.getMessageOutputStream();
 				//Sending
-				control_out.writeUTF(mess);
+				control_out.writeObject(mess);
 				return true;
 			}catch(IOException e) {
 				return false;

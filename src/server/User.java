@@ -28,7 +28,7 @@ public class User {
 	private transient Socket control_socket=null;
 	private transient Socket message_socket=null;
 	private ObjectOutputStream control_out=null;
-	private DataOutputStream message_out=null;
+	private ObjectOutputStream message_out=null;
 	
 	//RMI Channel
 	private RMIClientInterface RMIchannel = null;
@@ -67,7 +67,7 @@ public class User {
 		return false;
 	}
 	
-	public synchronized void setOnline(Socket control, Socket messages, ObjectOutputStream control_out, DataOutputStream message_out) throws IOException {
+	public synchronized void setOnline(Socket control, Socket messages, ObjectOutputStream control_out, ObjectOutputStream message_out) throws IOException {
 		setControlSocket(control);
 		setMessageSocket(messages);
 		this.control_out=control_out;
@@ -114,7 +114,7 @@ public class User {
 		return this.control_out;
 	}
 	
-	public DataOutputStream getMessageOutputStream() {
+	public ObjectOutputStream getMessageOutputStream() {
 		return this.message_out;
 	}
 }

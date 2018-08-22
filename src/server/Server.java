@@ -51,6 +51,7 @@ public class Server implements Runnable{
 			//startRMI();
 			
 			while(true) {
+				System.out.println("Waiting for connections...");
 				//The server is ready to listen new requests
 				Socket Client = listenerSocket.accept();
 				
@@ -75,8 +76,6 @@ public class Server implements Runnable{
 		try {
 			//Creating instance of the Server
 			Server CSServer= new Server(Config.SERVER_TCP_PORT);
-			
-			System.out.println("New server created");
 			
 			//Running the server
 			CSServer.run();

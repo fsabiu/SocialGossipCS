@@ -33,8 +33,6 @@ public class ReplyMessageManager implements MessageManager {
 		try {
 			//Sending
 			System.out.println("Messaggio è "+message.toString());
-			//control_out.writeUTF(message.toString());
-			
 	        control_out.writeObject(message);
 			return true;
 		}catch(IOException e) {
