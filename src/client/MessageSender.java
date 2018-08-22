@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -24,11 +25,11 @@ public class MessageSender {
 	private String username;
 	private String password;
 	private String language;
-	//private DataInputStream control_in;
-	private DataOutputStream control_out;
+
+	private ObjectOutputStream control_out;
 
 	//public MessageSender(Socket server_control_socket, Socket server_message_socket, LoginGUI loginGUI) {
-	public MessageSender(DataOutputStream control_out, Socket server_message_socket, ConcurrentHashMap<String,GUI> interfaces) {
+	public MessageSender(ObjectOutputStream control_out, Socket server_message_socket, ConcurrentHashMap<String,GUI> interfaces) {
 		this.password="";
 		//this.server_control_socket=server_control_socket;
 		this.server_message_socket=server_message_socket;
@@ -345,7 +346,8 @@ public class MessageSender {
 	
 	public void sendRequest(RequestMessage req) {
 		try {
-			control_out.writeUTF(req.toString());		
+			//control_out.writeUTF(req.toString());
+			control_out.writeObject(req);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

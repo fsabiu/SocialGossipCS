@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -35,7 +36,8 @@ public class Client implements Runnable{
 			
 			try {
 				DataInputStream control_in= new DataInputStream(new BufferedInputStream(server_control_socket.getInputStream()));
-				DataOutputStream control_out= new DataOutputStream(server_control_socket.getOutputStream());
+				DataOutputStream control_data_out= new DataOutputStream(server_control_socket.getOutputStream());
+				ObjectOutputStream control_out = new ObjectOutputStream(control_data_out);
 				
 				ConcurrentHashMap<String,GUI> interfaces = new ConcurrentHashMap<String,GUI>();
 				
