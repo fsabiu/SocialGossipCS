@@ -66,7 +66,6 @@ public class Message implements Serializable{
 			
 			JSONObject temp= (JSONObject) parser.parse(sb.toString());
 			String new_body= (String) ((JSONObject) temp.get("responseData")).get("translatedText");
-			//j_message.put(to, new_body);
 			j_message.put("BODY", new_body);
 		} catch (IOException | ParseException e) {
 			// TODO Auto-generated catch block
@@ -95,7 +94,15 @@ public class Message implements Serializable{
 		else {
 			copied= new ResponseMessage();
 		}
-		copied.setParameters(message.toString().replace("{","").replace("}",""));
+		copied.setJson(message.getJson());
 		return copied;
+	}
+	
+	private void setJson(JSONObject j_message) {
+		this.j_message = j_message;
+	}
+	
+	private JSONObject getJson() {
+		return this.j_message;
 	}
 }
