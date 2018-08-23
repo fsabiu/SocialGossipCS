@@ -28,7 +28,10 @@ public class PrivateMessageManager implements MessageManager {
 	 * @return
 	 */
 	private Message translateMessage(Message message, String from, String to) {
-		return message.translate(from, to);
+		if(!from.equals(to)) {
+			return message.translate(from, to);
+		}
+		else return message;
 	}
 	
 	/**
@@ -47,7 +50,7 @@ public class PrivateMessageManager implements MessageManager {
 			} else {
 				mess= (RequestMessage) message;
 			}
-			
+			System.out.println("Translated message: "+mess.toString());
 			//Getting receiver output stream
 			try {
 				ObjectOutputStream messages_out = receiver.getMessageOutputStream();
@@ -66,12 +69,16 @@ public class PrivateMessageManager implements MessageManager {
 	
 	public boolean sendRequestToUser(Message message, User receiver) throws IllegalArgumentException {
 		if(receiver.isOnline()) {
+			System.out.println(receiver.getUsername()+" is online");
 			Message mess=translateMessage(message, sender.getLanguage(), receiver.getLanguage());
 			//Getting receiver output stream
+			System.out.println("Translated message: "+mess.toString());
 			try {
 				ObjectOutputStream control_out = receiver.getMessageOutputStream();
+				System.out.println("Control out di "+receiver.getUsername()+": "+control_out);
 				//Sending
 				control_out.writeObject(mess);
+				System.out.println("Write done");
 				return true;
 			}catch(IOException e) {
 				return false;

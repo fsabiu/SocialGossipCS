@@ -1,6 +1,7 @@
 package server;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.Socket;
@@ -29,6 +30,8 @@ public class User {
 	private transient Socket message_socket=null;
 	private ObjectOutputStream control_out=null;
 	private ObjectOutputStream message_out=null;
+	private ObjectInputStream control_in=null;
+	private ObjectInputStream message_in=null;
 	
 	//RMI Channel
 	private RMIClientInterface RMIchannel = null;
@@ -67,11 +70,13 @@ public class User {
 		return false;
 	}
 	
-	public synchronized void setOnline(Socket control, Socket messages, ObjectOutputStream control_out, ObjectOutputStream message_out) throws IOException {
+	public synchronized void setOnline(Socket control, Socket messages, ObjectOutputStream control_out, ObjectOutputStream message_out, ObjectInputStream control_in, ObjectInputStream message_in) throws IOException {
 		setControlSocket(control);
 		setMessageSocket(messages);
 		this.control_out=control_out;
 		this.message_out=message_out;
+		this.control_in=control_in;
+		this.message_in=message_in;
 		this.online=true;
 	}
 	
@@ -116,5 +121,13 @@ public class User {
 	
 	public ObjectOutputStream getMessageOutputStream() {
 		return this.message_out;
+	}
+	
+	public ObjectInputStream getMessageInputStream() {
+		return this.message_in;
+	}
+	
+	public ObjectInputStream getControlInputStream() {
+		return this.control_in;
 	}
 }

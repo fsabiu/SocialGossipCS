@@ -77,6 +77,8 @@ public class RequestManager implements Runnable {
 			//Reading handshake data
 			String handshake = control_data_in.readUTF();
 			
+			System.out.println("Handshake letto");
+			
 			RequestMessage handshake_message=new RequestMessage();
 			handshake_message.parseToMessage(handshake);
 			
@@ -93,9 +95,10 @@ public class RequestManager implements Runnable {
 			//Asking for connection
 			client_messages=new Socket(IP, port);
 			
-			//DataInputStream message_in= new DataInputStream(new BufferedInputStream(client_messages.getInputStream()));
+			DataInputStream message_data_in= new DataInputStream(new BufferedInputStream(client_messages.getInputStream()));
 			DataOutputStream message_data_out= new DataOutputStream(client_messages.getOutputStream());
 			ObjectOutputStream message_out= new ObjectOutputStream(message_data_out);
+			ObjectInputStream message_in= new ObjectInputStream(message_data_in);
 			
 			System.out.println("Server: hanshake with client terminated");
 			
@@ -116,7 +119,7 @@ public class RequestManager implements Runnable {
 					
 					if(message instanceof RequestMessage) {
 						//Executing client request if message is RequestMessage
-						connection_user= executeRequest((RequestMessage)message,control_out,message_out);
+						connection_user= executeRequest((RequestMessage)message,control_out,message_out, control_in, message_in);
 					}
 					
 					if(message instanceof ResponseMessage) {
@@ -185,7 +188,7 @@ public class RequestManager implements Runnable {
 		
 		//Switching operation
 		switch(op) {
-		case "MSG_TO_FRIEND":
+		case "FILE_TO_FRIEND":
 			
 			//Online checking
 			boolean online;
@@ -201,7 +204,7 @@ public class RequestManager implements Runnable {
 	}
 
 	@SuppressWarnings("null")
-	private User executeRequest(RequestMessage message, ObjectOutputStream control_out, ObjectOutputStream message_out) {
+	private User executeRequest(RequestMessage message, ObjectOutputStream control_out, ObjectOutputStream message_out, ObjectInputStream control_in, ObjectInputStream message_in) {
 		User connection_user=null;
 		
 		//Creation reply message
@@ -256,7 +259,7 @@ public class RequestManager implements Runnable {
 					reply=listFriends(message);
 					break;
 				case "LOGIN":
-					reply=login(message, client_control, client_messages, control_out, message_out);
+					reply=login(message, client_control, client_messages, control_out, message_out, control_in, message_in);
 					break;
 				case "LOGOUT":
 					reply=logout(message);
@@ -280,7 +283,8 @@ public class RequestManager implements Runnable {
 		
 		//Replying to sender
 		if(message_manager!=null) {//replying to user 
-			System.out.println("Sender: "+message_manager.getSender()+" è online? "+message_manager.getSender().isOnline());
+			System.out.println(connection_user.getUsername());
+			System.out.println("Message out: "+connection_user.getMessageOutputStream());
 			response_manager.sendMessageToUser(reply, message_manager.getSender());
 		}else {//Sender was not a user
 			response_manager.sendReply(reply, control_out);
@@ -444,13 +448,13 @@ public class RequestManager implements Runnable {
 	 * @param message
 	 * @return
 	 */
-	private ResponseMessage msgToFriend(RequestMessage message) {
+	private ResponseMessage msgToFriend(RequestMessage request) {
 		//Creation reply message
 		ResponseMessage reply= new ResponseMessage();
 		
 		//Getting relevant fields
-		String sender= (String) message.getParameter("SENDER");
-		String receiver= (String) message.getParameter("RECEIVER");
+		String sender= (String) request.getParameter("SENDER");
+		String receiver= (String) request.getParameter("RECEIVER");
 		
 		//To network nodes
 		User sender_user=usersbyname.get(sender);
@@ -484,14 +488,30 @@ public class RequestManager implements Runnable {
 			}
 		}
 		
+		
+		
+		//leggi mess mittente (con timer)
+		RequestMessage message = null;
+		try {
+			System.out.println("Provo a leggere il messaggio");
+			message = (RequestMessage) sender_user.getMessageInputStream().readObject();
+		} catch (ClassNotFoundException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		//Setting reply
 		reply.setParameters("OPERATION:OK"); 
-		reply.setParameters("BODY:Messaggio inviato con successo");
+		reply.setParameters("BODY:"+message.getParameter("BODY"));
+		reply.setParameters("SENDER:"+sender);
+		reply.setParameters("RECEIVER:"+receiver);
 		
+		System.out.println("Messaggio letto: "+message.toString());
 		//Sending message
 		if(!message_manager.sendMessageToUser(message, receiver_user)) {
 			reply.setParameters("OPERATION:ERR");
 		}
+		
 		return reply;
 	}
 
@@ -551,7 +571,7 @@ public class RequestManager implements Runnable {
 	 * @param client_messages
 	 * @return
 	 */
-	private ResponseMessage login(RequestMessage message, Socket client_control, Socket client_messages, ObjectOutputStream control_out, ObjectOutputStream message_out) {
+	private ResponseMessage login(RequestMessage message, Socket client_control, Socket client_messages, ObjectOutputStream control_out, ObjectOutputStream message_out, ObjectInputStream control_in, ObjectInputStream message_in) {
 		//Creation reply message
 		ResponseMessage reply= new ResponseMessage();
 		
@@ -584,7 +604,7 @@ public class RequestManager implements Runnable {
 		
 		//Setting user as online
 		try {
-			user.setOnline(client_control, client_messages, control_out, message_out);
+			user.setOnline(client_control, client_messages, control_out, message_out, control_in, message_in);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -602,7 +622,6 @@ public class RequestManager implements Runnable {
 		message_manager=new PrivateMessageManager();
 		message_manager.setSender(user);
 		
-		System.out.println("Terminato il login");
 		return reply;
 		}
 
@@ -790,7 +809,6 @@ public class RequestManager implements Runnable {
 		String username= (String) message.getParameter("SENDER");
 		String password= (String) message.getParameter("PASSWORD");
 		String language= (String) message.getParameter("LANGUAGE");
-		System.out.println("Server: sono in register");
 		try {
 			//If user already exists
 			if(usersbyname.containsKey(username)) {

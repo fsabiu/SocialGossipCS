@@ -11,6 +11,8 @@ import java.net.URLEncoder;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+
 public class Message implements Serializable{
 	/**
 	 * 
@@ -49,14 +51,20 @@ public class Message implements Serializable{
 	
 	@SuppressWarnings("unchecked")
 	public Message translate(String from, String to) {
+		
 		String body= this.getParameter("BODY").toString();
+		
+		/*
 		JSONParser parser= new JSONParser();
 		try {
 			//Opening connection
 			String url_tail= "q="+URLEncoder.encode(body, "UTF-8")+"&langpair="+from+"|"+to;
 			URL full_url= new URL(util.Config.TRANSLATOR_URL+url_tail);
 			URLConnection currentConnection= full_url.openConnection();
+			System.out.println("URL: "+full_url);
+			System.out.println("Connessione aperta");
 			BufferedReader fromRest= new BufferedReader(new InputStreamReader(currentConnection.getInputStream()));
+			System.out.println("Newreader fatto");
 			
 			String line=null;
 			StringBuffer sb= new StringBuffer();
@@ -71,6 +79,7 @@ public class Message implements Serializable{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 
+		*/
 		return this;
 	}
 	
