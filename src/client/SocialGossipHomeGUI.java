@@ -312,7 +312,7 @@ public class SocialGossipHomeGUI extends GUI{
 		lblNewChatroom.setText(welcomeText);
 	}*/
 	
-	public void createChatGUI() {
+	/*public void createChatGUI() {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -323,5 +323,5 @@ public class SocialGossipHomeGUI extends GUI{
 				}
 			}
 		});
-	}
+	}*/
 }

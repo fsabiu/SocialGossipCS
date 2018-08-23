@@ -14,6 +14,7 @@ import javax.swing.JOptionPane;
 
 import org.json.simple.JSONArray;
 
+import communication.Message;
 import communication.Operation;
 import communication.RequestMessage;
 import communication.ResponseMessage;
@@ -27,9 +28,10 @@ public class MessageSender {
 	private String language;
 
 	private ObjectOutputStream control_out;
+	private ObjectOutputStream message_out;
 
 	//public MessageSender(Socket server_control_socket, Socket server_message_socket, LoginGUI loginGUI) {
-	public MessageSender(ObjectOutputStream control_out, Socket server_message_socket, ConcurrentHashMap<String,GUI> interfaces) {
+	public MessageSender(ObjectOutputStream control_out, ObjectOutputStream message_out, Socket server_message_socket, ConcurrentHashMap<String,GUI> interfaces) {
 		this.password="";
 		//this.server_control_socket=server_control_socket;
 		this.server_message_socket=server_message_socket;
@@ -43,6 +45,7 @@ public class MessageSender {
 		}*/
 		this.interfaces=interfaces;
 		this.control_out=control_out;
+		this.message_out=message_out;
 	
 	}
 	
@@ -142,13 +145,16 @@ public class MessageSender {
 					//Opening chat interface to user
 					((LoginGUI) gui).createSGHome(username);
 				}*/
-				
-				req.setParameters("OPERATION:LIST_FRIENDS");
+				RequestMessage req_friends = new RequestMessage();
+				req_friends.setParameters("SENDER:"+username);
+				req_friends.setParameters("OPERATION:LIST_FRIENDS");
 				//Sending request to server
-				sendRequest(req);
-				
-				req.setParameters("OPERATION:CHAT_LISTING");
-				sendRequest(req);
+				sendRequest(req_friends);
+
+				RequestMessage req_chatroom = new RequestMessage();
+				req_chatroom.setParameters("SENDER:"+username);
+				req_chatroom.setParameters("OPERATION:CHAT_LISTING");
+				sendRequest(req_chatroom);
 			}
 			break;
 			case "LOGOUT":{
@@ -250,11 +256,29 @@ public class MessageSender {
 			case "STARTCHAT": {
 				System.out.println("Apertura chat");
 				//Getting friend name
-				((SocialGossipHomeGUI) gui).getSelectedListFriend();
+				String friend = ((SocialGossipHomeGUI) gui).getSelectedListFriend();
 				
 				//Creating chat to chat with the above friend
-				((SocialGossipHomeGUI) gui).createChatGUI();
+				ChatGUI chatGUI = new ChatGUI(friend);
+				chatGUI.setVisible(true);
+				interfaces.putIfAbsent("chatGUI"+friend, chatGUI);
+			}
+			break;
+			case "MSG_TO_FRIEND": {
+				System.out.println("Invio Messaggio amico");
 				
+				String msg = ((ChatGUI) gui).getTextArea().getText();
+				String friend = ((ChatGUI) gui).getTitle();
+				System.out.println(friend);
+				req.setParameters("OPERATION:"+event);
+				req.setParameters("RECEIVER:"+friend);
+				req.setParameters("BODY:"+msg);
+				System.out.println("Il messaggio inviato è "+req);
+				sendRequest(req);
+				
+				RequestMessage req_msg = new RequestMessage(username);
+				req_msg.setParameters("RECEIVER:"+friend,"BODY:"+msg);
+				sendMessage(req_msg);
 			}
 			break;
 			case "CHAT_CREATION": {
@@ -275,8 +299,9 @@ public class MessageSender {
 				sendRequest(req);
 				
 				// Asking for list of chatrooms
+				RequestMessage req_chat = new RequestMessage(username);
 				req.setParameters("OPERATION:CHAT_LISTING");
-				sendRequest(req);
+				sendRequest(req_chat);
 			}
 			break;
 			case "CHAT_ADDING": {
@@ -289,11 +314,6 @@ public class MessageSender {
 				String new_chatroom = ((SocialGossipHomeGUI) gui).getSelectedListChatroom();
 				req.setParameters("CHATROOM:"+new_chatroom);
 				
-				sendRequest(req);
-				
-				//TODO remove TEST CHATROOM
-				req.setParameters("OPERATION:MSG_TO_CHATROOM");
-				req.setParameters("TEXT:Ciao");
 				sendRequest(req);
 			}
 			break;
@@ -344,6 +364,14 @@ public class MessageSender {
 		return reply;
 	}*/
 	
+	private void sendMessage(RequestMessage msg) {
+		try {
+			message_out.writeObject(msg);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public void sendRequest(RequestMessage req) {
 		try {
 			//control_out.writeUTF(req.toString());

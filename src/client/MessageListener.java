@@ -39,21 +39,6 @@ public class MessageListener extends Thread{
 			System.out.println("In attesa di risposta");
 			//Receiving request
 			received_message=receiveResponse();
-			/*ResponseMessage response;
-			String type = (String) received_message.getParameter("TYPE");
-			switch(type) {
-				case "request":{
-					//TODO request
-				}
-				break;
-				case "response":{
-					response = (ResponseMessage) received_message;
-					if (received_message instanceof ResponseMessage) System.out.println("ok");
-					System.out.println(received_message.getClass());
-					checkResponse(response);
-				}
-				break;
-			}*/
 			if (received_message instanceof RequestMessage) {
 				//TODO request
 			} else if(received_message instanceof ResponseMessage) {
@@ -61,7 +46,6 @@ public class MessageListener extends Thread{
 				System.out.println("Il messaggio ricevuto è "+response.toString());
 				checkResponse(response);
 			}
-			
 		}
 	}
 	
@@ -114,7 +98,7 @@ public class MessageListener extends Thread{
 					/* Replaced by hashmap
 					 * ((SocialGossipHomeGUI) gui).logoutGUI();
 					 */
-					interfaces.get("socialGossipHomeGUI");
+					((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).logoutGUI();
 					System.out.println("Logout utente");
 				}
 			}
@@ -141,38 +125,11 @@ public class MessageListener extends Thread{
 			}
 			break;
 			case "FRIENDSHIP":{
-				System.out.println("Inviata richiesta di amicizia all'utente");
-				
-				//Setting username and operation field
-				/*req.setParameters("SENDER:"+username,"OPERATION:"+event);
-				
-				//Setting username to search
-				String user_to_add= ((SocialGossipHomeGUI) gui).getUserToAddField().getText();
-				req.setParameters("RECEIVER:"+user_to_add);
-				
-				//Sending request to server
-				sendRequest(req);*/
-				
-				//Getting response from server
-				//ResponseMessage response=checkResponse();
-				
+				System.out.println("Inviata richiesta di amicizia all'utente");				
 				JOptionPane.showMessageDialog(null, reply.getParameter("BODY"));
 			} 
 			break;
 			case "LIST_FRIENDS":{
-				//TODO SWITCH CASE
-				
-				//RICHIEDO LA LISTA DI AMICI
-				//Setting username and operation field
-				/*RequestMessage second_req = new RequestMessage(username);
-				second_req.setParameters("OPERATION:LIST_FRIENDS");
-				
-				//Sending request to server
-				sendRequest(second_req);
-				
-				//Getting response from server
-				ResponseMessage second_response=checkResponse();*/
-				
 				if (reply.getParameter("OPERATION").equals("OK")) {
 					//Server returns an ArrayList of strings
 					
@@ -194,8 +151,25 @@ public class MessageListener extends Thread{
 				
 				//Creating chat to chat with the above friend
 				//((SocialGossipHomeGUI) gui).createChatGUI();
-				((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).createChatGUI();
+				//((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).createChatGUI();
 				
+			}
+			break;
+			case "MSG_TO_FRIEND": {
+				if (reply.getParameter("OPERATION").equals("OK")) {
+					String sender = (String) reply.getParameter("SENDER");
+					String receiver = (String) reply.getParameter("RECEIVER");
+					for(String s : interfaces.keySet()) {
+						System.out.println(s);
+					}
+				
+					ChatGUI chatGUI = (ChatGUI) interfaces.get("chatGUI"+receiver);
+					System.out.println("["+sender+":] "+reply.getParameter("BODY"));
+					chatGUI.setConversationArea("["+sender+":] "+reply.getParameter("BODY"));
+				}
+				else {
+					JOptionPane.showMessageDialog(null, reply.getParameter("BODY"));
+				}
 			}
 			break;
 			case "CHAT_LISTING": {
@@ -283,50 +257,15 @@ public class MessageListener extends Thread{
 			System.out.println("Operation "+op);
 			break;
 		}
-		
 	}*/
 
 	public Object receiveResponse() {
-		/*String replyString= null;
-		try {
-			//replyString= control_in.readUTF();
-			ObjectInputStream in = new ObjectInputStream(control_in);
-			
-	        Object comeON = in.readObject();
-			//replyString = DataInputStream.readUTF(control_in);
-			if (replyString == null) System.out.println("La risposta è nulla");
-			if (comeON instanceof ResponseMessage) {
-				System.out.println("È un response"+((ResponseMessage) comeON).toString());
-				// Mi serve sapere che tipo è, dovrei leggere il json?
-				//reply.parseToMessage(replyString);
-				
-				return (ResponseMessage) comeON;
-			}
-			else if(comeON instanceof RequestMessage) {
-				System.out.println("È un request");
-			}
-			else if(comeON instanceof Message) {
-				System.out.println("È un message");
-			}
-		} catch (IOException e) {
-			System.out.println("In attesa di response");
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;*/
         Object comeON = null;
 		try {
-			//in = new ObjectInputStream(control_in);
 			comeON = object_control_in.readObject();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} 
 		return comeON;
 	}
 }

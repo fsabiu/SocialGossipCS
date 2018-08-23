@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -42,9 +43,14 @@ public class Client implements Runnable{
 				ConcurrentHashMap<String,GUI> interfaces = new ConcurrentHashMap<String,GUI>();
 				
 				//Setting new message connection with Server
-				setMessageConnection(interfaces);
+				setMessageConnection(control_data_out,interfaces);
 				
-				MessageSender message_sender= new MessageSender(control_out,server_message_socket,interfaces);
+				DataOutputStream message_data_out = new DataOutputStream(server_message_socket.getOutputStream());
+				ObjectOutputStream message_out = new ObjectOutputStream(message_data_out);
+				
+				MessageSender message_sender= new MessageSender(control_out,message_out,server_message_socket,interfaces);
+				
+				System.out.println("Creato messge sender");
 				
 				loginGUI=new LoginGUI(message_sender);
 				interfaces.putIfAbsent("loginGUI", loginGUI);
@@ -71,43 +77,41 @@ public class Client implements Runnable{
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} finally {/*
+		} /*finally {
 			try {
 				server_control_socket.close();
 				server_message_socket.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}*/
-		}
+			}
+		}*/
 	}
 	
-	private void setMessageConnection(ConcurrentHashMap<String,GUI> interfaces) {
+	private void setMessageConnection(DataOutputStream control_data_out, ConcurrentHashMap<String,GUI> interfaces) {
 		// TODO Auto-generated method stub
 		//Creating in/out streams
-		DataOutputStream control_out;
 		try {
-			control_out = new DataOutputStream(server_control_socket.getOutputStream());
-
-		//Setting IP and port in a JSONMessage
-		RequestMessage handshake= new RequestMessage("");
-		int message_port=PortScanner.freePort();
-		handshake.setParameters("IP:"+message_ip,"PORT:"+message_port);
-		String handshake_string=handshake.toString();
-		
-		//Sending client IP and client port to receive private messages
-		control_out.writeUTF(handshake_string);
-		
-		//Accepting new stream I/O to receive messages
-		ServerSocket message_socket= new ServerSocket(message_port);
-		Socket server_message_socket=message_socket.accept();
-		setServerMessageSocket(server_message_socket);
-		
-		DataInputStream message_in= new DataInputStream(new BufferedInputStream(server_message_socket.getInputStream()));
-		
-		PrivateMessageListener privateMessageListener = new PrivateMessageListener(interfaces,message_in); 
-		privateMessageListener.start();
-		
+			//Setting IP and port in a JSONMessage
+			RequestMessage handshake= new RequestMessage();
+			int message_port=PortScanner.freePort();
+			handshake.setParameters("IP:"+message_ip,"PORT:"+message_port);
+			String handshake_string=handshake.toString();
+			
+			//Sending client IP and client port to receive private messages
+			control_data_out.writeUTF(handshake_string);
+			
+			//Accepting new stream I/O to receive messages
+			ServerSocket message_socket= new ServerSocket(message_port);
+			Socket server_message_socket=message_socket.accept();
+			setServerMessageSocket(server_message_socket);
+			
+			DataInputStream message_data_in = new DataInputStream(new BufferedInputStream(server_message_socket.getInputStream()));
+			ObjectInputStream message_in = new ObjectInputStream(message_data_in);
+			
+			PrivateMessageListener privateMessageListener = new PrivateMessageListener(interfaces,message_in); 
+			privateMessageListener.start();
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -122,7 +126,7 @@ public class Client implements Runnable{
 	public static void main(String args[]) {
 		
 		//Client client=new Client(args[0]);
-		Client client=new Client("localhost");
+		Client client=new Client("10.0.0.15");
 		System.out.println("Client started");
 		client.run();
 	}
