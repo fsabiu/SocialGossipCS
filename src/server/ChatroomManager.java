@@ -1,12 +1,17 @@
 package server;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.SocketTimeoutException;
 
+import communication.RequestMessage;
 import util.PortScanner;
 
 public class ChatroomManager {
@@ -68,9 +73,9 @@ public class ChatroomManager {
 		socket.send(message);
 	}
 	
-	public boolean sendMessage(String message) {
+	public boolean sendMessage(RequestMessage message) {
 		try {
-			byte[] msg= message.getBytes();
+			byte[] msg= objectToByte(message);
 			forwardMessage(msg);
 			System.out.println("###########\n"+message+"\nINVIATO");
 			return true;
@@ -79,6 +84,21 @@ public class ChatroomManager {
 		}
 	}
 	
+	private byte[] objectToByte(RequestMessage message) {
+	    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+	    ObjectOutputStream oos;
+	    try {
+			oos = new ObjectOutputStream(bos);
+			oos.writeObject(message);
+			oos.flush();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	    
+		return bos.toByteArray();
+	}
+
 	public int getSocketPort() {
 		return socket.getLocalPort();
 	}

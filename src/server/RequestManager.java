@@ -314,7 +314,7 @@ public class RequestManager implements Runnable {
 		
 		//All fine. Getting dispatcher
 		ChatroomManager dispatcher= chatroom.getDispatcher();
-		if(!dispatcher.sendMessage(message.toString())){
+		if(!dispatcher.sendMessage(message)){
 			reply.setParameters("OPERATION:ERR", "BODY: Error while dispatching message to chatroom");
 			return reply;
 		}
