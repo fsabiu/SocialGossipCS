@@ -328,6 +328,22 @@ public class MessageSender {
 				sendRequest(req);
 			}
 			break;
+			case "CHAT_CLOSING": {
+				System.out.println("Inviata richiesta di chiusura chatroom");
+				req.setParameters("SENDER:"+username,"OPERATION:"+event);
+				
+				//Setting chatroom name
+				String new_chatroom = ((SocialGossipHomeGUI) gui).getSelectedListChatroom();
+				req.setParameters("CHATROOM:"+new_chatroom);
+				
+				sendRequest(req);
+				
+				// Asking for list of chatrooms
+				RequestMessage req_chat = new RequestMessage(username);
+				req_chat.setParameters("OPERATION:CHAT_LISTING");
+				sendRequest(req_chat);
+			}
+			break;
 		}
 	}
 	

@@ -14,6 +14,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.swing.JOptionPane;
 
 import communication.Message;
+import communication.RMIClientInterface;
+import communication.RMIServerInterface;
 import communication.RequestMessage;
 import communication.ResponseMessage;
 
@@ -22,14 +24,18 @@ public class MessageListener extends Thread{
 	private MessageSender message_sender;
 	private DataInputStream control_in;
 	private ConcurrentHashMap<String,GUI> interfaces;
+	private RMIServerInterface serverRMI;
+	private RMIClientInterface callback;
 	
 	//It is used to receive Objects over socket
 	private ObjectInputStream object_control_in = null;
 	
-	public MessageListener(DataInputStream control_in, MessageSender message_sender, ConcurrentHashMap<String,GUI> interfaces) throws IOException {
+	public MessageListener(DataInputStream control_in, MessageSender message_sender, ConcurrentHashMap<String,GUI> interfaces, RMIServerInterface serverRMI, RMIClientInterface callback) throws IOException {
 		this.interfaces = interfaces;
-		this.message_sender=message_sender;
-		this.control_in=control_in;
+		this.message_sender = message_sender;
+		this.control_in = control_in;
+		this.serverRMI = serverRMI;
+		this.callback = callback;
 		object_control_in = new ObjectInputStream(control_in);
 	}
 
@@ -74,17 +80,16 @@ public class MessageListener extends Thread{
 					
 					loginGUI.setVisible(false);
 					
-					/*String user = (String) reply.getParameter("USER");
-					SocialGossipHomeGUI sgGUI;
+					String user = (String) reply.getParameter("USER");
+					/*SocialGossipHomeGUI sgGUI;
 					sgGUI=((LoginGUI) loginGUI).createSGHome(user);
 					interfaces.putIfAbsent("socialGossipHomeGUI", sgGUI);*/
 					
-					SocialGossipHomeGUI sgGUI = new SocialGossipHomeGUI( ((LoginGUI) interfaces.get("loginGUI")).getFrame(),(String) reply.getParameter("USER"));
+					SocialGossipHomeGUI sgGUI = new SocialGossipHomeGUI( ((LoginGUI) interfaces.get("loginGUI")).getFrame(),user);
 					sgGUI.setVisible(true);
 					interfaces.putIfAbsent("socialGossipHomeGUI", sgGUI);
 
-					//Opening chat interface to user
-					/*((LoginGUI) interfaces.get("loginGUI")).createSGHome((String) reply.getParameter("USER"));*/
+					serverRMI.registerUserRMIChannel(user, callback);
 				}
 			}
 			break;

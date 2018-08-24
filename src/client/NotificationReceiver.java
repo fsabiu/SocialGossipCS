@@ -2,17 +2,18 @@ package client;
 
 import java.rmi.RemoteException;
 import java.rmi.server.RemoteObject;
+import java.rmi.server.UnicastRemoteObject;
 
 import communication.RMIClientInterface;
 
-public class NotificationReceiver extends RemoteObject implements RMIClientInterface {
+public class NotificationReceiver extends UnicastRemoteObject implements RMIClientInterface {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public NotificationReceiver() {
+	public NotificationReceiver() throws RemoteException {
 		super();
 	}
 	
@@ -31,7 +32,7 @@ public class NotificationReceiver extends RemoteObject implements RMIClientInter
 	@Override
 	public void newFriendship(String username) throws RemoteException {
 		// Show notification to GUI
-		
+		System.out.println("Aggiunto amico "+username);
 	}
 
 	@Override

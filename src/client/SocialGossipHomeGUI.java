@@ -189,6 +189,16 @@ public class SocialGossipHomeGUI extends GUI{
 		    }
 		});
 		chatroom_list.setBounds(25, 137, 460, 333);
+		
+		JButton btnNewButton = new JButton("Chiudi ChatRoom");
+		btnNewButton.setActionCommand("CHAT_CLOSING");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				request_maker.eventsHandler(socialGossipHomeGUI, e.getActionCommand());
+			}
+		});
+		btnNewButton.setBounds(267, 493, 214, 35);
+		contentPane.add(btnNewButton);
 	}
 
 	/*public DefaultListModel<User> getModelUserFriendList() {
@@ -295,33 +305,4 @@ public class SocialGossipHomeGUI extends GUI{
 	public JButton getBtnCreaChatroom() {
 		return btnCreaChatroom;
 	}
-
-	/*public JList<User> getUserFriendList() {
-		return userFriendList;
-	}
-
-	public JList<ChatRoom> getChatRoomList() {
-		return chatRoomList;
-	}*/
-
-	/*public JLabel getWelcomeText() {
-		return lblNewChatroom;
-	}
-
-	public void setWelcomeText(String welcomeText) {
-		lblNewChatroom.setText(welcomeText);
-	}*/
-	
-	/*public void createChatGUI() {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					ChatGUI frame = new ChatGUI("ciao");
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}*/
 }
