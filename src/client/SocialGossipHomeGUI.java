@@ -19,6 +19,7 @@ import javax.swing.AbstractListModel;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 
 public class SocialGossipHomeGUI extends GUI{ 
@@ -43,6 +44,7 @@ public class SocialGossipHomeGUI extends GUI{
 	//private DefaultListModel<User> modelUserFriendList = new DefaultListModel<User>();
 	//private JList<ChatRoom> chatRoomList;
 	//private DefaultListModel<ChatRoom> modelChatRoomList = new DefaultListModel<ChatRoom>();
+	private DefaultListModel<String> model_friend_list;
 
 	/**
 	 * Create the frame.
@@ -63,7 +65,8 @@ public class SocialGossipHomeGUI extends GUI{
 		scrollPane.setBounds(550, 70, 200, 400);
 		contentPane.add(scrollPane);
 		
-		friend_list = new JList<String>();
+		model_friend_list = new DefaultListModel<String>();
+		friend_list = new JList<String>(model_friend_list);
 		scrollPane.setViewportView(friend_list);
 		
 		/*chatRoomList = new JList<ChatRoom>();
@@ -209,8 +212,8 @@ public class SocialGossipHomeGUI extends GUI{
 		return modelChatRoomList;
 	}*/
 	
-	public void setListFriends(String arrayList) {
-		friend_list.setModel(new AbstractListModel<String>() {
+	public void setListFriends(String list) {
+		/*friend_list.setModel(new AbstractListModel<String>() {
 			private static final long serialVersionUID = 1L;
 			
 			String[] values = arrayList.split(", ");
@@ -223,7 +226,19 @@ public class SocialGossipHomeGUI extends GUI{
 				values[index] = values[index].replace("]", "");
 				return values[index];
 			}
-		});
+		});*/
+
+		System.out.println("La lista di amici prima di replace è "+list);
+		list = list.replace("[", "");
+		list = list.replace("]", "");
+		String[] friendList = list.split(", ");
+		for (String friend : friendList) {
+			model_friend_list.addElement(friend);
+		}
+	}
+	
+	public void addFriendToList(String user) {
+		model_friend_list.addElement(user);
 	}
 	
 	public String getSelectedListFriend() {

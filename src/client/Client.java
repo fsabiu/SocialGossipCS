@@ -28,6 +28,8 @@ public class Client implements Runnable{
 	private Socket server_control_socket;
 	private Socket server_message_socket;
 	private static LoginGUI loginGUI;
+	private RMIServerInterface serverRMI = null;
+	private ConcurrentHashMap<String,GUI> interfaces;
 	
 	public Client() {
 	}
@@ -47,7 +49,7 @@ public class Client implements Runnable{
 				DataOutputStream control_data_out= new DataOutputStream(server_control_socket.getOutputStream());
 				ObjectOutputStream control_out = new ObjectOutputStream(control_data_out);
 				
-				ConcurrentHashMap<String,GUI> interfaces = new ConcurrentHashMap<String,GUI>();
+				interfaces = new ConcurrentHashMap<String,GUI>();
 				
 				//Setting new message connection with Server
 				setMessageConnection(control_data_out,interfaces);
@@ -64,15 +66,11 @@ public class Client implements Runnable{
 				loginGUI.setVisible(true); 
 
 				//init RMI
-				RMIServerInterface serverRMI = null;
 				RMIClientInterface callback = null;
-				startRMI(serverRMI, callback);
+				callback = startRMI(serverRMI);
 				
 				MessageListener message_listener = new MessageListener(control_in, message_sender,interfaces,serverRMI,callback);
 				message_listener.start();
-				
-				
-				
 			} catch (IOException e) {
 				System.out.println("Error creating Streams IN/OUT");
 				e.printStackTrace();
@@ -132,20 +130,21 @@ public class Client implements Runnable{
 	}
 
 
-	private void startRMI(RMIServerInterface serverRMI, RMIClientInterface callback) {
+	private RMIClientInterface startRMI(RMIServerInterface serverRMI) {
+		NotificationReceiver callback = null;
 		//cerco registro
 		try {
 			Registry registry = LocateRegistry.getRegistry(Config.SERVER_RMI_PORT);
 			serverRMI = (RMIServerInterface) registry.lookup(Config.SERVER_RMI_SERVICE_NAME);
-
+			this.serverRMI = serverRMI;
 			//creo la classe che implementa le callback
-			callback = new NotificationReceiver();
+			callback = new NotificationReceiver(interfaces);
 		} catch (RemoteException | NotBoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		
+		return callback;
 		//esporto la callback sul registro
 		//NotificationReceiver stub = (NotificationReceiver)UnicastRemoteObject.exportObject(callback,0);
 	}
@@ -157,7 +156,7 @@ public class Client implements Runnable{
 	public static void main(String args[]) {
 		
 		//Client client=new Client(args[0]);
-		Client client=new Client("10.0.0.17");
+		Client client=new Client("localhost");
 		System.out.println("Client started");
 		client.run();
 	}
