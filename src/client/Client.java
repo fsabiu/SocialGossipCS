@@ -10,9 +10,16 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.ConcurrentHashMap;
 
+import communication.RMIServerInterface;
 import communication.RequestMessage;
+import communication.RMIClientInterface;
 import util.Config;
 import util.PortScanner;
 
@@ -55,8 +62,13 @@ public class Client implements Runnable{
 				loginGUI=new LoginGUI(message_sender);
 				interfaces.putIfAbsent("loginGUI", loginGUI);
 				loginGUI.setVisible(true); 
+
+				//init RMI
+				RMIServerInterface serverRMI = null;
+				RMIClientInterface callback = null;
+				startRMI(serverRMI, callback);
 				
-				MessageListener message_listener = new MessageListener(control_in, message_sender,interfaces);
+				MessageListener message_listener = new MessageListener(control_in, message_sender,interfaces,serverRMI,callback);
 				message_listener.start();
 				
 				
@@ -119,6 +131,25 @@ public class Client implements Runnable{
 		
 	}
 
+
+	private void startRMI(RMIServerInterface serverRMI, RMIClientInterface callback) {
+		//cerco registro
+		try {
+			Registry registry = LocateRegistry.getRegistry(Config.SERVER_RMI_PORT);
+			serverRMI = (RMIServerInterface) registry.lookup(Config.SERVER_RMI_SERVICE_NAME);
+
+			//creo la classe che implementa le callback
+			callback = new NotificationReceiver();
+		} catch (RemoteException | NotBoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		//esporto la callback sul registro
+		//NotificationReceiver stub = (NotificationReceiver)UnicastRemoteObject.exportObject(callback,0);
+	}
+
 	public Client(String ip) {
 		this.message_ip=ip;
 	}
@@ -126,7 +157,7 @@ public class Client implements Runnable{
 	public static void main(String args[]) {
 		
 		//Client client=new Client(args[0]);
-		Client client=new Client("10.0.0.15");
+		Client client=new Client("10.0.0.17");
 		System.out.println("Client started");
 		client.run();
 	}
