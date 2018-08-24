@@ -3,7 +3,7 @@ package util;
 public class Config 
 {
 	//TCP constants
-	public static final String SERVER_HOST_NAME = "10.0.0.207";
+	public static final String SERVER_HOST_NAME = "localhost";
 	public static final int	SERVER_TCP_PORT= 5000;
 	
 	//RMI constants
@@ -18,5 +18,6 @@ public class Config
 	public static final String DOWNLOAD_DIRECTORY = "/resources/downloads/";
 	
 	//Translation parameter
-	public static final String TRANSLATOR_URL = "http://api.mymemory.translated.net/get?";
+	//public static final String TRANSLATOR_URL = "http://api.mymemory.translated.net/get?";
+	public static final String TRANSLATOR_URL = "https://translate.yandex.net/api/v1.5/tr.json/translate?key=trnsl.1.1.20180823T142704Z.9bbaa03155b76683.dfa9189bd9b7037b69343d1900653912c8cd4c9e&";
 }
