@@ -19,10 +19,6 @@ public class ChatroomManager {
 	//Listener configuration
 	private MulticastSocket socket; //Chatroom multicast socket
 	private InetAddress msAddress; //Chatroom address
-
-	//Message buffer
-	private byte[] buffer;
-	private static final int BUFFER_LEN = 1024;
 	
 	public ChatroomManager(MulticastSocket socket, InetAddress msAddress) throws Exception {
 		super();

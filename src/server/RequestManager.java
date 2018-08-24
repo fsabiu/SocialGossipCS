@@ -747,6 +747,7 @@ public class RequestManager implements Runnable {
 		
 		//else
 		reply.setParameters("OPERATION:OK");
+		reply.setParameters("BODY:"+chat+" chiusa con successo.");
 		
 		//Notify users
 		notifier.notifyChatroomClosing(chatroom);
