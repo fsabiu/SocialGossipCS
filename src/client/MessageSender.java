@@ -279,6 +279,7 @@ public class MessageSender {
 				RequestMessage req_msg = new RequestMessage(username);
 				req_msg.setParameters("RECEIVER:"+friend,"BODY:"+msg);
 				sendMessage(req_msg);
+				((ChatGUI) gui).getTextArea().setText("");
 			}
 			break;
 			case "CHAT_CREATION": {

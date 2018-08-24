@@ -162,7 +162,7 @@ public class MessageListener extends Thread{
 					for(String s : interfaces.keySet()) {
 						System.out.println(s);
 					}
-				
+					
 					ChatGUI chatGUI = (ChatGUI) interfaces.get("chatGUI"+receiver);
 					System.out.println("["+sender+":] "+reply.getParameter("BODY"));
 					chatGUI.setConversationArea("["+sender+":] "+reply.getParameter("BODY"));

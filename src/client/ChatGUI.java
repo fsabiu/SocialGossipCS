@@ -43,7 +43,6 @@ import javax.swing.JScrollPane;
 public class ChatGUI extends GUI{
 
 		private static final long serialVersionUID = 7018723357317188387L;
-		protected JTextArea textArea;
 		protected JButton btnInviaTextButton;
 		protected JButton btnInviaFile;
 		
@@ -56,6 +55,8 @@ public class ChatGUI extends GUI{
 		private JScrollPane scrollPane;
 		private JTextArea conversationArea;
 		private String title=null;
+		private JScrollPane scrollPane_1;
+		private JTextArea textArea;
 
 		/**
 		 * Create the frame.
@@ -92,13 +93,6 @@ public class ChatGUI extends GUI{
 			btnInviaFile.setBounds(385, 338, 69, 71);
 			getContentPane().add(btnInviaFile);
 			
-			textArea = new JTextArea();
-			textArea.setBounds(6, 337, 290, 72);
-			getContentPane().add(textArea);
-			textArea.setFont(new Font("Dialog", Font.PLAIN, 17));
-			textArea.setBackground(new Color(240, 248, 255));
-			textArea.setBorder(border);
-			
 			scrollPane = new JScrollPane();
 			scrollPane.setBounds(9, 49, 445, 256);
 			getContentPane().add(scrollPane);
@@ -109,6 +103,13 @@ public class ChatGUI extends GUI{
 			JLabel friend_field = new JLabel("");
 			friend_field.setBounds(10, 15, 444, 23);
 			getContentPane().add(friend_field);
+			
+			scrollPane_1 = new JScrollPane();
+			scrollPane_1.setBounds(6, 334, 290, 75);
+			getContentPane().add(scrollPane_1);
+			
+			textArea = new JTextArea();
+			scrollPane_1.setViewportView(textArea);
 			
 		}
 
