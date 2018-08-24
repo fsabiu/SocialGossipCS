@@ -48,7 +48,7 @@ public class Server implements Runnable{
 		try {
 			
 			//Initializating RMI
-			//startRMI();
+			startRMI();
 			
 			while(true) {
 				System.out.println("Waiting for connections...");
@@ -92,7 +92,7 @@ public class Server implements Runnable{
 		RMIChannelManager RMIUserChannelManager = new RMIChannelManager(usersbyname);
 		
 		//Creating stub
-		RMIServerInterface stub = (RMIServerInterface) UnicastRemoteObject.exportObject(RMIUserChannelManager,3900);
+		//RMIServerInterface stub = (RMIServerInterface) UnicastRemoteObject.exportObject(RMIUserChannelManager,0);
 		
 		//Registry creation
 		LocateRegistry.createRegistry(Config.SERVER_RMI_PORT);
@@ -101,7 +101,7 @@ public class Server implements Runnable{
 		Registry reg = LocateRegistry.getRegistry(Config.SERVER_RMI_PORT);
 		
 		//Instantiating stub
-		reg.rebind(Config.SERVER_RMI_SERVICE_NAME,stub);
+		reg.rebind(Config.SERVER_RMI_SERVICE_NAME,RMIUserChannelManager);
 	}
 	
 }

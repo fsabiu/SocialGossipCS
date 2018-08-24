@@ -1,13 +1,14 @@
 package server;
 
 
-import java.rmi.server.RemoteObject;
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.ConcurrentHashMap;
 
 import communication.RMIClientInterface;
 import communication.RMIServerInterface;
 
-public class RMIChannelManager extends RemoteObject implements RMIServerInterface /* implements RMIServerInterface */ {
+public class RMIChannelManager extends UnicastRemoteObject implements RMIServerInterface {
 
 	/**
 	 * 
@@ -15,19 +16,19 @@ public class RMIChannelManager extends RemoteObject implements RMIServerInterfac
 	private static final long serialVersionUID = 1L;
 	private ConcurrentHashMap<String, User> usersbyname;
 	
-	public RMIChannelManager(ConcurrentHashMap<String, User> usersbyname) {
+	public RMIChannelManager(ConcurrentHashMap<String, User> usersbyname) throws RemoteException {
 		this.usersbyname=usersbyname;
 	}
 
 	@Override
-	public void registerUserRMIChannel(String username, RMIClientInterface callback) {
+	public void registerUserRMIChannel(String username, RMIClientInterface callback) throws RemoteException {
 		//Getting user
 		User u= usersbyname.get(username);
 		u.setRMIChannel(callback);
 	}
 
 	@Override
-	public void unregisterUserRMIChannel(String username, RMIClientInterface callback) {
+	public void unregisterUserRMIChannel(String username, RMIClientInterface callback) throws RemoteException {
 		//Getting user
 		User u= usersbyname.get(username);
 		u.setRMIChannel(null);
