@@ -267,8 +267,8 @@ public class MessageSender {
 			case "MSG_TO_FRIEND": {
 				System.out.println("Invio Messaggio amico");
 				
-				String msg = ((ChatGUI) gui).getTextArea().getText();
 				String friend = ((ChatGUI) gui).getTitle();
+				String msg = ((ChatGUI) gui).getTextArea().getText();
 				System.out.println(friend);
 				req.setParameters("OPERATION:"+event);
 				req.setParameters("RECEIVER:"+friend);
@@ -277,6 +277,7 @@ public class MessageSender {
 				sendRequest(req);
 				
 				RequestMessage req_msg = new RequestMessage(username);
+				
 				req_msg.setParameters("RECEIVER:"+friend,"BODY:"+msg);
 				sendMessage(req_msg);
 				((ChatGUI) gui).getTextArea().setText("");
@@ -301,7 +302,7 @@ public class MessageSender {
 				
 				// Asking for list of chatrooms
 				RequestMessage req_chat = new RequestMessage(username);
-				req.setParameters("OPERATION:CHAT_LISTING");
+				req_chat.setParameters("OPERATION:CHAT_LISTING");
 				sendRequest(req_chat);
 			}
 			break;
@@ -315,6 +316,15 @@ public class MessageSender {
 				String new_chatroom = ((SocialGossipHomeGUI) gui).getSelectedListChatroom();
 				req.setParameters("CHATROOM:"+new_chatroom);
 				
+				sendRequest(req);
+			}
+			break;
+			case "MSG_TO_CHATROOM": {
+				System.out.println("Inviata richiesta di invio messaggio");
+				req.setParameters("SENDER:"+username,"OPERATION:"+event);
+				
+				String msg = ((ChatroomGUI) gui).getTextArea().getText();
+				req.setParameters("CHATROOM:"+((ChatroomGUI) gui).getTitle(),"BODY:"+msg);
 				sendRequest(req);
 			}
 			break;

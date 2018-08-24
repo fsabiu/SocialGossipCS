@@ -159,9 +159,9 @@ public class MessageListener extends Thread{
 				if (reply.getParameter("OPERATION").equals("OK")) {
 					String sender = (String) reply.getParameter("SENDER");
 					String receiver = (String) reply.getParameter("RECEIVER");
-					for(String s : interfaces.keySet()) {
+					/*for(String s : interfaces.keySet()) {
 						System.out.println(s);
-					}
+					}*/
 					
 					ChatGUI chatGUI = (ChatGUI) interfaces.get("chatGUI"+receiver);
 					System.out.println("["+sender+":] "+reply.getParameter("BODY"));
@@ -184,20 +184,7 @@ public class MessageListener extends Thread{
 					//Stampo il messaggio di creazione corretta
 					JOptionPane.showMessageDialog(null, reply.getParameter("BODY"));
 					
-					//Verifico la porta nel quale sto inviando il messaggio
-					System.out.println(reply.getParameter("PORT"));
-					
-					//Storie varie per i test sull'invio dei messaggi nella chatroom
-					/*try {
-						Integer port = new Integer((String) reply.getParameter("PORT"));
-						MulticastSocket msocket = new MulticastSocket(port);
-						InetAddress gruppo = InetAddress.getByName((String) reply.getParameter("INETADDRESS"));
-						msocket.joinGroup(gruppo);
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}*/
-					
+					create_chatroom(reply);
 				}
 			}
 			break;
@@ -205,26 +192,9 @@ public class MessageListener extends Thread{
 				if (reply.getParameter("OPERATION").equals("OK")) {
 					JOptionPane.showMessageDialog(null, reply.getParameter("BODY"));
 					System.out.println(reply.getParameter("PORT"));
-					
-					/*
-					 * Test sulla documentazione java 
-					 String msg = "Hello";
-					 InetAddress group = InetAddress.getByName("228.5.6.7");
-					 MulticastSocket s = new MulticastSocket(6789);
-					 s.joinGroup(group);
-					 DatagramPacket hi = new DatagramPacket(msg.getBytes(), msg.length(),
-					                             group, 6789);
-					*/
-					
-					//Storie varie per i test sull'invio dei messaggi nella chatroom
-					/*try {
-						Integer port = new Integer((String) reply.getParameter("PORT"));
-						MulticastSocket msocket = new MulticastSocket(port);
-						//msocket.send(receivedPacket);
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}*/
+
+					create_chatroom(reply);
+					//((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).getSelectedListChatroom();
 				}
 			}
 			break;
@@ -258,6 +228,21 @@ public class MessageListener extends Thread{
 			break;
 		}
 	}*/
+
+	private void create_chatroom(ResponseMessage reply) {
+		//Interface creation
+		String nome_chatroom=reply.getParameter("CHATROOM").toString();
+		ChatroomGUI chatroomGUI = new ChatroomGUI(nome_chatroom);
+		chatroomGUI.setVisible(true);
+		interfaces.putIfAbsent("chatroomGUI"+nome_chatroom, chatroomGUI);
+		
+		String msname = (String) reply.getParameter("MSNAME");
+		String port = (String) reply.getParameter("PORT");
+		
+		//Chatroom listener creation
+		ChatroomListener chatroomListener = new ChatroomListener(chatroomGUI, msname, port);
+		chatroomListener.start();
+	}
 
 	public Object receiveResponse() {
         Object comeON = null;
