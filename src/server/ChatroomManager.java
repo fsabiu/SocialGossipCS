@@ -12,13 +12,8 @@ import util.PortScanner;
 public class ChatroomManager {
 	
 	//Listener configuration
-	private int listeningPort; //Listening port
 	private MulticastSocket socket; //Chatroom multicast socket
 	private InetAddress msAddress; //Chatroom address
-	
-	//Datagram socket
-	private DatagramSocket serverSock; //UDP datagram receiver socket 
-	private static final int timeout = 600; //Datagram socket timeout
 
 	//Message buffer
 	private byte[] buffer;
@@ -34,14 +29,6 @@ public class ChatroomManager {
 		//Instantiating properties
 		this.socket=socket;
 		this.msAddress=msAddress;
-		
-		//Listen port assignment
-		this.listeningPort = PortScanner.freePort();
-		if(listeningPort == -1) throw new Exception();
-		
-		//Datagram creation and configuration
-		serverSock = new DatagramSocket(listeningPort);
-		serverSock.setSoTimeout(timeout);
 	}
 	
 //	public void run() {
@@ -68,17 +55,15 @@ public class ChatroomManager {
 //		//Closing socket
 //		serverSock.close();
 //	}
-
-	public int getListeningPort() {
-		return listeningPort;
-	}
 	
 	private void forwardMessage(byte[] msg) throws IOException {
 		if(msg == null)
 			throw new NullPointerException();
 		//DatagramPacket creation
 		DatagramPacket message = new DatagramPacket(msg,msg.length,msAddress,socket.getLocalPort());
-		
+		System.out.println("Ms address: "+msAddress);
+		System.out.println("Local port: "+socket.getLocalPort());
+		System.out.println("Socket: "+socket);
 		//Sending message
 		socket.send(message);
 	}
@@ -87,6 +72,7 @@ public class ChatroomManager {
 		try {
 			byte[] msg= message.getBytes();
 			forwardMessage(msg);
+			System.out.println("###########\n"+message+"\nINVIATO");
 			return true;
 		}catch(IOException e) {
 			return false;

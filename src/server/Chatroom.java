@@ -5,6 +5,7 @@ import java.net.MulticastSocket;
 import java.net.Socket;
 import java.util.HashSet;
 
+import util.Config;
 import util.PortScanner;
 
 /**
@@ -21,9 +22,8 @@ public class Chatroom {
 	
 	// Configuration properties
 	private InetAddress msAddress; //Multicast socket IP address
+	private String msName;
 	private int msPort; //Multicast port
-	private InetAddress listenAddress; //Dispatcher IP address
-	private int listenPort;  //Dispatcher port
 	
 	private transient MulticastSocket socket;
 	
@@ -35,7 +35,7 @@ public class Chatroom {
 	 * @param name: name of the chatroom
 	 * @param u: creator user
 	 */
-	public Chatroom(String name, User u,InetAddress msAddress,InetAddress listenAddress) throws Exception {
+	public Chatroom(String name, User u, String msName, InetAddress msAddress) throws Exception {
 		this.administrators= new HashSet<User>();
 		this.participants= new HashSet<User>();
 		this.name=name;
@@ -43,16 +43,16 @@ public class Chatroom {
 		this.participants.add(u);
 		
 		//Multicast configuration
+		this.msName = msName;
 		this.msAddress=msAddress;
 		this.msPort=PortScanner.freePort();
 		if(msPort == -1) throw new Exception();
 		
 		this.socket = new MulticastSocket(msPort);
+		System.out.println("Porta libera per "+this.name+": "+msPort);
 		
 		//Listener configuration
-		this.listenAddress=listenAddress;
 		dispatcher= new ChatroomManager(socket,msAddress);
-		this.listenPort = dispatcher.getListeningPort();
 		
 	}
 	
@@ -98,11 +98,6 @@ public class Chatroom {
 		else return false;
 	}
 	
-	/**
-	 * 
-	 * @param u
-	 * @return
-	 */
 	public synchronized boolean deleteChatroom(User u) {
 		if(!isAdministrator(u)) return false;
 		//TODO Notification to all users
@@ -121,7 +116,11 @@ public class Chatroom {
 		return this.msAddress;
 	}
 	
-	public synchronized String getIPAddress() {
+	public String getMsName() {
+		return this.msName;
+	}
+	
+	public String getIPAddress() {
 		return msAddress.toString().replaceAll("[^\\d.]","");
 	}
 	

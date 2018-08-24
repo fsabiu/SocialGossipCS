@@ -18,7 +18,7 @@ public class ChatroomListener extends Thread {
 		try {
 			this.chatroomGUI=chatroomGUI;
 			this.socket = new MulticastSocket(Integer.parseInt(port));
-			this.msAddress=InetAddress.getByName(msname.replaceAll("[^\\d.]", ""));
+			this.msAddress=InetAddress.getByName(msname);
 			System.out.println("Il socket è "+socket+" porta "+port+" msAddress "+msAddress);
 			socket.joinGroup(msAddress);
 		} catch (NumberFormatException | IOException e) {

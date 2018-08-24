@@ -683,27 +683,22 @@ public class RequestManager implements Runnable {
 		InetAddress msAddress = null;
 		try {
 			msAddress = InetAddress.getByName(msName);
+			System.out.println("msAddress generato: "+msAddress);
 		} catch (UnknownHostException e1) {
 			reply.setParameters("OPERATION:ERR", "BODY:Network error while creating server socket");
-			return reply;
-		}
-		InetAddress listenAddress = null;
-		try {
-			listenAddress = InetAddress.getByName(Config.SERVER_HOST_NAME);
-		} catch (UnknownHostException e1) {
-			reply.setParameters("OPERATION:ERR", "BODY:Network error while defining server address");
 			return reply;
 		}
 		
 		//Creating new chatroom
 		try {
-			Chatroom new_chatroom= new Chatroom(chatroom, usersbyname.get(username), msAddress, listenAddress);
+			Chatroom new_chatroom= new Chatroom(chatroom, usersbyname.get(username), msName, msAddress);
 			chatrooms.putIfAbsent(chatroom, new_chatroom);
 			int port = new_chatroom.getPort(); 
 			reply.setParameters("OPERATION:OK");
 			reply.setParameters("BODY:Chatroom "+chatroom+" creata con successo!");
+			reply.setParameters("CHATROOM:"+chatroom);
 			reply.setParameters("PORT:"+port);
-			reply.setParameters("INETADDRESS:"+msAddress);
+			reply.setParameters("MSNAME:"+msName);
 			return reply;
 		} catch (Exception e) {
 			reply.setParameters("OPERATION:ERR", "BODY:Network error while creating chatroom");
@@ -793,9 +788,10 @@ public class RequestManager implements Runnable {
 		User user= usersbyname.get(username);
 		chatroom.addParticipant(user);
 		reply.setParameters("OPERATION:OK");
-		reply.setParameters("IP:"+chatroom.getAddress());
-		//reply.setParameters("PORT:"+chatroom.getPort());
-		reply.setParameters("PORT:"+chatroom.getDispatcher().getSocketPort());
+		reply.setParameters("BODY:Benvenuto in "+chat+"!");
+		reply.setParameters("CHATROOM:"+chat);
+		reply.setParameters("PORT:"+chatroom.getPort());
+		reply.setParameters("MSNAME:"+chatroom.getMsName());
 		
 		//Notify users
 		notifier.notifyChatroomJoin(user, chatroom);
