@@ -3,6 +3,7 @@ package server;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import org.json.simple.JSONObject;
@@ -69,16 +70,11 @@ public class PrivateMessageManager implements MessageManager {
 	
 	public boolean sendRequestToUser(Message message, User receiver) throws IllegalArgumentException {
 		if(receiver.isOnline()) {
-			System.out.println(receiver.getUsername()+" is online");
-			Message mess=translateMessage(message, sender.getLanguage(), receiver.getLanguage());
 			//Getting receiver output stream
-			System.out.println("Translated message: "+mess.toString());
 			try {
-				ObjectOutputStream control_out = receiver.getMessageOutputStream();
-				System.out.println("Control out di "+receiver.getUsername()+": "+control_out);
+				ObjectOutputStream control_out = receiver.getControlOutputStream();
 				//Sending
-				control_out.writeObject(mess);
-				System.out.println("Write done");
+				control_out.writeObject(message);
 				return true;
 			}catch(IOException e) {
 				return false;
@@ -95,11 +91,12 @@ public class PrivateMessageManager implements MessageManager {
 	 * @param message
 	 * @return fileSock
 	 */
-	public ResponseMessage getReceiverFileSocket(RequestMessage message, User sender, User receiver) {
-		sendRequestToUser(message, receiver);
-		//Get response message from receiver
-		ResponseMessage received= receiveControlMessage(receiver);
-		return received;
+	public boolean askReceiverFileSocket(RequestMessage message, User sender, User receiver) {
+		System.out.println("Ho chiesto i dati NIO a "+receiver.getUsername());
+		return sendRequestToUser(message, receiver);
+//		//Get response message from receiver
+//		ResponseMessage received= receiveControlMessage(receiver);
+//		System.out.println("Ho ricevuto i dati NIO da "+receiver.getUsername());
 	}
 	
 	/**
@@ -107,16 +104,16 @@ public class PrivateMessageManager implements MessageManager {
 	 * @param sender
 	 * @return
 	 */
-	public ResponseMessage receiveControlMessage(User sender) {
-		try {
-			DataInputStream control_in = new DataInputStream(sender.getControlSocket().getInputStream());
-			
-			//Receiving and parsing
-			JSONParser parser= new JSONParser();
-			ResponseMessage reply= (ResponseMessage) parser.parse(control_in.readUTF());
-			return reply;
-		}catch(IOException | ParseException e) {
-			return null;
-		}
-	}
+//	public ResponseMessage receiveControlMessage(User sender) {
+//		try {
+//			System.out.println("Output stream di "+sender.getUsername()+": "+sender.getControlInputStream());
+//			ObjectInputStream control_in = sender.getControlInputStream();
+//			
+//			//Receiving
+//			ResponseMessage reply= (ResponseMessage)control_in.readObject();
+//			return reply;
+//		} catch(IOException | ClassNotFoundException e) {
+//			return null;
+//		}
+//	}
 }

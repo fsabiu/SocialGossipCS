@@ -84,6 +84,12 @@ public class ChatGUI extends GUI{
 			getContentPane().add(btnInviaTextButton);
 			
 			btnInviaFile = new JButton("Invia File");
+			btnInviaFile.setActionCommand("FILE_TO_FRIEND");
+			btnInviaFile.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					request_maker.eventsHandler(chatGUI, e.getActionCommand());
+				}
+			});
 			/*try {
 				Image img = ImageIO.read(getClass().getResource("C:\\Users\\Marco\\git\\SocialGossipCS\\src\\attach.png"));
 				btnInviaFile.setIcon(new ImageIcon(img));

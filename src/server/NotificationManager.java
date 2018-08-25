@@ -111,7 +111,12 @@ public class NotificationManager {
 		for(User u : usersbyname.values()) {
 			RMIChannel= u.getRMIChannel();
 			if(RMIChannel!=null) {//if user is online
-				RMIChannel.newChatroom(new_chatroom.getName());
+				try {
+					RMIChannel.newChatroom(new_chatroom.getName());
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 		

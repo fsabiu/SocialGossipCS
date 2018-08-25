@@ -18,6 +18,7 @@ import communication.Message;
 import communication.Operation;
 import communication.RequestMessage;
 import communication.ResponseMessage;
+import util.Config;
 
 public class MessageSender {
 	//private Socket server_control_socket;
@@ -165,15 +166,6 @@ public class MessageSender {
 				
 				//Sending request to server
 				sendRequest(req);
-				
-				//Getting response from server
-				/*ResponseMessage response=checkResponse();
-
-				if (response.getParameter("OPERATION").equals("OK")) {
-					//Opening chat interface to user
-					((SocialGossipHomeGUI) gui).logoutGUI();
-					System.out.println("Logout utente");
-				}*/
 			}
 			break;
 			case "LOOKUP":{
@@ -188,21 +180,6 @@ public class MessageSender {
 				
 				//Sending request to server
 				sendRequest(req);
-				
-				//Getting response from server
-				/*ResponseMessage response=checkResponse();
-				
-				if (response.getParameter("OPERATION").equals("OK")) {
-					JOptionPane.showMessageDialog(null, response.getParameter("BODY"));
-				}*/
-				
-				/*
-				 * TODO Cancellare, test sui messaggi
-				 * req.setParameters("OPERATION:MSG_TO_FRIEND");
-				req.setParameters("RECEIVER:"+user_to_search);
-				req.setParameters("BODY:"+"Ciao, sono felice");
-				System.out.println(req);
-				sendRequest(req);*/
 			}
 			break;
 			case "FRIENDSHIP":{
@@ -344,6 +321,15 @@ public class MessageSender {
 				sendRequest(req_chat);
 			}
 			break;
+			case "FILE_TO_FRIEND": {
+				System.out.println("Inviata richiesta di invio file");
+				String fileName = ((ChatGUI) gui).getTextArea().getText();
+				String receiver = ((ChatGUI) gui).getTitle();
+				req.setParameters("SENDER:"+username,"OPERATION:"+event,"FILENAME:"+fileName,"RECEIVER:"+receiver);
+				
+				sendRequest(req);
+			}
+			break;
 		}
 	}
 	
@@ -401,7 +387,6 @@ public class MessageSender {
 
 	public void sendRequest(RequestMessage req) {
 		try {
-			//control_out.writeUTF(req.toString());
 			control_out.writeObject(req);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -412,5 +397,16 @@ public class MessageSender {
 	public void createRegistrationGUI() {
 		RegistrationGUI registrationGUI = new RegistrationGUI(((LoginGUI) interfaces.get("loginGUI")).getFrame());
 		interfaces.putIfAbsent("registrationGUI", registrationGUI);
+	}
+
+	public void sendResponse(ResponseMessage res) {
+		try {
+			System.out.println("Sono "+username+" e sto rispondendo al server: ");
+			System.out.println(res);
+			control_out.writeObject(res);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

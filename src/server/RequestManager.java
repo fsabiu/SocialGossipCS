@@ -77,7 +77,6 @@ public class RequestManager implements Runnable {
 			//Reading handshake data
 			String handshake = control_data_in.readUTF();
 			
-			System.out.println("Handshake letto");
 			
 			RequestMessage handshake_message=new RequestMessage();
 			handshake_message.parseToMessage(handshake);
@@ -115,7 +114,6 @@ public class RequestManager implements Runnable {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					System.out.println("Dopo handshake: "+message.toString());
 					
 					if(message instanceof RequestMessage) {
 						//Executing client request if message is RequestMessage
@@ -124,7 +122,7 @@ public class RequestManager implements Runnable {
 					
 					if(message instanceof ResponseMessage) {
 						//Processing client reply
-						connection_user= processResponse((RequestMessage)message,control_out,message_out);
+						connection_user= processResponse((ResponseMessage)message,control_out,message_out);
 					}
 				}
 				//client closes connection
@@ -173,14 +171,15 @@ public class RequestManager implements Runnable {
 	}
 
 
-	private User processResponse(RequestMessage message, ObjectOutputStream control_out, ObjectOutputStream message_out) {
+	private User processResponse(ResponseMessage message, ObjectOutputStream control_out, ObjectOutputStream message_out) {
 		//Creation reply message
-		ResponseMessage reply=null;
 		
 		//Getting operation from ResponseMessage
 		String op = (String) message.getParameter("OPERATION");
 		String sender= (String) message.getParameter("SENDER");
 		String receiver= (String) message.getParameter("RECEIVER");
+		int port = Integer.parseInt((String) message.getParameter("RECEIVER"));
+		System.out.println("Porta: "+port);
 		
 		//To network node
 		User sender_user=usersbyname.get(sender);
@@ -196,7 +195,7 @@ public class RequestManager implements Runnable {
 				online=receiver_user.isOnline();
 			}
 			if(online) {
-				response_manager.sendReply(reply, control_out);
+				response_manager.sendReply(message, receiver_user.getControlOutputStream());
 			}
 			break;
 		}
@@ -283,8 +282,6 @@ public class RequestManager implements Runnable {
 		
 		//Replying to sender
 		if(message_manager!=null) {//replying to user 
-			System.out.println(connection_user.getUsername());
-			System.out.println("Message out: "+connection_user.getMessageOutputStream());
 			response_manager.sendMessageToUser(reply, message_manager.getSender());
 		}else {//Sender was not a user
 			response_manager.sendReply(reply, control_out);
@@ -427,15 +424,17 @@ public class RequestManager implements Runnable {
 			}
 		}
 		
+		System.out.println("Sono pronto a chiedere i dati a "+receiver_user.getUsername());
 		//Getting receiver IP and port and writing them into reply
-		reply=message_manager.getReceiverFileSocket(message, sender_user, receiver_user);
-		if(reply==null) {//In case of error
+		if(!message_manager.askReceiverFileSocket(message, sender_user, receiver_user)) {//In case of error
 			reply= new ResponseMessage();
 			reply.setParameters("OPERATION:ERR", "BODY:Error while contacting with "+receiver);
 		} else {//Else
 			reply.setParameters("OPERATION:OK");
 			reply.setParameters("BODY:File inviato con successo!");
 		}
+		
+		System.out.println("Sto mandando la risposta di "+receiver_user.getUsername()+" a "+sender_user.getUsername());
 		return reply;
 	}
 

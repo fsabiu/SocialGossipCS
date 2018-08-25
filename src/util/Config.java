@@ -16,6 +16,7 @@ public class Config
 	
 	//FILE SYSTEM constants
 	public static final String DOWNLOAD_DIRECTORY = "/resources/downloads/";
+	public static final String UPLOAD_DIRECTORY = "/resources/upload/";
 	
 	//Translation parameter
 	//public static final String TRANSLATOR_URL = "http://api.mymemory.translated.net/get?";

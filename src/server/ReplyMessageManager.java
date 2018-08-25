@@ -21,7 +21,7 @@ public class ReplyMessageManager implements MessageManager {
 			try {
 				//Sending
 				(receiver.getControlOutputStream()).writeObject(message);
-		        System.out.println("Messaggio inviato è "+message.toString());
+		        System.out.println("Message to user:"+message.toString());
 				return true;
 			}catch(IOException e) {
 				return false;
@@ -32,7 +32,7 @@ public class ReplyMessageManager implements MessageManager {
 	public boolean sendReply(Message message, ObjectOutputStream control_out){
 		try {
 			//Sending
-			System.out.println("Messaggio è "+message.toString());
+			System.out.println("Reply to user: "+message.toString());
 	        control_out.writeObject(message);
 			return true;
 		}catch(IOException e) {

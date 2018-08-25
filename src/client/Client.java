@@ -14,7 +14,6 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.ConcurrentHashMap;
 
 import communication.RMIServerInterface;
@@ -28,6 +27,7 @@ public class Client implements Runnable{
 	private Socket server_control_socket;
 	private Socket server_message_socket;
 	private static LoginGUI loginGUI;
+	private static String hostname;
 	private RMIServerInterface serverRMI = null;
 	private ConcurrentHashMap<String,GUI> interfaces;
 	
@@ -69,7 +69,7 @@ public class Client implements Runnable{
 				RMIClientInterface callback = null;
 				callback = startRMI(serverRMI);
 				
-				MessageListener message_listener = new MessageListener(control_in, message_sender,interfaces,serverRMI,callback);
+				MessageListener message_listener = new MessageListener(control_in, message_sender,interfaces,serverRMI,callback, hostname);
 				message_listener.start();
 			} catch (IOException e) {
 				System.out.println("Error creating Streams IN/OUT");
@@ -154,9 +154,9 @@ public class Client implements Runnable{
 	}
 
 	public static void main(String args[]) {
-		
-		//Client client=new Client(args[0]);
-		Client client=new Client("localhost");
+		hostname = args[0];
+		Client client=new Client(hostname);
+		//Client client=new Client("localhost");
 		System.out.println("Client started");
 		client.run();
 	}

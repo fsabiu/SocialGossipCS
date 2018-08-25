@@ -51,8 +51,9 @@ public interface RMIClientInterface extends Remote {
 	/**
 	 * Notify to all online users that chatroom has been created
 	 * @param chatroom
+	 * @throws RemoteException 
 	 */
-	public void newChatroom(String chatroom);
+	public void newChatroom(String chatroom) throws RemoteException;
 	
 	/**
 	 * Notify to chatroom members a new chatroom message
