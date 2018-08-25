@@ -8,6 +8,8 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.SocketException;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -89,7 +91,12 @@ public class MessageListener extends Thread{
 					sgGUI.setVisible(true);
 					interfaces.putIfAbsent("socialGossipHomeGUI", sgGUI);
 
-					serverRMI.registerUserRMIChannel(user, callback);
+					try {
+						serverRMI.registerUserRMIChannel(user, callback);
+					} catch (RemoteException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			}
 			break;
@@ -103,8 +110,16 @@ public class MessageListener extends Thread{
 					/* Replaced by hashmap
 					 * ((SocialGossipHomeGUI) gui).logoutGUI();
 					 */
+					String username = (String) reply.getParameter("SENDER");
+					try {
+						serverRMI.unregisterUserRMIChannel(username, callback);
+					} catch (RemoteException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).logoutGUI();
 					System.out.println("Logout utente");
+					
 				}
 			}
 			break;
@@ -142,7 +157,8 @@ public class MessageListener extends Thread{
 					//String list_friends = (String) reply.getParameter("BODY");
 					
 					if (reply.getParameter("BODY") != null) {
-						((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).setListFriends((String) reply.getParameter("BODY"));
+						String lista = (String) reply.getParameter("BODY");
+						((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).setListFriends(lista);
 					}
 				}
 			}
