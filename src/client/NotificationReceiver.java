@@ -53,4 +53,11 @@ public class NotificationReceiver extends UnicastRemoteObject implements RMIClie
 		((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).removeChatroom(chatroom);
 	}
 
+	@Override
+	public void newChatroom(String chatroom) {
+		// TODO Auto-generated method stub
+		JOptionPane.showMessageDialog(null, "La chatroom "+chatroom+" è stata creata!");
+		((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).addChatroom(chatroom);
+	}
+
 }
