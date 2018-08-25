@@ -102,4 +102,18 @@ public class NotificationManager {
 			}
 		}
 	}
+	
+	public void notifyNewChatroom(Chatroom new_chatroom) {
+		//Getting RMI Channel
+		RMIClientInterface RMIChannel;
+		
+		//Notify
+		for(User u : usersbyname.values()) {
+			RMIChannel= u.getRMIChannel();
+			if(RMIChannel!=null) {//if user is online
+				RMIChannel.newChatroom(new_chatroom.getName());
+			}
+		}
+		
+	}
 }
