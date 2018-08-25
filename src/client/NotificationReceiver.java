@@ -43,13 +43,14 @@ public class NotificationReceiver extends UnicastRemoteObject implements RMIClie
 	@Override
 	public void newChatroomSubscriber(String new_subscriber, String chatroom) throws RemoteException {
 		// Show notification to GUI
-		
+		JOptionPane.showMessageDialog(null, new_subscriber+" si è inscritto alla chatroom "+chatroom);
 	}
 
 	@Override
 	public void closeChatroom(String chatroom) throws RemoteException {
 		// Show notification to GUI
-		
+		JOptionPane.showMessageDialog(null, "La chatroom "+chatroom+" è stata chiusa!");
+		((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).removeChatroom(chatroom);
 	}
 
 }

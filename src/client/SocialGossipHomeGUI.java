@@ -45,6 +45,7 @@ public class SocialGossipHomeGUI extends GUI{
 	//private JList<ChatRoom> chatRoomList;
 	//private DefaultListModel<ChatRoom> modelChatRoomList = new DefaultListModel<ChatRoom>();
 	private DefaultListModel<String> model_friend_list;
+	private DefaultListModel<String> model_chatroom_list;
 
 	/**
 	 * Create the frame.
@@ -180,7 +181,8 @@ public class SocialGossipHomeGUI extends GUI{
 		contentPane.add(new_chatroom_field);
 		new_chatroom_field.setColumns(10);
 		
-		chatroom_list = new JList<String>();
+		model_chatroom_list = new DefaultListModel<String>();
+		chatroom_list = new JList<String>(model_chatroom_list);
 		contentPane.add(chatroom_list);
 		chatroom_list.addMouseListener(new MouseAdapter() {
 		    public void mouseClicked(MouseEvent evt) {
@@ -227,7 +229,7 @@ public class SocialGossipHomeGUI extends GUI{
 				return values[index];
 			}
 		});*/
-
+		model_friend_list.removeAllElements();
 		System.out.println("La lista di amici prima di replace è "+list);
 		list = list.replace("[", "");
 		list = list.replace("]", "");
@@ -248,7 +250,7 @@ public class SocialGossipHomeGUI extends GUI{
 	}
 	
 	public void setChatroomList(String belongsList, String notBelongsList) {
-		chatroom_list.setModel(new AbstractListModel<String>() {
+		/*chatroom_list.setModel(new AbstractListModel<String>() {
 			private static final long serialVersionUID = 1L;
 			
 			String[] first = belongsList.split(", ");
@@ -263,7 +265,26 @@ public class SocialGossipHomeGUI extends GUI{
 				values[index] = values[index].replace("]", "");
 				return values[index];
 			}
-		});
+		});*/
+		model_chatroom_list.removeAllElements();
+		belongsList = belongsList.replace("[", "").replace("]", "");
+		String[] chatroomsList = belongsList.split(", ");
+		for (String chatroom : chatroomsList) {
+			model_chatroom_list.addElement(chatroom);
+		}
+		notBelongsList = notBelongsList.replace("[", "").replace("]", "");
+		chatroomsList = notBelongsList.split(", ");
+		for (String chatroom : chatroomsList) {
+			model_chatroom_list.addElement(chatroom);
+		}
+	}
+	
+	public void addChatroom(String chatroom) {
+		model_chatroom_list.addElement(chatroom);
+	}
+	
+	public void removeChatroom(String chatroom) {
+		model_chatroom_list.removeElement(chatroom);
 	}
 	
 	public static String[] combine(String[] a, String[] b){
