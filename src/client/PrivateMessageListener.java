@@ -28,7 +28,7 @@ public class PrivateMessageListener extends Thread{
 			String sender = (String) msg.getParameter("SENDER");
 			ChatGUI chatGUI = (ChatGUI) interfaces.get("chatGUI"+sender);
 			
-			chatGUI.setConversationArea("["+sender+":] "+msg.getParameter("BODY"));
+			chatGUI.setConversationArea("["+sender+"] "+msg.getParameter("BODY"));
 		 }
 	 }
 	 

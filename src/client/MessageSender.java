@@ -378,6 +378,7 @@ public class MessageSender {
 	}*/
 	
 	private void sendMessage(RequestMessage msg) {
+		System.out.println("Invio "+msg);
 		try {
 			message_out.writeObject(msg);
 		} catch (IOException e) {

@@ -32,7 +32,7 @@ public class FileReceiver extends Thread{
 	
 	public void run() {
 		ServerSocketChannel socketChannel = null;
-		SocketChannel sender = null;
+		SocketChannel sender_sock = null;
 		FileChannel file = null;
 		
 		try {
@@ -51,14 +51,14 @@ public class FileReceiver extends Thread{
 		}
 		
 		try {
-			sender = socketChannel.accept();
+			sender_sock = socketChannel.accept();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
 		ByteBuffer buffer = ByteBuffer.allocate(1024);
 		try {
-			while (sender.read(buffer) > 0) {
+			while (sender_sock.read(buffer) > 0) {
 			    buffer.flip();
 			    
 			    //scrivo su file
@@ -73,8 +73,7 @@ public class FileReceiver extends Thread{
 			e.printStackTrace();
 		}
 		
-		System.out.println("Ricevuto il file");
-		chatGUI.setConversationArea("L'utente "+sender+" ti ha inviato il file "+file.toString());
+		chatGUI.setConversationArea(sender+" ti ha inviato "+filename);
 	}
 
 }

@@ -21,7 +21,6 @@ public class ReplyMessageManager implements MessageManager {
 			try {
 				//Sending
 				(receiver.getControlOutputStream()).writeObject(message);
-		        System.out.println("Message to user:"+message.toString());
 				return true;
 			}catch(IOException e) {
 				return false;

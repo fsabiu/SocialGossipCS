@@ -1,6 +1,11 @@
 package communication;
 
 public class ResponseMessage extends Message{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	@SuppressWarnings("unchecked")
 	public ResponseMessage() {
 		super();

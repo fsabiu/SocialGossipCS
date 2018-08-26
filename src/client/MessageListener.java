@@ -55,16 +55,13 @@ public class MessageListener extends Thread{
 	public void run() {
 		Object received_message;
 		while(true) {
-			//System.out.println("In attesa di risposta");
 			//Receiving request
 			received_message=receiveResponse();
 			if (received_message instanceof RequestMessage) {
 				RequestMessage request_message = (RequestMessage) received_message;
-				System.out.println("Il messaggio di richiesta ricevuto è "+request_message.toString());
 				checkRequest(request_message);
 			} else if(received_message instanceof ResponseMessage) {
 				ResponseMessage response = (ResponseMessage) received_message;
-				System.out.println("Il messaggio di risposta ricevuto è "+response.toString());
 				checkResponse(response);
 			}
 		}
@@ -82,13 +79,12 @@ public class MessageListener extends Thread{
 		String op = (String) request.getParameter("OPERATION");
 		switch (op) {
 			case "FILE_TO_FRIEND": {
-				System.out.println("### HO RICEVUTO UNA RICHIESTA PER INVIO FILE");
 				String sender = (String) request.getParameter("SENDER");
 				String receiver = (String) request.getParameter("RECEIVER");
 				String filename = (String) request.getParameter("FILENAME");
 				//Setting up network settings to receive a new file
 				ResponseMessage res = new ResponseMessage();
-				res.setParameters("OP:OK","TYPE:response","OPERATION:FILE_TO_FRIEND","HOSTNAME:"+hostname,"FILENAME:"+filename);
+				res.setParameters("OPERATION:OK","TYPE:response","HOSTNAME:"+hostname,"FILENAME:"+filename, "RESPONSE_TYPE:"+op);
 				res.setParameters("SENDER:"+receiver);
 				res.setParameters("RECEIVER:"+sender);
 				int port = PortScanner.freePort();
@@ -108,7 +104,6 @@ public class MessageListener extends Thread{
 	}
 
 	public void checkResponse(ResponseMessage reply) {
-		//
 		String op = (String) reply.getParameter("RESPONSE_TYPE");
 		switch(op) {
 			case "REGISTER":{
@@ -227,8 +222,7 @@ public class MessageListener extends Thread{
 					}*/
 					
 					ChatGUI chatGUI = (ChatGUI) interfaces.get("chatGUI"+receiver);
-					System.out.println("["+sender+":] "+reply.getParameter("BODY"));
-					chatGUI.setConversationArea("["+sender+":] "+reply.getParameter("BODY"));
+					chatGUI.setConversationArea("["+sender+"] "+reply.getParameter("BODY"));
 				}
 				else {
 					JOptionPane.showMessageDialog(null, reply.getParameter("BODY"));
@@ -242,7 +236,6 @@ public class MessageListener extends Thread{
 			break;
 			case "CHAT_CREATION": {
 				//Ricevo la risposta 
-				System.out.println(reply.getParameter("OPERATION").equals("OK"));
 				if (reply.getParameter("OPERATION").equals("OK")) {
 					//Stampo il messaggio di creazione corretta
 					JOptionPane.showMessageDialog(null, reply.getParameter("BODY"));
@@ -254,7 +247,6 @@ public class MessageListener extends Thread{
 			case "CHAT_ADDING": {
 				if (reply.getParameter("OPERATION").equals("OK")) {
 					JOptionPane.showMessageDialog(null, reply.getParameter("BODY"));
-					System.out.println(reply.getParameter("PORT"));
 
 					create_chatroom(reply);
 					//((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).getSelectedListChatroom();
@@ -262,14 +254,13 @@ public class MessageListener extends Thread{
 			}
 			break;
 			case "FILE_TO_FRIEND": {
-				System.out.println("### FILE TO FRIEND ###");
-				System.out.println(reply);
 				if (reply.getParameter("OPERATION").equals("OK")) {
 					String hostname = (String) reply.getParameter("HOSTNAME");
 					int port = Integer.parseInt((String) reply.getParameter("PORT"));
 					String filename = (String) reply.getParameter("FILENAME");
-					boolean result = sendFile(hostname, port, filename);
-					if(!result) System.out.println("Error send file");
+					if(!sendFile(hostname, port, filename)) {
+						JOptionPane.showMessageDialog(null, "Error while sending file");
+					}
 				}
 			}
 			break;
@@ -290,10 +281,9 @@ public class MessageListener extends Thread{
 			e.printStackTrace();
 		}
 		File file = new File("");
-		file = new File(file.getAbsolutePath()+Config.UPLOAD_DIRECTORY);
+		file = new File(file.getAbsolutePath()+Config.UPLOAD_DIRECTORY+filename);
 		
 		if (!file.exists() || file.isDirectory()) {
-			System.out.println("File non trovato oppure non valido");
 			JOptionPane.showMessageDialog(null, "File non trovato oppure non valido");
 			return false;
 		}
