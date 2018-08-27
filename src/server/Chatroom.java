@@ -2,10 +2,7 @@ package server;
 
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.net.Socket;
 import java.util.HashSet;
-
-import util.Config;
 import util.PortScanner;
 
 /**

@@ -1,18 +1,12 @@
 package server;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.net.SocketTimeoutException;
-
 import communication.RequestMessage;
-import util.PortScanner;
 
 public class ChatroomManager {
 	

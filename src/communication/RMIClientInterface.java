@@ -3,7 +3,6 @@ package communication;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-
 /**
  * 
  * 
@@ -40,7 +39,6 @@ public interface RMIClientInterface extends Remote {
 	*/
 	public void newChatroomSubscriber(String new_subscriber, String chatroom) throws RemoteException;
 	
-	
 	/**
 	 * Notify to chatroom members that chatroom is now closed
 	 * @param chatroom chatroom to be removed
@@ -54,19 +52,4 @@ public interface RMIClientInterface extends Remote {
 	 * @throws RemoteException 
 	 */
 	public void newChatroom(String chatroom) throws RemoteException;
-	
-	/**
-	 * Notify to chatroom members a new chatroom message
-	 * @param chatroom 
-	 * @throws RemoteException
-	 
-	public void chatroomMessage(Chatroom chatroom) throws RemoteException;
-	*/
-	/**
-	 * Notify to a friend a new request to receive a file
-	 * @param friend receiver of the new file
-	 * @throws RemoteException
-	 
-	public void fileToFriend(User friend) throws RemoteException;
-	*/
 }

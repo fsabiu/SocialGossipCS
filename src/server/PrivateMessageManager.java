@@ -1,18 +1,9 @@
 package server;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
 import communication.Message;
 import communication.RequestMessage;
-import communication.ResponseMessage;
 
 public class PrivateMessageManager implements MessageManager {
 	User sender;

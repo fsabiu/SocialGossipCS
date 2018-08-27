@@ -8,12 +8,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import communication.RMIClientInterface;
 
 public class NotificationManager {
-	private ConcurrentHashMap<String, Chatroom> chatrooms;
 	private ConcurrentHashMap<String, User> usersbyname;
 	private Graph<User> network;
 	
 	public NotificationManager(ConcurrentHashMap<String, User> usersbyname, ConcurrentHashMap<String, Chatroom> chatrooms, Graph<User> network) {
-		this.chatrooms=chatrooms;
 		this.usersbyname=usersbyname;
 		this.network=network;
 	}

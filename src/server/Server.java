@@ -5,12 +5,9 @@ import java.net.Socket;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
-
-import communication.RMIServerInterface;
 import util.Config;
 
 
@@ -90,9 +87,6 @@ public class Server implements Runnable{
 		
 		//Instantiating RMI manager
 		RMIChannelManager RMIUserChannelManager = new RMIChannelManager(usersbyname);
-		
-		//Creating stub
-		//RMIServerInterface stub = (RMIServerInterface) UnicastRemoteObject.exportObject(RMIUserChannelManager,0);
 		
 		//Registry creation
 		LocateRegistry.createRegistry(Config.SERVER_RMI_PORT);

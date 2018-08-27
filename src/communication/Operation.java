@@ -1,5 +1,4 @@
 package communication;
-
 import java.util.*;
 
 public enum Operation {

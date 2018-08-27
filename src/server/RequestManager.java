@@ -367,6 +367,12 @@ public class RequestManager implements Runnable {
 		User sender_user=usersbyname.get(sender);
 		User receiver_user=usersbyname.get(receiver);
 		
+		//Are they the same user?
+		if(sender_user == receiver_user) {
+			reply.setParameters("OPERATION:ERR", "BODY:Non puoi aggiungere te stesso agli amici!");
+			return reply;
+		}
+		
 		//Is receiver a user?
 		if(!usersbyname.containsKey(receiver)) {
 			reply.setParameters("OPERATION:USER_DOES_NOT_EXIST", "BODY:L'utente "+receiver+" non esiste!");
