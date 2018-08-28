@@ -1,6 +1,5 @@
 package client;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,7 +23,7 @@ public class PrivateMessageListener extends Thread{
 			for(String s : interfaces.keySet()) {
 				System.out.println(s);
 			}
-			String receiver = (String) msg.getParameter("RECEIVER");
+			//String receiver = (String) msg.getParameter("RECEIVER");
 			String sender = (String) msg.getParameter("SENDER");
 			ChatGUI chatGUI = (ChatGUI) interfaces.get("chatGUI"+sender);
 			

@@ -1,21 +1,13 @@
 package client;
 
 import java.awt.Color;
-import java.awt.Font;
-import java.awt.Image;
-import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.border.Border;
-import javax.swing.border.LineBorder;
 import javax.swing.JLabel;
 
 /*import java.awt.EventQueue;
@@ -71,7 +63,7 @@ public class ChatGUI extends GUI{
 			setTitle("Chat con "+title);
 			getContentPane().setLayout(null);
 			
-			Border border = BorderFactory.createLineBorder(Color.BLACK);
+			//Border border = BorderFactory.createLineBorder(Color.BLACK);
 			
 			btnInviaTextButton = new JButton("Invia");
 			btnInviaTextButton.setActionCommand("MSG_TO_FRIEND");
