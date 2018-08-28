@@ -38,6 +38,10 @@ public class NotificationReceiver extends UnicastRemoteObject implements RMIClie
 		// Show notification to GUI
 		JOptionPane.showMessageDialog(null, username+" ti ha aggiunto agli amici");
 		((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).addFriendToList(username);
+
+		// Preparing chat interface with the new friend
+		ChatGUI chatGUI = new ChatGUI(username);
+		interfaces.putIfAbsent("chatGUI"+username, chatGUI);
 	}
 
 	@Override

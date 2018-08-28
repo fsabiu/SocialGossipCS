@@ -393,6 +393,7 @@ public class RequestManager implements Runnable {
 		if(online) {
 			network.addEdge(sender_user, receiver_user);
 			reply.setParameters("OPERATION:OK");
+			reply.setParameters("RECEIVER:"+receiver);
 			reply.setParameters("BODY:Tu e "+receiver+" siete ora amici!");
 			notifier.notifyFriendship(sender_user, receiver_user);
 		}else {

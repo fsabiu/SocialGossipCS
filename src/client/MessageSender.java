@@ -1,24 +1,17 @@
 package client;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.net.Socket;
-import java.util.ArrayList;
+import java.rmi.RemoteException;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JOptionPane;
 
-import org.json.simple.JSONArray;
-
-import communication.Message;
-import communication.Operation;
+import communication.RMIClientInterface;
 import communication.RequestMessage;
 import communication.ResponseMessage;
-import util.Config;
+import communication.RMIServerInterface;
 
 public class MessageSender {
 	//private Socket server_control_socket;
@@ -30,9 +23,11 @@ public class MessageSender {
 
 	private ObjectOutputStream control_out;
 	private ObjectOutputStream message_out;
+	private RMIServerInterface serverRMI;
+	private RMIClientInterface callback;
 
 	//public MessageSender(Socket server_control_socket, Socket server_message_socket, LoginGUI loginGUI) {
-	public MessageSender(ObjectOutputStream control_out, ObjectOutputStream message_out, Socket server_message_socket, ConcurrentHashMap<String,GUI> interfaces) {
+	public MessageSender(ObjectOutputStream control_out, ObjectOutputStream message_out, Socket server_message_socket, ConcurrentHashMap<String,GUI> interfaces, RMIServerInterface serverRMI, RMIClientInterface callback) {
 		this.password="";
 		//this.server_control_socket=server_control_socket;
 		this.server_message_socket=server_message_socket;
@@ -47,6 +42,8 @@ public class MessageSender {
 		this.interfaces=interfaces;
 		this.control_out=control_out;
 		this.message_out=message_out;
+		this.serverRMI = serverRMI;
+		this.callback = callback;
 	
 	}
 	
@@ -146,16 +143,6 @@ public class MessageSender {
 					//Opening chat interface to user
 					((LoginGUI) gui).createSGHome(username);
 				}*/
-				RequestMessage req_friends = new RequestMessage();
-				req_friends.setParameters("SENDER:"+username);
-				req_friends.setParameters("OPERATION:LIST_FRIENDS");
-				//Sending request to server
-				sendRequest(req_friends);
-
-				RequestMessage req_chatroom = new RequestMessage();
-				req_chatroom.setParameters("SENDER:"+username);
-				req_chatroom.setParameters("OPERATION:CHAT_LISTING");
-				sendRequest(req_chatroom);
 			}
 			break;
 			case "LOGOUT":{
@@ -166,6 +153,13 @@ public class MessageSender {
 				
 				//Sending request to server
 				sendRequest(req);
+				
+				try {
+					serverRMI.unregisterUserRMIChannel(username, callback);
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			break;
 			case "LOOKUP":{
@@ -236,9 +230,16 @@ public class MessageSender {
 				String friend = ((SocialGossipHomeGUI) gui).getSelectedListFriend();
 				
 				//Creating chat to chat with the above friend
-				ChatGUI chatGUI = new ChatGUI(friend);
-				chatGUI.setVisible(true);
-				interfaces.putIfAbsent("chatGUI"+friend, chatGUI);
+				ChatGUI chatGUI;
+				if (!interfaces.containsKey("chatGUI"+friend)) {
+					chatGUI = new ChatGUI(friend);
+					chatGUI.setVisible(true);
+					interfaces.putIfAbsent("chatGUI"+friend, chatGUI);
+				}
+				else {
+					chatGUI = (ChatGUI) interfaces.get("chatGUI"+friend);
+					chatGUI.setVisible(true);
+				}
 			}
 			break;
 			case "MSG_TO_FRIEND": {
@@ -246,7 +247,6 @@ public class MessageSender {
 				
 				String friend = ((ChatGUI) gui).getTitle();
 				String msg = ((ChatGUI) gui).getTextArea().getText();
-				System.out.println(friend);
 				req.setParameters("OPERATION:"+event);
 				req.setParameters("RECEIVER:"+friend);
 				req.setParameters("BODY:"+msg);
@@ -332,50 +332,6 @@ public class MessageSender {
 			break;
 		}
 	}
-	
-	/*public ResponseMessage checkResponse() {
-		//Receiving request
-		ResponseMessage reply=receiveResponse();
-		String op= (String) reply.getParameter("OPERATION");
-		switch(op) {  
-			case "OK":
-				System.out.println("Operazione avvenuta con successo");
-				break;
-			case "USER_ALREADY_EXISTS":
-				System.out.println("Esiste già un utente con quel nome");
-				break;
-			case "PERMISSION_DENIED":
-				//Stampa testo body dopo
-				System.out.println("Operazione non permessa");
-				break;
-			case "INVALID_CREDENTIALS":
-				System.out.println("Credenziali errate");
-				break;
-			case "ERR":
-				System.out.println("Errore generico");
-				System.out.println("Errore: "+reply.getParameter("BODY"));
-				break;
-		default:
-			System.out.println("Operation "+op);
-			break;
-		}
-		
-		return reply;
-	}*/
-	
-	/*public ResponseMessage receiveResponse() {
-		String replyString= null;
-		try {
-			replyString= control_in.readUTF();
-		} catch (IOException e) {
-			System.out.println("In attesa di response");
-			e.printStackTrace();
-		}
-		
-		ResponseMessage reply=new ResponseMessage();
-		reply.parseToMessage(replyString);
-		return reply;
-	}*/
 	
 	private void sendMessage(RequestMessage msg) {
 		System.out.println("Invio "+msg);

@@ -2,27 +2,18 @@ package client;
 
 import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.RandomAccessFile;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.MulticastSocket;
-import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SocketChannel;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JOptionPane;
 
-import communication.Message;
 import communication.RMIClientInterface;
 import communication.RMIServerInterface;
 import communication.RequestMessage;
@@ -42,6 +33,9 @@ public class MessageListener extends Thread{
 	private ObjectInputStream object_control_in = null;
 	private String hostname;
 	
+	//To stop thread running
+	private volatile boolean running = true;
+	
 	public MessageListener(DataInputStream control_in, MessageSender message_sender, ConcurrentHashMap<String,GUI> interfaces, RMIServerInterface serverRMI, RMIClientInterface callback, String hostname) throws IOException {
 		this.interfaces = interfaces;
 		this.message_sender = message_sender;
@@ -54,7 +48,7 @@ public class MessageListener extends Thread{
 
 	public void run() {
 		Object received_message;
-		while(true) {
+		while(running) {
 			//Receiving request
 			received_message=receiveResponse();
 			if (received_message instanceof RequestMessage) {
@@ -120,20 +114,29 @@ public class MessageListener extends Thread{
 					loginGUI.setVisible(false);
 					
 					String user = (String) reply.getParameter("USER");
-					/*SocialGossipHomeGUI sgGUI;
-					sgGUI=((LoginGUI) loginGUI).createSGHome(user);
-					interfaces.putIfAbsent("socialGossipHomeGUI", sgGUI);*/
+					
+					// Requesting friend list
+					RequestMessage req_friends = new RequestMessage();
+					req_friends.setParameters("SENDER:"+user);
+					req_friends.setParameters("OPERATION:LIST_FRIENDS");
+					message_sender.sendRequest(req_friends);
+
+					// Requesting chatroom list
+					RequestMessage req_chatroom = new RequestMessage();
+					req_chatroom.setParameters("SENDER:"+user);
+					req_chatroom.setParameters("OPERATION:CHAT_LISTING");
+					message_sender.sendRequest(req_chatroom);
 					
 					SocialGossipHomeGUI sgGUI = new SocialGossipHomeGUI( ((LoginGUI) interfaces.get("loginGUI")).getFrame(),user);
 					sgGUI.setVisible(true);
 					interfaces.putIfAbsent("socialGossipHomeGUI", sgGUI);
-
 					try {
 						serverRMI.registerUserRMIChannel(user, callback);
 					} catch (RemoteException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+					((LoginGUI) loginGUI).getLoginResponse().setText("");
 				}
 			}
 			break;
@@ -143,20 +146,12 @@ public class MessageListener extends Thread{
 				//ResponseMessage response=checkResponse();
 
 				if (reply.getParameter("OPERATION").equals("OK")) {
-					//Opening chat interface to user
-					/* Replaced by hashmap
-					 * ((SocialGossipHomeGUI) gui).logoutGUI();
-					 */
-					String username = (String) reply.getParameter("SENDER");
-					try {
-						serverRMI.unregisterUserRMIChannel(username, callback);
-					} catch (RemoteException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					
 					((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).logoutGUI();
+					
 					System.out.println("Logout utente");
 					
+					running = false;
 				}
 			}
 			break;
@@ -182,8 +177,13 @@ public class MessageListener extends Thread{
 			}
 			break;
 			case "FRIENDSHIP":{
-				System.out.println("Inviata richiesta di amicizia all'utente");				
+				System.out.println("Inviata richiesta di amicizia all'utente"+reply);				
 				JOptionPane.showMessageDialog(null, reply.getParameter("BODY"));
+
+				// Preparing chat interface with the new friend
+				String friend = (String) reply.getParameter("RECEIVER");
+				ChatGUI chatGUI = new ChatGUI(friend);
+				interfaces.putIfAbsent("chatGUI"+friend, chatGUI);
 			} 
 			break;
 			case "LIST_FRIENDS":{

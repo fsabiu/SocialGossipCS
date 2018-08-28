@@ -13,13 +13,10 @@ import javax.swing.SwingConstants;
 
 
 import java.awt.Color;
-import java.awt.EventQueue;
 import java.awt.Font;
-import javax.swing.AbstractListModel;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 
 public class SocialGossipHomeGUI extends GUI{ 
@@ -185,7 +182,8 @@ public class SocialGossipHomeGUI extends GUI{
 		chatroom_list = new JList<String>(model_chatroom_list);
 		contentPane.add(chatroom_list);
 		chatroom_list.addMouseListener(new MouseAdapter() {
-		    public void mouseClicked(MouseEvent evt) {
+		    @SuppressWarnings({ "rawtypes", "unused" })
+			public void mouseClicked(MouseEvent evt) {
 		        JList list = (JList)evt.getSource();
 		        if (evt.getClickCount() == 2) {
 		            // Double-click detected

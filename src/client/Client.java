@@ -30,6 +30,7 @@ public class Client implements Runnable{
 	private static String hostname;
 	private RMIServerInterface serverRMI = null;
 	private ConcurrentHashMap<String,GUI> interfaces;
+	private PrivateMessageListener privateMessageListener;
 	
 	public Client() {
 	}
@@ -56,30 +57,40 @@ public class Client implements Runnable{
 				
 				DataOutputStream message_data_out = new DataOutputStream(server_message_socket.getOutputStream());
 				ObjectOutputStream message_out = new ObjectOutputStream(message_data_out);
+
+				//init RMI
+				RMIClientInterface callback = null;
+				callback = startRMI(serverRMI);
 				
-				MessageSender message_sender= new MessageSender(control_out,message_out,server_message_socket,interfaces);
+				MessageSender message_sender= new MessageSender(control_out,message_out,server_message_socket,interfaces,serverRMI,callback);
 				
 				System.out.println("Creato messge sender");
 				
 				loginGUI=new LoginGUI(message_sender);
 				interfaces.putIfAbsent("loginGUI", loginGUI);
 				loginGUI.setVisible(true); 
-
-				//init RMI
-				RMIClientInterface callback = null;
-				callback = startRMI(serverRMI);
 				
 				MessageListener message_listener = new MessageListener(control_in, message_sender,interfaces,serverRMI,callback, hostname);
 				message_listener.start();
+				
+				//privateMessageListener.join();
+				message_listener.join();
 			} catch (IOException e) {
 				System.out.println("Error creating Streams IN/OUT");
 				e.printStackTrace();
+			}  catch (InterruptedException e) {
+				System.out.println("Thread client stops");
 			}
-
-			//Creating class used to send new requests
-			//Creating a thread used to listen private messages 
-			//MessageListener message_listener= new MessageListener();
-			//message_listener.start();
+			finally {
+				try {
+					server_control_socket.close();
+					server_message_socket.close();
+					System.out.println("Client closed");
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 			
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
@@ -87,7 +98,8 @@ public class Client implements Runnable{
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} /*finally {
+		}
+			/*finally {
 			try {
 				server_control_socket.close();
 				server_message_socket.close();
@@ -98,6 +110,7 @@ public class Client implements Runnable{
 		}*/
 	}
 	
+	@SuppressWarnings("resource")
 	private void setMessageConnection(DataOutputStream control_data_out, ConcurrentHashMap<String,GUI> interfaces) {
 		// TODO Auto-generated method stub
 		//Creating in/out streams
@@ -119,14 +132,12 @@ public class Client implements Runnable{
 			DataInputStream message_data_in = new DataInputStream(new BufferedInputStream(server_message_socket.getInputStream()));
 			ObjectInputStream message_in = new ObjectInputStream(message_data_in);
 			
-			PrivateMessageListener privateMessageListener = new PrivateMessageListener(interfaces,message_in); 
-			privateMessageListener.start();
-			
+			privateMessageListener = new PrivateMessageListener(interfaces,message_in); 
+			privateMessageListener.start();			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 	}
 
 
