@@ -91,7 +91,27 @@ public class NotificationManager {
 				RMIChannel= friend.getRMIChannel();
 				if(RMIChannel!=null) {//if is online
 					try {
-						RMIChannel.newFriendship(sender);
+						RMIChannel.notifyOnlineFriend(sender);
+					} catch (RemoteException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+	
+	public void notifyOfflineFriend(User user) {
+		String sender=user.getUsername();
+		RMIClientInterface RMIChannel;
+		Set<User> friends= network.getAdjVertices(user);
+		
+		synchronized(friends) {
+			for(User friend: friends) {
+				RMIChannel= friend.getRMIChannel();
+				if(RMIChannel!=null) {//if is online
+					try {
+						RMIChannel.notifyOnlineFriend(sender);
 					} catch (RemoteException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
