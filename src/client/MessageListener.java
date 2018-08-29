@@ -9,7 +9,10 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SocketChannel;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JOptionPane;
@@ -26,29 +29,27 @@ public class MessageListener extends Thread{
 	private MessageSender message_sender;
 	private DataInputStream control_in;
 	private ConcurrentHashMap<String,GUI> interfaces;
-	private RMIServerInterface serverRMI;
-	private RMIClientInterface callback;
 	
 	//It is used to receive Objects over socket
 	private ObjectInputStream object_control_in = null;
 	private String hostname;
+	private RMIServerInterface serverRMI = null;
+	private RMIClientInterface callback = null;
 	
 	//To stop thread running
-	private volatile boolean running = true;
+	//private volatile boolean running = true;
 	
-	public MessageListener(DataInputStream control_in, MessageSender message_sender, ConcurrentHashMap<String,GUI> interfaces, RMIServerInterface serverRMI, RMIClientInterface callback, String hostname) throws IOException {
+	public MessageListener(DataInputStream control_in, MessageSender message_sender, ConcurrentHashMap<String,GUI> interfaces, String hostname) throws IOException {
 		this.interfaces = interfaces;
 		this.message_sender = message_sender;
 		this.control_in = control_in;
-		this.serverRMI = serverRMI;
-		this.callback = callback;
 		this.hostname = hostname;
 		object_control_in = new ObjectInputStream(control_in);
 	}
 
 	public void run() {
 		Object received_message;
-		while(running) {
+		while(true) {
 			//Receiving request
 			received_message=receiveResponse();
 			if (received_message instanceof RequestMessage) {
@@ -131,6 +132,7 @@ public class MessageListener extends Thread{
 					sgGUI.setVisible(true);
 					interfaces.putIfAbsent("socialGossipHomeGUI", sgGUI);
 					try {
+						callback = startRMI(serverRMI);
 						serverRMI.registerUserRMIChannel(user, callback);
 					} catch (RemoteException e) {
 						// TODO Auto-generated catch block
@@ -143,15 +145,21 @@ public class MessageListener extends Thread{
 			case "LOGOUT":{
 					
 				//Getting response from server
-				//ResponseMessage response=checkResponse();
-
 				if (reply.getParameter("OPERATION").equals("OK")) {
 					
 					((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).logoutGUI();
+					String user = (String) reply.getParameter("SENDER");
+					interfaces= new ConcurrentHashMap<String,GUI>();
 					
-					System.out.println("Logout utente");
-					
-					running = false;
+					LoginGUI loginGUI = new LoginGUI(message_sender);
+					interfaces.putIfAbsent("loginGUI", loginGUI);
+					loginGUI.setVisible(true);
+					try {
+						serverRMI.unregisterUserRMIChannel(user, callback);
+					} catch (RemoteException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			}
 			break;
@@ -325,6 +333,26 @@ public class MessageListener extends Thread{
 		}
 		
 		return true;
+	}
+	
+
+	private RMIClientInterface startRMI(RMIServerInterface serverRMI) {
+		NotificationReceiver callback = null;
+		//cerco registro
+		try {
+			Registry registry = LocateRegistry.getRegistry(Config.SERVER_RMI_PORT);
+			serverRMI = (RMIServerInterface) registry.lookup(Config.SERVER_RMI_SERVICE_NAME);
+			this.serverRMI = serverRMI;
+			//creo la classe che implementa le callback
+			callback = new NotificationReceiver(interfaces);
+		} catch (RemoteException | NotBoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return callback;
+		//esporto la callback sul registro
+		//NotificationReceiver stub = (NotificationReceiver)UnicastRemoteObject.exportObject(callback,0);
 	}
 
 	private void create_chatroom(ResponseMessage reply) {

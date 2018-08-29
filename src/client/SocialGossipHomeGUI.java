@@ -301,7 +301,8 @@ public class SocialGossipHomeGUI extends GUI{
 	
 	public void logoutGUI() {
 		setVisible(false);
-		loginGUI.setVisible(true);
+		loginGUI=null;
+		//loginGUI.setVisible(true);
 	}
 	
 	public JPanel getContentPane() {

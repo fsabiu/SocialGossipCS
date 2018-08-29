@@ -71,7 +71,7 @@ public class Message implements Serializable{
 				sb.append(line);
 			}
 			JSONObject temp= (JSONObject) parser.parse(sb.toString());
-			String new_body = temp.get("text").toString();
+			String new_body = temp.get("text").toString().replace("[\"", "").replace("\"]", "");
 			System.out.println(new_body);
 			j_message.put("BODY", new_body);
 		} catch (IOException | ParseException e) {

@@ -3,15 +3,12 @@ package client;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.rmi.RemoteException;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JOptionPane;
 
-import communication.RMIClientInterface;
 import communication.RequestMessage;
 import communication.ResponseMessage;
-import communication.RMIServerInterface;
 
 public class MessageSender {
 	//private Socket server_control_socket;
@@ -23,11 +20,8 @@ public class MessageSender {
 
 	private ObjectOutputStream control_out;
 	private ObjectOutputStream message_out;
-	private RMIServerInterface serverRMI;
-	private RMIClientInterface callback;
 
-	//public MessageSender(Socket server_control_socket, Socket server_message_socket, LoginGUI loginGUI) {
-	public MessageSender(ObjectOutputStream control_out, ObjectOutputStream message_out, Socket server_message_socket, ConcurrentHashMap<String,GUI> interfaces, RMIServerInterface serverRMI, RMIClientInterface callback) {
+	public MessageSender(ObjectOutputStream control_out, ObjectOutputStream message_out, Socket server_message_socket, ConcurrentHashMap<String,GUI> interfaces) {
 		this.password="";
 		//this.server_control_socket=server_control_socket;
 		this.server_message_socket=server_message_socket;
@@ -41,10 +35,7 @@ public class MessageSender {
 		}*/
 		this.interfaces=interfaces;
 		this.control_out=control_out;
-		this.message_out=message_out;
-		this.serverRMI = serverRMI;
-		this.callback = callback;
-	
+		this.message_out=message_out;	
 	}
 	
 	//public void run() {
@@ -153,13 +144,6 @@ public class MessageSender {
 				
 				//Sending request to server
 				sendRequest(req);
-				
-				try {
-					serverRMI.unregisterUserRMIChannel(username, callback);
-				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 			}
 			break;
 			case "LOOKUP":{

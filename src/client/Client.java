@@ -10,15 +10,9 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.util.concurrent.ConcurrentHashMap;
 
-import communication.RMIServerInterface;
 import communication.RequestMessage;
-import communication.RMIClientInterface;
 import util.Config;
 import util.PortScanner;
 
@@ -28,7 +22,6 @@ public class Client implements Runnable{
 	private Socket server_message_socket;
 	private static LoginGUI loginGUI;
 	private static String hostname;
-	private RMIServerInterface serverRMI = null;
 	private ConcurrentHashMap<String,GUI> interfaces;
 	private PrivateMessageListener privateMessageListener;
 	
@@ -58,19 +51,17 @@ public class Client implements Runnable{
 				DataOutputStream message_data_out = new DataOutputStream(server_message_socket.getOutputStream());
 				ObjectOutputStream message_out = new ObjectOutputStream(message_data_out);
 
-				//init RMI
-				RMIClientInterface callback = null;
+				//Init RMI
+				/*RMIClientInterface callback = null;
 				callback = startRMI(serverRMI);
-				
-				MessageSender message_sender= new MessageSender(control_out,message_out,server_message_socket,interfaces,serverRMI,callback);
-				
-				System.out.println("Creato messge sender");
+				*/
+				MessageSender message_sender= new MessageSender(control_out,message_out,server_message_socket,interfaces);
 				
 				loginGUI=new LoginGUI(message_sender);
 				interfaces.putIfAbsent("loginGUI", loginGUI);
-				loginGUI.setVisible(true); 
+				loginGUI.setVisible(true);
 				
-				MessageListener message_listener = new MessageListener(control_in, message_sender,interfaces,serverRMI,callback, hostname);
+				MessageListener message_listener = new MessageListener(control_in,message_sender,interfaces,hostname);
 				message_listener.start();
 				
 				//privateMessageListener.join();
@@ -99,15 +90,6 @@ public class Client implements Runnable{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-			/*finally {
-			try {
-				server_control_socket.close();
-				server_message_socket.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}*/
 	}
 	
 	@SuppressWarnings("resource")
@@ -138,26 +120,6 @@ public class Client implements Runnable{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-
-
-	private RMIClientInterface startRMI(RMIServerInterface serverRMI) {
-		NotificationReceiver callback = null;
-		//cerco registro
-		try {
-			Registry registry = LocateRegistry.getRegistry(Config.SERVER_RMI_PORT);
-			serverRMI = (RMIServerInterface) registry.lookup(Config.SERVER_RMI_SERVICE_NAME);
-			this.serverRMI = serverRMI;
-			//creo la classe che implementa le callback
-			callback = new NotificationReceiver(interfaces);
-		} catch (RemoteException | NotBoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return callback;
-		//esporto la callback sul registro
-		//NotificationReceiver stub = (NotificationReceiver)UnicastRemoteObject.exportObject(callback,0);
 	}
 
 	public Client(String ip) {
