@@ -337,6 +337,16 @@ public class MessageSender {
 	
 	public void createRegistrationGUI() {
 		RegistrationGUI registrationGUI = new RegistrationGUI(((LoginGUI) interfaces.get("loginGUI")).getFrame());
+		System.out.println("Nella creazione della registration GUI");
+		for (String elem : interfaces.keySet()) {
+			System.out.println(elem);
+		}
+		if (interfaces.containsKey("registrationGUI")) {
+			System.out.println("registration UGI è presente");
+		}
+		else {
+			System.out.println("registration UGI non è presente");
+		}
 		interfaces.putIfAbsent("registrationGUI", registrationGUI);
 	}
 

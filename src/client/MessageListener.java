@@ -150,10 +150,16 @@ public class MessageListener extends Thread{
 					((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).logoutGUI();
 					String user = (String) reply.getParameter("SENDER");
 					interfaces= new ConcurrentHashMap<String,GUI>();
-					
+					for (String elem : interfaces.keySet()) {
+						System.out.println(elem);
+					}
 					LoginGUI loginGUI = new LoginGUI(message_sender);
 					interfaces.putIfAbsent("loginGUI", loginGUI);
 					loginGUI.setVisible(true);
+					System.out.println("dOPO LA NEW");
+					for (String elem : interfaces.keySet()) {
+						System.out.println(elem);
+					}
 					try {
 						serverRMI.unregisterUserRMIChannel(user, callback);
 					} catch (RemoteException e) {
