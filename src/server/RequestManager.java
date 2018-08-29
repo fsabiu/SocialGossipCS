@@ -171,12 +171,8 @@ public class RequestManager implements Runnable {
 		
 		//Getting operation from ResponseMessage
 		String response_type = (String) message.getParameter("RESPONSE_TYPE");
-		String op = (String) message.getParameter("OPERATION");
 		String sender= (String) message.getParameter("SENDER");
 		String receiver= (String) message.getParameter("RECEIVER");
-		String hostname = ((String) message.getParameter("HOSTNAME"));
-		String port = ((String) message.getParameter("PORT"));
-		String filename = ((String) message.getParameter("FILENAME"));
 		
 		//To network node
 		User sender_user=usersbyname.get(sender);
@@ -191,16 +187,7 @@ public class RequestManager implements Runnable {
 				online=receiver_user.isOnline();
 			}
 			if(online) {
-				//Message copy
-				ResponseMessage forward = new ResponseMessage();
-				forward.setParameters("RESPONSE_TYPE:"+response_type);
-				forward.setParameters("OPERATION:"+op);
-				forward.setParameters("SENDER:"+sender);
-				forward.setParameters("RECEIVER:"+receiver);
-				forward.setParameters("PORT:"+port);
-				forward.setParameters("HOSTNAME:"+hostname);
-				forward.setParameters("FILENAME:"+filename);
-				response_manager.sendReply(forward, receiver_user.getControlOutputStream());
+				response_manager.sendReply(message, receiver_user.getControlOutputStream());
 			}
 			break;
 		}
@@ -215,7 +202,6 @@ public class RequestManager implements Runnable {
 		ResponseMessage reply=null;
 		try {		
 			//Getting operation from RequestMessage
-			//Operation op = (Operation) message.getParameter("OPERATION");
 			String op = (String) message.getParameter("OPERATION");
 			String sender= (String) message.getParameter("SENDER");
 			
@@ -227,15 +213,7 @@ public class RequestManager implements Runnable {
 			if(op==null) {
 				System.out.println("Invalid operation type recived");
 				reply.setParameters("OPERATION:ERR","BODY:Invalid request received");
-			}/*else if (op == "MSG_TO_FRIEND"){//Checking for self-messages
-				String receiver= (String) message.getParameter("RECEIVER");
-				if(receiver!=null) {
-					if(sender.equals(receiver)){
-						reply.setParameters("OPERATION:ERR","BODY:Non puoi essere tu il destinatario del messaggio!");
-						op="";
-					}
-				}
-			}*/
+			}
 			
 			switch(op) {
 				case "REGISTER":
@@ -287,7 +265,6 @@ public class RequestManager implements Runnable {
 		} catch(IllegalArgumentException e) {
 			System.exit(-1);
 		}
-		
 		
 		//Replying to sender
 		if(message_manager!=null) {//replying to user 
@@ -487,6 +464,12 @@ public class RequestManager implements Runnable {
 		//Are sender and receiver friends?	
 		if(!network.areAdj(sender_user, receiver_user)) {
 			reply.setParameters("OPERATION:PERMISSION_DENIED", "BODY:You are not friends");
+			return reply;
+		}
+		
+		//Are they the same person?	
+		if(sender_user == receiver_user) {
+			reply.setParameters("OPERATION:PERMISSION_DENIED", "BODY:Non puoi essere tu il destinatario del messaggio!");
 			return reply;
 		}
 			
