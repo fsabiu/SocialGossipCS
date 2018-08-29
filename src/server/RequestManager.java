@@ -548,6 +548,9 @@ public class RequestManager implements Runnable {
 		//Setting offline
 		user.setOffline();
 		
+		//Sending notification to friends
+		notifier.notifyOfflineFriend(user);
+		
 		//Unbounding message manager
 		message_manager=null;
 		
