@@ -552,6 +552,7 @@ public class RequestManager implements Runnable {
 		message_manager=null;
 		
 		reply.setParameters("OPERATION:OK");
+		reply.setParameters("SENDER:"+username);
 		reply.setParameters("BODY:A presto, "+username+"!");
 		return reply;
 	}
