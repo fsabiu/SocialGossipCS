@@ -151,7 +151,6 @@ public class RequestManager implements Runnable {
 		
 		//Closing 
 		finally {
-			//{
 				try {
 					if(client_control != null) client_control.close();
 					if(client_messages != null) client_messages.close();
@@ -160,7 +159,6 @@ public class RequestManager implements Runnable {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-			//}
 		}
 	}
 
