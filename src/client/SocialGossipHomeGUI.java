@@ -213,20 +213,6 @@ public class SocialGossipHomeGUI extends GUI{
 	}*/
 	
 	public void setListFriends(String list) {
-		/*friend_list.setModel(new AbstractListModel<String>() {
-			private static final long serialVersionUID = 1L;
-			
-			String[] values = arrayList.split(", ");
-			
-			public int getSize() {
-				return values.length;
-			}
-			public String getElementAt(int index) {
-				values[index] = values[index].replace("[", "");
-				values[index] = values[index].replace("]", "");
-				return values[index];
-			}
-		});*/
 		model_friend_list.removeAllElements();
 		System.out.println("La lista di amici prima di replace è "+list);
 		list = list.replace("[", "");

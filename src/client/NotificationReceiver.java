@@ -4,6 +4,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 import communication.RMIClientInterface;
@@ -24,13 +25,20 @@ public class NotificationReceiver extends UnicastRemoteObject implements RMIClie
 	@Override
 	public void notifyOnlineFriend(String friend) throws RemoteException {
 		// Show notification to GUI
-		JOptionPane.showMessageDialog(null, "Il tuo amico "+friend+" è ora online");
+		JOptionPane pane = new JOptionPane("Il tuo amico "+friend+" è ora online");
+		JDialog dialog = pane.createDialog(null, "Notification");
+		dialog.setModal(false);
+		dialog.setVisible(true);
 	}
 
 	@Override
 	public void notifyOfflineFriend(String friend) throws RemoteException {
 		// Show notification to GUI
-		JOptionPane.showMessageDialog(null, "Il tuo amico "+friend+" è ora offline");
+		JOptionPane pane = new JOptionPane("Il tuo amico "+friend+" è ora offline");
+		JDialog dialog = pane.createDialog(null, "Notification");
+		dialog.setModal(false);
+		dialog.setVisible(true);
+		//JOptionPane.showMessageDialog(null, "Il tuo amico "+friend+" è ora offline");
 	}
 
 	@Override

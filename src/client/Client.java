@@ -127,21 +127,23 @@ public class Client implements Runnable{
 	}
 
 	public static void main(String args[]) {
-		if(args.length!=1) {
-			System.out.println("Launch with \"client.java YOUR_IP_ADDRESS\"");
+		if(args.length!=2) {
+			System.out.println("Launch with \"client.java YOUR_IP_ADDRESS SERVER_IP_ADDRESS\"");
 			System.exit(-1);
 		} 
 		
 		hostname = args[0];
+		Config.SERVER_HOST_NAME = args[1];
 		
 		try {
-			boolean valid = InetAddress.getByName(hostname).getHostAddress().equals(hostname);
+			InetAddress.getByName(hostname).getHostAddress().equals(hostname);
+			InetAddress.getByName(Config.SERVER_HOST_NAME).getHostAddress().equals(Config.SERVER_HOST_NAME);
 		} catch (UnknownHostException e) {
 			System.out.println("Invalid IP address received.");
-			System.out.println("Launch with \"client.java YOUR_IP_ADDRESS\"");
+			System.out.println("Launch with \"client.java YOUR_IP_ADDRESS SERVER_IP_ADDRESS\"");
 			System.exit(-2);
 		}
-		hostname = args[0];
+
 		Client client=new Client(hostname);
 		System.out.println("Client started");
 		client.run();
