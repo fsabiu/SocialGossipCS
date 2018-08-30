@@ -346,7 +346,7 @@ public class MessageListener extends Thread{
 		NotificationReceiver callback = null;
 		//cerco registro
 		try {
-			Registry registry = LocateRegistry.getRegistry(Config.SERVER_RMI_PORT);
+			Registry registry = LocateRegistry.getRegistry(Config.SERVER_HOST_NAME, Config.SERVER_RMI_PORT);
 			serverRMI = (RMIServerInterface) registry.lookup(Config.SERVER_RMI_SERVICE_NAME);
 			this.serverRMI = serverRMI;
 			//creo la classe che implementa le callback

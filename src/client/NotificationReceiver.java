@@ -36,7 +36,6 @@ public class NotificationReceiver extends UnicastRemoteObject implements RMIClie
 	@Override
 	public void newFriendship(String username) throws RemoteException {
 		// Show notification to GUI
-		JOptionPane.showMessageDialog(null, username+" ti ha aggiunto agli amici");
 		((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).addFriendToList(username);
 
 		// Preparing chat interface with the new friend

@@ -84,7 +84,6 @@ public class Server implements Runnable{
 	}
 	
 	private void startRMI() throws RemoteException {
-		
 		//Instantiating RMI manager
 		RMIChannelManager RMIUserChannelManager = new RMIChannelManager(usersbyname);
 		
