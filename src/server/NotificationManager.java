@@ -111,7 +111,7 @@ public class NotificationManager {
 				RMIChannel= friend.getRMIChannel();
 				if(RMIChannel!=null) {//if is online
 					try {
-						RMIChannel.notifyOnlineFriend(sender);
+						RMIChannel.notifyOfflineFriend(sender);
 					} catch (RemoteException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
