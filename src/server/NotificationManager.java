@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import communication.RMIClientInterface;
+import util.Graph;
 
 public class NotificationManager {
 	private ConcurrentHashMap<String, User> usersbyname;

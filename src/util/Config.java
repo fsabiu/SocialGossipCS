@@ -3,7 +3,7 @@ package util;
 public class Config 
 {
 	//TCP constants
-	public static String SERVER_HOST_NAME = null;
+	public static String SERVER_HOST_NAME = "192.168.43.181";
 	public static final int	SERVER_TCP_PORT= 5000;
 	
 	//RMI constants

@@ -378,7 +378,8 @@ public class MessageListener extends Thread{
 		try {
 			comeON = object_control_in.readObject();
 		} catch (IOException | ClassNotFoundException e) {
-			e.printStackTrace();
+			System.out.println("Connection closed by server");
+			System.exit(-2);
 		} 
 		return comeON;
 	}

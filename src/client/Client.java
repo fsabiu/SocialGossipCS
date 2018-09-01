@@ -68,7 +68,6 @@ public class Client implements Runnable{
 				message_listener.join();
 			} catch (IOException e) {
 				System.out.println("Error creating Streams IN/OUT");
-				e.printStackTrace();
 			}  catch (InterruptedException e) {
 				System.out.println("Thread client stops");
 			}
@@ -88,7 +87,7 @@ public class Client implements Runnable{
 			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Connection closed by server");
 		}
 	}
 	

@@ -36,7 +36,8 @@ public class PrivateMessageListener extends Thread{
 		 try {
 			 msg=(RequestMessage) message_in.readObject();
 		 } catch (ClassNotFoundException | IOException e) {
-			 e.printStackTrace();
+			 System.out.println("Connection closed by server");
+			 System.exit(-2);
 		 }
 		 return msg;
 	 }
