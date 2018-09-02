@@ -590,6 +590,7 @@ public class RequestManager implements Runnable {
 		
 		if(!password.equals(usersbyname.get(username).getPassword())) {
 			reply.setParameters("OPERATION:INVALID_CREDENTIALS");
+			reply.setParameters("BODY:"+"Password non valida.");
 			return reply;
 		}
 

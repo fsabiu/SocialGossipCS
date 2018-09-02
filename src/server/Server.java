@@ -32,12 +32,17 @@ public class Server implements Runnable{
 	 * @param port
 	 * @throws IOException 
 	 */
-	public Server(int port) throws IOException {
+	public Server(int port) {
 		network= new Graph<User>();
 		usersbyname= new ConcurrentHashMap<String, User>();
 		chatrooms= new ConcurrentHashMap<String, Chatroom>();
 		performer=(ThreadPoolExecutor) Executors.newCachedThreadPool();
-		listenerSocket = new ServerSocket(port);
+		try {
+			listenerSocket = new ServerSocket(port);
+		} catch (IOException e) {
+			System.out.println("Another server instance is running. Stop it and try again.");
+			System.exit(-3);
+		}
 	}
 	
 	
@@ -71,17 +76,11 @@ public class Server implements Runnable{
 	 * It creates the instance of the server through its constructor
 	 */
 	public static void main(String[] args) {
-		try {
-			//Creating instance of the Server
-			Server CSServer= new Server(Config.SERVER_TCP_PORT);
-			
-			//Running the server
-			CSServer.run();
-		}
-		catch(IOException e){
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		//Creating instance of the Server
+		Server CSServer= new Server(Config.SERVER_TCP_PORT);
+		
+		//Running the server
+		CSServer.run();
 	}
 	
 	private void startRMI() throws RemoteException {
