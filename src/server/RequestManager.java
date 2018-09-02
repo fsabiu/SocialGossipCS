@@ -692,6 +692,8 @@ public class RequestManager implements Runnable {
 			reply.setParameters("CHATROOM:"+chatroom);
 			reply.setParameters("PORT:"+port);
 			reply.setParameters("MSNAME:"+msName);
+			//notification
+			notifier.notifyNewChatroom(new_chatroom);
 			return reply;
 		} catch (Exception e) {
 			reply.setParameters("OPERATION:ERR", "BODY:Network error while creating chatroom");

@@ -137,6 +137,7 @@ public class SocialGossipHomeGUI extends GUI{
 		btnAvviaChat.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				System.out.println("Button avvia chat pressed");
+				System.out.println(e.getActionCommand());
 				request_maker.eventsHandler(socialGossipHomeGUI, e.getActionCommand());
 			}
 		});

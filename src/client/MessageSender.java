@@ -212,17 +212,18 @@ public class MessageSender {
 				System.out.println("Apertura chat");
 				//Getting friend name
 				String friend = ((SocialGossipHomeGUI) gui).getSelectedListFriend();
-				
-				//Creating chat to chat with the above friend
-				ChatGUI chatGUI;
-				if (!interfaces.containsKey("chatGUI"+friend)) {
-					chatGUI = new ChatGUI(friend);
-					chatGUI.setVisible(true);
-					interfaces.putIfAbsent("chatGUI"+friend, chatGUI);
-				}
-				else {
-					chatGUI = (ChatGUI) interfaces.get("chatGUI"+friend);
-					chatGUI.setVisible(true);
+				if(friend!=null) {
+					//Creating chat to chat with the above friend
+					ChatGUI chatGUI;
+					if (!interfaces.containsKey("chatGUI"+friend)) {
+						chatGUI = new ChatGUI(friend);
+						chatGUI.setVisible(true);
+						interfaces.putIfAbsent("chatGUI"+friend, chatGUI);
+					}
+					else {
+						chatGUI = (ChatGUI) interfaces.get("chatGUI"+friend);
+						chatGUI.setVisible(true);
+					}	
 				}
 			}
 			break;

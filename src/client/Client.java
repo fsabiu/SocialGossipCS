@@ -87,7 +87,7 @@ public class Client implements Runnable{
 			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			System.out.println("Connection closed by server");
+			System.out.println("Server offline");
 		}
 	}
 	
