@@ -1,6 +1,9 @@
 package communication;
 import java.util.*;
-
+ /*
+ * @author Marco Cardia
+ * @author Francesco Sabiu
+ */
 public enum Operation {
 	// User
 	REGISTER(1),
