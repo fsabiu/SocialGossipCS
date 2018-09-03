@@ -95,7 +95,7 @@ public class NotificationManager {
 						RMIChannel.notifyOnlineFriend(sender);
 					} catch (RemoteException e) {
 						// TODO Auto-generated catch block
-						e.printStackTrace();
+						System.out.println("Impossibile notificare a "+friend.getUsername());
 					}
 				}
 			}
@@ -109,6 +109,7 @@ public class NotificationManager {
 		
 		synchronized(friends) {
 			for(User friend: friends) {
+				System.out.println("Invio notifica a "+friend.getUsername());
 				RMIChannel= friend.getRMIChannel();
 				if(RMIChannel!=null) {//if is online
 					try {

@@ -124,6 +124,7 @@ public class RequestManager implements Runnable {
 				catch(EOFException e) {
 					//SE ERA UN UTENTE LOGGATO, SETTALO OFFLINE
 					if (connection_user!=null) {
+						notifier.notifyOfflineFriend(connection_user);
 						message_manager.setSender(null);
 						connection_user.setOffline();
 						System.out.println(connection_user.getUsername()+" disconnected");

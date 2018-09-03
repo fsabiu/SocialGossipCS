@@ -67,10 +67,6 @@ public class SocialGossipHomeGUI extends GUI{
 		friend_list = new JList<String>(model_friend_list);
 		scrollPane.setViewportView(friend_list);
 		
-		/*chatRoomList = new JList<ChatRoom>();
-		chatRoomList.setModel(modelChatRoomList);
-		scrollPane_1.setViewportView(chatRoomList);*/
-		
 		btnCreaChatroom = new JButton("Crea ChatRoom");
 		btnCreaChatroom.setActionCommand("CHAT_CREATION");
 		btnCreaChatroom.addActionListener(new ActionListener() {
@@ -189,6 +185,7 @@ public class SocialGossipHomeGUI extends GUI{
 		        if (evt.getClickCount() == 2) {
 		            // Double-click detected
 		            System.out.println("doppio click");
+		            request_maker.eventsHandler(socialGossipHomeGUI, "STARTCHATROOM");
 		        }
 		    }
 		});

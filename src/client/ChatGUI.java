@@ -55,7 +55,7 @@ public class ChatGUI extends GUI{
 		 */
 		public ChatGUI(String title) {
 			ChatGUI chatGUI = this;
-			getContentPane().setBackground(Color.CYAN);
+			getContentPane().setBackground(new Color(240,240,240));
 			setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 			setBounds(100, 100,WIDTH, HEIGHT);
 			setResizable(false);
@@ -88,7 +88,7 @@ public class ChatGUI extends GUI{
 			} catch (Exception ex) {
 					System.out.println(ex);
 			}*/
-			btnInviaFile.setBounds(385, 338, 69, 71);
+			btnInviaFile.setBounds(375, 337, 79, 72);
 			getContentPane().add(btnInviaFile);
 			
 			scrollPane = new JScrollPane();

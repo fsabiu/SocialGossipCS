@@ -15,6 +15,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 import communication.RMIClientInterface;
@@ -169,27 +170,20 @@ public class MessageListener extends Thread{
 			case "LOOKUP":{
 				System.out.println("Inviata richiesta di ricerca dell'utente");
 				
-				//Setting username and operation field
-				/*req.setParameters("SENDER:"+username,"OPERATION:"+event);
-				
-				//Setting username to search
-				String user_to_search= ((SocialGossipHomeGUI) gui).getUserSearchField().getText();
-				req.setParameters("USERNAME:"+user_to_search);
-				
-				//Sending request to server
-				sendRequest(req);*/
-				
-				//Getting response from server
-				//ResponseMessage response=checkResponse();
-				
 				if (reply.getParameter("OPERATION").equals("OK")) {
-					JOptionPane.showMessageDialog(null, reply.getParameter("BODY"));
+					JOptionPane pane = new JOptionPane(reply.getParameter("BODY"));
+					JDialog dialog = pane.createDialog(null, "Notification");
+					dialog.setModal(false);
+					dialog.setVisible(true);
 				}
 			}
 			break;
 			case "FRIENDSHIP":{
 				System.out.println("Inviata richiesta di amicizia all'utente"+reply);				
-				JOptionPane.showMessageDialog(null, reply.getParameter("BODY"));
+				JOptionPane pane = new JOptionPane(reply.getParameter("BODY"));
+				JDialog dialog = pane.createDialog(null, "Notification");
+				dialog.setModal(false);
+				dialog.setVisible(true);
 
 				// Preparing chat interface with the new friend
 				String friend = (String) reply.getParameter("RECEIVER");
@@ -222,6 +216,10 @@ public class MessageListener extends Thread{
 				//((SocialGossipHomeGUI) gui).createChatGUI();
 				//((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).createChatGUI();
 				
+			}
+			break;
+			case "STARTCHATROOM": {
+				((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).getSelectedListChatroom();
 			}
 			break;
 			case "MSG_TO_FRIEND": {

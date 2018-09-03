@@ -10,22 +10,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JLabel;
 
-/*import java.awt.EventQueue;
-
-import javax.swing.BorderFactory;
-import javax.swing.JFrame;
-
-import javax.swing.JTextArea;
-import javax.swing.border.LineBorder;
-import java.awt.Color;
-
-import javax.swing.border.Border;
-import javax.swing.JButton;
-import java.awt.SystemColor;
-import java.awt.Font;
-import javax.swing.JScrollPane;
-*/
-
 /**
  * GUI della chat con un altro utente
  * @author Marco Cardia
@@ -36,7 +20,6 @@ public class ChatroomGUI extends GUI{
 
 		private static final long serialVersionUID = 7018723357317188387L;
 		protected JButton btnInviaTextButton;
-		protected JButton btnInviaFile;
 		
 		
 		//public static final int WIDTH = 370;
@@ -55,8 +38,8 @@ public class ChatroomGUI extends GUI{
 		 */
 		public ChatroomGUI(String title) {
 			ChatroomGUI chatGUI = this;
-			getContentPane().setBackground(Color.CYAN);
-			setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			getContentPane().setBackground(new Color(240,240,240));
+			//setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 			setBounds(100, 100,WIDTH, HEIGHT);
 			setResizable(false);
 			this.title=title;
@@ -74,16 +57,6 @@ public class ChatroomGUI extends GUI{
 			});
 			btnInviaTextButton.setBounds(306, 337, 69, 72);
 			getContentPane().add(btnInviaTextButton);
-			
-			btnInviaFile = new JButton("Invia File");
-			/*try {
-				Image img = ImageIO.read(getClass().getResource("C:\\Users\\Marco\\git\\SocialGossipCS\\src\\attach.png"));
-				btnInviaFile.setIcon(new ImageIcon(img));
-			} catch (Exception ex) {
-					System.out.println(ex);
-			}*/
-			btnInviaFile.setBounds(385, 338, 69, 71);
-			getContentPane().add(btnInviaFile);
 			
 			scrollPane = new JScrollPane();
 			scrollPane.setBounds(9, 49, 445, 256);
@@ -107,10 +80,6 @@ public class ChatroomGUI extends GUI{
 
 		public JButton getBtnInviaTextButton() {
 			return btnInviaTextButton;
-		}
-
-		public JButton getBtnInviaFile() {
-			return btnInviaFile;
 		}
 		
 		public void setConversationArea(String text) {

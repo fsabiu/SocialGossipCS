@@ -227,6 +227,14 @@ public class MessageSender {
 				}
 			}
 			break;
+			case "STARTCHATROOM": {
+				String chatroom = ((SocialGossipHomeGUI) gui).getSelectedListChatroom();
+				if(chatroom != null) {
+					ChatroomGUI chatroomGUI;
+					//if (!interfaces.containsKey("chatroomGUI"+))
+				}
+			}
+			break;
 			case "MSG_TO_FRIEND": {
 				System.out.println("Invio Messaggio amico");
 				

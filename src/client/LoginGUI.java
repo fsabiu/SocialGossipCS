@@ -47,7 +47,7 @@ public class LoginGUI extends GUI{
 		frmSocialgossip = new JFrame();
 		frmSocialgossip.setTitle("SocialGossip");
 		frmSocialgossip.setResizable(false);
-		frmSocialgossip.getContentPane().setBackground(Color.CYAN);
+		frmSocialgossip.getContentPane().setBackground(new Color(240,240,240));
 		frmSocialgossip.setBounds(100, 100, 800, 600);
 		frmSocialgossip.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmSocialgossip.getContentPane().setLayout(null);
