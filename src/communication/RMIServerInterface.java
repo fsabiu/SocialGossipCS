@@ -3,8 +3,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 /**
- * 
- * 
+ * RMI Interface implemented by server
  * @author Francesco Sabiu
  * @author Marco Cardia
  *
@@ -12,7 +11,7 @@ import java.rmi.RemoteException;
 public interface RMIServerInterface extends Remote {
 
 	/**
-	 * Associates a notify channel to a user, in order to notify it.
+	 * It associates a notify channel to a user, in order to notify it.
 	 * @param nickname
 	 * @param callback
 	 * @throws RemoteException 
@@ -20,7 +19,7 @@ public interface RMIServerInterface extends Remote {
 	public void registerUserRMIChannel(String nickname, RMIClientInterface callback) throws RemoteException;
 
 	/**
-	 * Dissociates user notify channel
+	 * It dissociates user notify channel
 	 * @param username
 	 * @param callback
 	 * @throws RemoteException 

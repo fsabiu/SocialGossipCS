@@ -42,7 +42,6 @@ public class PrivateMessageManager implements MessageManager {
 			} else {
 				mess= (RequestMessage) message;
 			}
-			System.out.println("Translated message: "+mess.toString());
 			//Getting receiver output stream
 			try {
 				ObjectOutputStream messages_out = receiver.getMessageOutputStream();
@@ -83,28 +82,6 @@ public class PrivateMessageManager implements MessageManager {
 	 * @return fileSock
 	 */
 	public boolean askReceiverFileSocket(RequestMessage message, User sender, User receiver) {
-		System.out.println("Ho chiesto i dati NIO a "+receiver.getUsername());
 		return sendRequestToUser(message, receiver);
-//		//Get response message from receiver
-//		ResponseMessage received= receiveControlMessage(receiver);
-//		System.out.println("Ho ricevuto i dati NIO da "+receiver.getUsername());
 	}
-	
-	/**
-	 * The method receives a control message by the specified sender
-	 * @param sender
-	 * @return
-	 */
-//	public ResponseMessage receiveControlMessage(User sender) {
-//		try {
-//			System.out.println("Output stream di "+sender.getUsername()+": "+sender.getControlInputStream());
-//			ObjectInputStream control_in = sender.getControlInputStream();
-//			
-//			//Receiving
-//			ResponseMessage reply= (ResponseMessage)control_in.readObject();
-//			return reply;
-//		} catch(IOException | ClassNotFoundException e) {
-//			return null;
-//		}
-//	}
 }

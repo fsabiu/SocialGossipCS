@@ -57,8 +57,6 @@ public class Server implements Runnable{
 				//The server is ready to listen new requests
 				Socket Client = listenerSocket.accept();
 				
-				System.out.println("Server: client accepted");
-				
 				//Submitting client requests to the thread pool
 				performer.submit(new RequestManager(Client,network,chatrooms, usersbyname));
 				

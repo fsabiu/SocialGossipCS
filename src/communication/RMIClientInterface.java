@@ -5,7 +5,7 @@ import java.rmi.RemoteException;
 
 /**
  * 
- * 
+ * RMI Interface implemented by client in order to receive system's notifications
  * @author Francesco Sabiu
  * @author Marco Cardia
  *

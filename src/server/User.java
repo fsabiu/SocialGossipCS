@@ -13,10 +13,6 @@ import communication.RMIClientInterface;
  * The class represent a subscribed user, identified by unique username.
  */
 public class User {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	//Personal data
 	private String username;
 	private String password;

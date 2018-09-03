@@ -30,7 +30,6 @@ public class ReplyMessageManager implements MessageManager {
 	public boolean sendReply(Message message, ObjectOutputStream control_out){
 		try {
 			//Sending
-			System.out.println("Reply to user: "+message.toString());
 	        control_out.writeObject(message);
 			return true;
 		}catch(IOException e) {

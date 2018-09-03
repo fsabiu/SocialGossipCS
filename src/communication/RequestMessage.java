@@ -6,9 +6,6 @@ package communication;
  * @author Francesco Sabiu
  */
 public class RequestMessage extends Message {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	@SuppressWarnings("unchecked")

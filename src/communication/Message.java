@@ -11,7 +11,12 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-
+/**
+ * Class that represents a message
+ * @author Marco Cardia
+ * @author Francesco Sabiu
+ *
+ */
 public class Message implements Serializable{
 	private static final long serialVersionUID = 1L;
 	protected JSONObject j_message;

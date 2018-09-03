@@ -31,9 +31,6 @@ public class ChatroomManager {
 			throw new NullPointerException();
 		//DatagramPacket creation
 		DatagramPacket message = new DatagramPacket(msg,msg.length,msAddress,socket.getLocalPort());
-		System.out.println("Ms address: "+msAddress);
-		System.out.println("Local port: "+socket.getLocalPort());
-		System.out.println("Socket: "+socket);
 		//Sending message
 		socket.send(message);
 	}
@@ -42,7 +39,6 @@ public class ChatroomManager {
 		try {
 			byte[] msg= objectToByte(message);
 			forwardMessage(msg);
-			System.out.println("###########\n"+message+"\nINVIATO");
 			return true;
 		}catch(IOException e) {
 			return false;
@@ -67,11 +63,5 @@ public class ChatroomManager {
 	public int getSocketPort() {
 		return socket.getLocalPort();
 	}
-	
-	/*
-	public InetAddress getAddress() {
-		return msAddress;
-	}
-	*/
 
 }

@@ -73,8 +73,6 @@ public class NotificationManager {
 		//Getting RMI Channel
 		RMIClientInterface RMIChannel;
 		RMIChannel= receiver.getRMIChannel();
-		System.out.println(sender.getUsername()+" aggiunge "+receiver.getUsername());
-		System.out.println("RMI CHANNEL: "+RMIChannel);
 		//Notify
 		if(RMIChannel!=null) {//if is online
 			try {
@@ -93,7 +91,7 @@ public class NotificationManager {
 		synchronized(friends) {
 			for(User friend: friends) {
 				RMIChannel= friend.getRMIChannel();
-				if(RMIChannel!=null) {//if is online
+				if(RMIChannel!=null) {//if receiver is online
 					try {
 						RMIChannel.notifyOnlineFriend(sender);
 					} catch (RemoteException e) {
@@ -114,7 +112,7 @@ public class NotificationManager {
 			for(User friend: friends) {
 				System.out.println("Invio notifica a "+friend.getUsername());
 				RMIChannel= friend.getRMIChannel();
-				if(RMIChannel!=null) {//if is online
+				if(RMIChannel!=null) {//if receiver is online
 					try {
 						RMIChannel.notifyOfflineFriend(sender);
 					} catch (RemoteException e) {

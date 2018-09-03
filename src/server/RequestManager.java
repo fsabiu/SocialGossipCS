@@ -106,8 +106,7 @@ public class RequestManager implements Runnable {
 					try {
 						message = (Object) control_in.readObject();
 					} catch (ClassNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						System.out.println("Error while reading client message");
 					}
 					
 					if(message instanceof RequestMessage) {
@@ -134,7 +133,7 @@ public class RequestManager implements Runnable {
 					break;
 				}
 				catch (IOException e1) {
-					//SE ERA UN UTENTE LOGGATO, SETTALO OFFLINE
+					//If it was a logged user, change its status to offline
 					if (connection_user!=null) {
 						message_manager.setSender(null);
 						connection_user.setOffline();
@@ -159,16 +158,14 @@ public class RequestManager implements Runnable {
 					if(control_in != null) control_in.close();
 					if(control_out != null) control_out.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					System.out.println("Error while closing connection");
 				}
 		}
 	}
 
 
 	private User processResponse(ResponseMessage message, ObjectOutputStream control_out, ObjectOutputStream message_out) {
-		
-		System.out.println("Prendo parametri");
-		
+
 		//Getting operation from ResponseMessage
 		String response_type = (String) message.getParameter("RESPONSE_TYPE");
 		String sender= (String) message.getParameter("SENDER");
@@ -211,7 +208,6 @@ public class RequestManager implements Runnable {
 			
 			//Validating operation field
 			if(op==null) {
-				System.out.println("Invalid operation type recived");
 				reply.setParameters("OPERATION:ERR","BODY:Invalid request received");
 			}
 			
@@ -324,11 +320,7 @@ public class RequestManager implements Runnable {
 		for(User user: friends) {
 			friendslist.add(user.getUsername());
 		}
-		
 		reply.setParameters("OPERATION:OK", "BODY:"+friendslist);
-		
-		//Print
-		//String res= (String) reply.getParameter("BODY");
 		return reply;
 	}
 
@@ -483,15 +475,12 @@ public class RequestManager implements Runnable {
 			}
 		}
 		
-		
-		
-		//leggi mess mittente (con timer)
+		//Reading message
 		RequestMessage message = null;
 		try {
 			message = (RequestMessage) sender_user.getMessageInputStream().readObject();
 		} catch (ClassNotFoundException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Error while reading message");
 		}
 		
 		//Setting reply
@@ -602,8 +591,7 @@ public class RequestManager implements Runnable {
 		try {
 			user.setOnline(client_control, client_messages, control_out, message_out, control_in, message_in);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("User status update error");
 		}
 		
 		//Setting reply
@@ -837,8 +825,13 @@ public class RequestManager implements Runnable {
 		}
 	}
 
+	/**
+	 * Debug function. It prints SocialGossipCS Status
+	 * @param chatrooms
+	 * @param usersbyname
+	 * @param network
+	 */
 	void chatState(ConcurrentHashMap<String, Chatroom> chatrooms, ConcurrentHashMap<String, User> usersbyname, Graph<User> network) {
-		
 		//PRINT USERS
 		System.out.println("UTENTI");
 		for(String user: usersbyname.keySet()) {

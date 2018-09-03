@@ -8,11 +8,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import communication.RMIClientInterface;
 import communication.RMIServerInterface;
 
+/**
+ * Class that manages users RMI callback
+ * @author Francesco Sabiu
+ * @author Marco Cardia
+ *
+ */
 public class RMIChannelManager extends UnicastRemoteObject implements RMIServerInterface {
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private ConcurrentHashMap<String, User> usersbyname;
 	
@@ -24,9 +26,7 @@ public class RMIChannelManager extends UnicastRemoteObject implements RMIServerI
 	public void registerUserRMIChannel(String username, RMIClientInterface callback) throws RemoteException {
 		//Getting user
 		User u= usersbyname.get(username);
-		System.out.println("Aggiungendo rmi");
 		u.setRMIChannel(callback);
-		System.out.println("Aggiunto");
 	}
 
 	@Override
