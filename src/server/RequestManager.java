@@ -634,10 +634,18 @@ public class RequestManager implements Runnable {
 		//List of chatroom the user does not belong to
 		ArrayList<String> notbelonglist= new ArrayList<String>();
 		
+		/**
+		reply.setParameters("PORT:"+chatroom.getPort());
+		reply.setParameters("MSNAME:"+chatroom.getMsName());
+		 */
+		
 		//Filling lists
 		for(Chatroom chatroom: chatrooms.values()) {
-			if(chatroom.isParticipant(usersbyname.get(username)))
+			if(chatroom.isParticipant(usersbyname.get(username))) {
 				belonglist.add(chatroom.getName());
+				reply.setParameters(chatroom.getName()+"?PORT:"+chatroom.getPort());
+				reply.setParameters(chatroom.getName()+"?MSNAME:"+chatroom.getMsName());
+			}
 			else notbelonglist.add(chatroom.getName());
 		}
 		
@@ -653,6 +661,10 @@ public class RequestManager implements Runnable {
 		//Extracting relevant fields
 		String username= (String) message.getParameter("SENDER");
 		String chatroom= (String) message.getParameter("CHATROOM");
+		
+		if(chatroom.contains("?")) {
+			reply.setParameters("OPERATION:PERMISSION_DENIED","BODY:'?' character not allowed for chatroom name");
+		}
 		
 		//Is the sender a user?
 		if(!usersbyname.containsKey(username)) {
