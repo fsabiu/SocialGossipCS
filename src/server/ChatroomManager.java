@@ -26,31 +26,6 @@ public class ChatroomManager {
 		this.msAddress=msAddress;
 	}
 	
-//	public void run() {
-//		buffer = new byte[BUFFER_LEN];
-//		DatagramPacket receivedPacket = new DatagramPacket(buffer,buffer.length);
-//
-//		while(!Thread.interrupted())
-//		{
-//			try {				
-//				//Receiving and storing datagram
-//				serverSock.receive(receivedPacket);
-//				byte[] message = new byte[receivedPacket.getLength()];
-//				
-//				//Copying and sending
-//				System.arraycopy(receivedPacket.getData(),receivedPacket.getOffset(),message,0,message.length);
-//				forwardMessage(message);				
-//			} 
-//			//timeout
-//			catch(SocketTimeoutException e) {}
-//			catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//		}
-//		//Closing socket
-//		serverSock.close();
-//	}
-	
 	private void forwardMessage(byte[] msg) throws IOException {
 		if(msg == null)
 			throw new NullPointerException();
@@ -83,7 +58,7 @@ public class ChatroomManager {
 			oos.flush();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Error while serializing object");
 		}
 	    
 		return bos.toByteArray();

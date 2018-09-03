@@ -20,7 +20,7 @@ import util.Graph;
 public class Server implements Runnable{
 
 	private Graph<User> network;
-	private ConcurrentHashMap<String, User> usersbyname;
+	private ConcurrentHashMap<String, User> usersbyname; //Hasmap of existing users (Map of <username, User>)
 	private ConcurrentHashMap<String, Chatroom> chatrooms; //Hasmap of existing chatrooms (Map of <Name, Chatroom>)
 	
 	private ServerSocket listenerSocket = null; //Server listener socket
@@ -49,7 +49,6 @@ public class Server implements Runnable{
 	@Override
 	public void run() {
 		try {
-			
 			//Initializating RMI
 			startRMI();
 			
@@ -65,10 +64,8 @@ public class Server implements Runnable{
 				
 			}
 		} 
-		catch (IOException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		catch (IOException e)  {
+			System.out.println("Error while instantiating connection with client");;
 		}
 	}
 	
@@ -83,6 +80,10 @@ public class Server implements Runnable{
 		CSServer.run();
 	}
 	
+	/**
+	 * RMI initialization routine
+	 * @throws RemoteException
+	 */
 	private void startRMI() throws RemoteException {
 		//Instantiating RMI manager
 		RMIChannelManager RMIUserChannelManager = new RMIChannelManager(usersbyname);

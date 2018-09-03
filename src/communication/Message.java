@@ -13,9 +13,6 @@ import org.json.simple.parser.ParseException;
 
 
 public class Message implements Serializable{
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	protected JSONObject j_message;
 	
@@ -54,29 +51,30 @@ public class Message implements Serializable{
 		String body= this.getParameter("BODY").toString();
 		JSONParser parser= new JSONParser();
 		try {
-			//Opening connection
-			//String url_tail= "q="+URLEncoder.encode(body, "UTF-8")+"&langpair="+from+"|"+to;
+			//Creating URL
 			String url_tail = "text="+URLEncoder.encode(body, "UTF-8")+"&lang="+from+"-"+to;
 			URL full_url= new URL(util.Config.TRANSLATOR_URL+url_tail);
+			
+			//Opening connection
 			URLConnection currentConnection= full_url.openConnection();
-			System.out.println("URL: "+full_url);
-			System.out.println("Connessione aperta");
+			
+			//Reading
 			BufferedReader fromRest= new BufferedReader(new InputStreamReader(currentConnection.getInputStream()));
-			System.out.println("Newreader fatto"+fromRest);
 			
 			String line=null;
 			StringBuffer sb= new StringBuffer();
+			
+			//Copying
 			while((line=fromRest.readLine())!=null) {
-				System.out.println(line);
 				sb.append(line);
 			}
+			
+			//Parsing and putting into the message
 			JSONObject temp= (JSONObject) parser.parse(sb.toString());
 			String new_body = temp.get("text").toString().replace("[\"", "").replace("\"]", "");
-			System.out.println(new_body);
 			j_message.put("BODY", new_body);
 		} catch (IOException | ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Error while translating the message");
 		} 
 		return this;
 	}
@@ -88,7 +86,6 @@ public class Message implements Serializable{
 			this.j_message=message;
 			return this;
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			return null;
 		}
 	}
