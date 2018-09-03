@@ -24,7 +24,9 @@ public class RMIChannelManager extends UnicastRemoteObject implements RMIServerI
 	public void registerUserRMIChannel(String username, RMIClientInterface callback) throws RemoteException {
 		//Getting user
 		User u= usersbyname.get(username);
+		System.out.println("Aggiungendo rmi");
 		u.setRMIChannel(callback);
+		System.out.println("Aggiunto");
 	}
 
 	@Override

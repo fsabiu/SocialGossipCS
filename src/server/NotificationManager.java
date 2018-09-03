@@ -73,14 +73,14 @@ public class NotificationManager {
 		//Getting RMI Channel
 		RMIClientInterface RMIChannel;
 		RMIChannel= receiver.getRMIChannel();
-		
+		System.out.println(sender.getUsername()+" aggiunge "+receiver.getUsername());
+		System.out.println("RMI CHANNEL: "+RMIChannel);
 		//Notify
 		if(RMIChannel!=null) {//if is online
 			try {
 				RMIChannel.newFriendship(sender.getUsername());
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println(receiver.getUsername()+" unreachable.");
 			}
 		}
 	}
