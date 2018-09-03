@@ -6,6 +6,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import communication.RequestMessage;
 
+/**
+ * PrivateMessageListener class. It is used to send private messages 
+ * @author Marco Cardia
+ * @author Francesco Sabiu
+ *
+ */
 public class PrivateMessageListener extends Thread{
 	 ObjectInputStream message_in = null;
 	 ConcurrentHashMap<String, GUI> interfaces = null;
@@ -19,14 +25,15 @@ public class PrivateMessageListener extends Thread{
 		 while(true) {
 			RequestMessage msg = null;
 			msg = receiveMessage();
-			System.out.println("Il messaggio è "+msg);
-			for(String s : interfaces.keySet()) {
-				System.out.println(s);
-			}
-			//String receiver = (String) msg.getParameter("RECEIVER");
 			String sender = (String) msg.getParameter("SENDER");
-			ChatGUI chatGUI = (ChatGUI) interfaces.get("chatGUI"+sender);
-			
+			ChatGUI chatGUI;
+			if(!interfaces.containsKey("chatGUI"+sender)) {
+				chatGUI = new ChatGUI(sender);
+				chatGUI.setVisible(false);
+				interfaces.putIfAbsent("chatGUI"+sender, chatGUI);
+			} else {
+				chatGUI = (ChatGUI) interfaces.get("chatGUI"+sender);
+			}
 			chatGUI.setConversationArea("["+sender+"] "+msg.getParameter("BODY"));
 		 }
 	 }

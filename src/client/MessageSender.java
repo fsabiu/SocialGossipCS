@@ -11,8 +11,13 @@ import javax.swing.JOptionPane;
 import communication.RequestMessage;
 import communication.ResponseMessage;
 
+/**
+ * Class used to receive an input from the interface and to send messages to server
+ * @author Marco Cardia
+ * @author Francesco Sabiu
+ *
+ */
 public class MessageSender {
-	//private Socket server_control_socket;
 	private Socket server_message_socket;
 	private ConcurrentHashMap<String,GUI> interfaces;
 	private String username;
@@ -24,58 +29,17 @@ public class MessageSender {
 
 	public MessageSender(ObjectOutputStream control_out, ObjectOutputStream message_out, Socket server_message_socket, ConcurrentHashMap<String,GUI> interfaces) {
 		this.password="";
-		//this.server_control_socket=server_control_socket;
 		this.server_message_socket=server_message_socket;
-		
-		/*try {
-			//control_in= new DataInputStream(new BufferedInputStream(server_control_socket.getInputStream()));
-			control_out= new DataOutputStream(server_control_socket.getOutputStream());
-		} catch (IOException e) {
-			System.out.println("Error creating Streams IN/OUT");
-			e.printStackTrace();
-		}*/
 		this.interfaces=interfaces;
 		this.control_out=control_out;
 		this.message_out=message_out;	
 	}
 	
-	//public void run() {
-		
-		//Pressing login button
-		/*loginGUI.getBtnLogin().addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				setUsername();
-				setPassword();
-				sendRequest();
-			}
-		});*/
-	
-		//Pressing SigIn button
-		/*loginGUI.getBtnSignIn().addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				//NECESSARIO INVOCARE METODI ADD ACTION LISTENER PER OGNI BOTTONE
-			}
-		});*/
-	//}
-	
-	/* HO CREATO UNA SUPERCLASSE GUI CHE HA COME ATTRIBUTO UN REQUESTMAKER, OVVERO
-	 * UN GESTORE DI EVENTI. IN GENERALE, ALL'ATTIVAZIONE DI UN EVENTO, SI CHIAMA IL METODO
-	 * EVENTS HANDLER, CHE GESTISCE L'EVENTO IMPOSTANDO I CAMPI DEL MESSAGGIO E INVIANDO LA 
-	 * RICHIESTA RELATIVA.
-	 * CIASCUNA INTERFACCIA GRAFICA POTRA' CHIAMARE IL METODO IN QUANTO L'OGGETTO REQUESTMAKER E' UN
-	 * ATTRIBUTO PROTECTED
-	 * COSA FARA IL METODO RUN? REQUEST MAKER POTREBBE NON ESSERE PIU UNA CLASSE CHE ESTENDE THREADS
-	 * (L'INTERFACCIA PERO SI BLOCCA!!!)
-	 * ALTRA SOLUZIONE: PER OGNI EVENTO CHIAMA RUN! 
-	 * 
-	 * TODO spostare tutti i checkResponse
-	 */
+	// Input received from the interfaces. It is coded as a string (event parameter)
 	public void eventsHandler(GUI gui, String event) {
 		RequestMessage req = new RequestMessage(username);
 		switch(event) {
 			case "REGISTER":{
-				System.out.println("Inviata richiesta registrazione");
-				
 				//Setting up username
 				if ((username=((RegistrationGUI) gui).getUsernameField().getText()).equals("")) {
 					//Username is empty
@@ -98,16 +62,10 @@ public class MessageSender {
 				req.setParameters("LANGUAGE:"+language);
 				System.out.println("Lingua: "+language);
 				
-				//Sending request
 				sendRequest(req);
-				
-				//Printing the response --- NOW IN MessageListener
-				/*ResponseMessage response=checkResponse();
-				((RegistrationGUI) gui).getRegistrationReply().setText((String) response.getParameter("BODY"));*/
 			}
 			break;
 			case "LOGIN":{
-				System.out.println("Inviata richiesta login");
 				//Setting username
 				if ((username=((LoginGUI) gui).getUsernameField().getText()).equals("")) {
 					//Username is empty
@@ -124,22 +82,9 @@ public class MessageSender {
 				
 				//Sending request to server
 				sendRequest(req);
-				
-				//Getting result from server
-				/*ResponseMessage response=checkResponse();
-				
-				//Showing the result to user
-				((LoginGUI) gui).getLoginResponse().setText((String) response.getParameter("BODY"));
-				
-				if (response.getParameter("OPERATION").equals("OK")) {
-					//Opening chat interface to user
-					((LoginGUI) gui).createSGHome(username);
-				}*/
 			}
 			break;
 			case "LOGOUT":{
-				System.out.println("Inviata richiesta logout");
-				
 				//Setting username
 				req.setParameters("SENDER:"+username,"OPERATION:"+event);
 				
@@ -148,8 +93,6 @@ public class MessageSender {
 			}
 			break;
 			case "LOOKUP":{
-				System.out.println("Inviata richiesta di ricerca dell'utente");
-				
 				//Setting username and operation field
 				req.setParameters("SENDER:"+username,"OPERATION:"+event);
 				
@@ -162,8 +105,6 @@ public class MessageSender {
 			}
 			break;
 			case "FRIENDSHIP":{
-				System.out.println("Inviata richiesta di amicizia all'utente");
-				
 				//Setting username and operation field
 				req.setParameters("SENDER:"+username,"OPERATION:"+event);
 				
@@ -174,7 +115,7 @@ public class MessageSender {
 				//Sending request to server
 				sendRequest(req);
 				
-				//RICHIEDO LA LISTA DI AMICI
+				//Sending request for friend list  
 				//Setting username and operation field
 				RequestMessage second_req = new RequestMessage(username);
 				second_req.setParameters("OPERATION:LIST_FRIENDS");
@@ -184,7 +125,6 @@ public class MessageSender {
 			}
 			break;
 			case "STARTCHAT": {
-				System.out.println("Apertura chat");
 				//Getting friend name
 				String friend = ((SocialGossipHomeGUI) gui).getSelectedListFriend();
 				if(friend!=null) {
@@ -208,61 +148,51 @@ public class MessageSender {
 					ChatroomGUI chatroomGUI;
 					if (interfaces.containsKey("chatroomGUI"+chatroom)) {
 						interfaces.get("chatroomGUI"+chatroom).setVisible(true);
-						System.out.println("STARTCHATROOM if : chatroomGUI"+chatroom);
 					}
 					else {
 						chatroomGUI = new ChatroomGUI(chatroom);
 						chatroomGUI.setVisible(true);
 						interfaces.putIfAbsent("chatroomGUI"+chatroom, chatroomGUI);
-						System.out.println("STARTCHATROOM else : chatroomGUI"+chatroom);
 					}
+				}
+				else {
+					JOptionPane pane = new JOptionPane("Seleziona una chatroom");
+		            JDialog dialog = pane.createDialog(null, "Error");
+		            dialog.setModal(false);
+		            dialog.setVisible(true);
 				}
 			}
 			break;
 			case "MSG_TO_FRIEND": {
-				System.out.println("Invio Messaggio amico");
-				
+				// Sending request to friend
 				String friend = ((ChatGUI) gui).getTitle();
 				String msg = ((ChatGUI) gui).getTextArea().getText();
-				req.setParameters("OPERATION:"+event);
-				req.setParameters("RECEIVER:"+friend);
-				req.setParameters("BODY:"+msg);
-				System.out.println("Il messaggio inviato è "+req);
+				req.setParameters("OPERATION:"+event,"RECEIVER:"+friend,"BODY:"+msg);
 				sendRequest(req);
 				
+				// Sending message to friend
 				RequestMessage req_msg = new RequestMessage(username);
-				
 				req_msg.setParameters("RECEIVER:"+friend,"BODY:"+msg);
 				sendMessage(req_msg);
 				((ChatGUI) gui).getTextArea().setText("");
 			}
 			break;
 			case "CHAT_CREATION": {
-				System.out.println("Inviata richiesta di creazione della chat");
-				
-				//Setting username and operation field
-				req.setParameters("SENDER:"+username,"OPERATION:"+event);
-				
 				//Setting chatroom name 
 				String new_chatroom= ((SocialGossipHomeGUI) gui).getNewChatroomField().getText();
 				if (new_chatroom.equals("")) {
 					JOptionPane.showMessageDialog(null, "Inserire il nome della chatroom");
 					return;
 				}
+				//Setting username and operation fields
+				req.setParameters("SENDER:"+username,"OPERATION:"+event);
 				req.setParameters("CHATROOM:"+new_chatroom);
 				
 				//Sending request to server
 				sendRequest(req);
-				
-				// Asking for list of chatrooms
-				/*RequestMessage req_chat = new RequestMessage(username);
-				req_chat.setParameters("OPERATION:CHAT_LISTING");
-				sendRequest(req_chat);*/
 			}
 			break;
 			case "CHAT_ADDING": {
-				System.out.println("Inviata richiesta di iscrizione alla chat");
-				
 				//Setting username and operation field
 				req.setParameters("SENDER:"+username,"OPERATION:"+event);
 				
@@ -274,7 +204,6 @@ public class MessageSender {
 			}
 			break;
 			case "MSG_TO_CHATROOM": {
-				System.out.println("Inviata richiesta di invio messaggio");
 				req.setParameters("SENDER:"+username,"OPERATION:"+event);
 				
 				String msg = ((ChatroomGUI) gui).getTextArea().getText();
@@ -284,28 +213,28 @@ public class MessageSender {
 			}
 			break;
 			case "CHAT_CLOSING": {
-				System.out.println("Inviata richiesta di chiusura chatroom");
-				req.setParameters("SENDER:"+username,"OPERATION:"+event);
-				
-				//Setting chatroom name
-				String new_chatroom = ((SocialGossipHomeGUI) gui).getSelectedListChatroom();
-				req.setParameters("CHATROOM:"+new_chatroom);
-				
-				sendRequest(req);
-				
-				// Asking for list of chatrooms
-				RequestMessage req_chat = new RequestMessage(username);
-				req_chat.setParameters("OPERATION:CHAT_LISTING");
-				sendRequest(req_chat);
+				String chatroom = ((SocialGossipHomeGUI) gui).getSelectedListChatroom();
+				if (chatroom!=null) {
+					req.setParameters("SENDER:"+username,"OPERATION:"+event);
+					//Setting chatroom name
+					req.setParameters("CHATROOM:"+chatroom);
+					sendRequest(req);
+				}
+				else {
+					JOptionPane pane = new JOptionPane("Seleziona una chatroom");
+		            JDialog dialog = pane.createDialog(null, "Error");
+		            dialog.setModal(false);
+		            dialog.setVisible(true);
+				}
 			}
 			break;
 			case "FILE_TO_FRIEND": {
-				System.out.println("Inviata richiesta di invio file");
 				String fileName = ((ChatGUI) gui).getTextArea().getText();
 				String receiver = ((ChatGUI) gui).getTitle();
 				req.setParameters("SENDER:"+username,"OPERATION:"+event,"FILENAME:"+fileName,"RECEIVER:"+receiver);
 				
 				sendRequest(req);
+				((ChatGUI) gui).getTextArea().setText("");
 			}
 			break;
 		}
@@ -316,7 +245,7 @@ public class MessageSender {
 		try {
 			message_out.writeObject(msg);
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println("Error while writing in message_out stream");
 		}
 	}
 
@@ -324,34 +253,20 @@ public class MessageSender {
 		try {
 			control_out.writeObject(req);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Error while writing in control_out stream for a request message");
 		}
 	}
 	
 	public void createRegistrationGUI() {
 		RegistrationGUI registrationGUI = new RegistrationGUI(((LoginGUI) interfaces.get("loginGUI")).getFrame());
-		System.out.println("Nella creazione della registration GUI");
-		for (String elem : interfaces.keySet()) {
-			System.out.println(elem);
-		}
-		if (interfaces.containsKey("registrationGUI")) {
-			System.out.println("registration UGI è presente");
-		}
-		else {
-			System.out.println("registration UGI non è presente");
-		}
 		interfaces.putIfAbsent("registrationGUI", registrationGUI);
 	}
 
 	public void sendResponse(ResponseMessage res) {
 		try {
-			System.out.println("Sono "+username+" e sto rispondendo al server: ");
-			System.out.println(res);
 			control_out.writeObject(res);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Error while writing in control_out stream for a response message");
 		}
 	}
 }

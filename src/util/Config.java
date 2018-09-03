@@ -11,7 +11,7 @@ public class Config
 	public static final int SERVER_RMI_PORT = 6000;
 
 	//MULTICAST constants
-	public static final String FIRST_MULTICAST_ADDR = "224.0.0.1";
+	public static final String FIRST_MULTICAST_ADDR = "224.0.0.2";
 	public static final String LAST_MULTICAST_ADDR = "224.0.0.255";
 	
 	//FILE SYSTEM constants

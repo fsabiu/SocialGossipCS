@@ -19,11 +19,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.ActionEvent;
 
+/**
+ * SocialGossipHomeGUI
+ * @author Marco Cardia
+ * @author Francesco Sabiu
+ *
+ */
 public class SocialGossipHomeGUI extends GUI{ 
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private JFrame loginGUI;
 	private JPanel contentPane;
@@ -35,14 +38,10 @@ public class SocialGossipHomeGUI extends GUI{
 	private JButton btnCreaChatroom;
 	private JTextField user_to_add_field;
 	private JList<String> friend_list;
-	private JList<String> chatroom_list;
 	private JTextField new_chatroom_field;
-	//private JList<User> userFriendList;
-	//private DefaultListModel<User> modelUserFriendList = new DefaultListModel<User>();
-	//private JList<ChatRoom> chatRoomList;
-	//private DefaultListModel<ChatRoom> modelChatRoomList = new DefaultListModel<ChatRoom>();
 	private DefaultListModel<String> model_friend_list;
 	private DefaultListModel<String> model_chatroom_list;
+	private JList<String> chatroom_list;
 
 	/**
 	 * Create the frame.
@@ -53,7 +52,6 @@ public class SocialGossipHomeGUI extends GUI{
 		this.loginGUI=loginGUI;
 		setTitle("Social Gossip");
 		setResizable(false);
-		//setVisible(true);
 		setBounds(100, 100, 800,600);
 		contentPane = new JPanel();
 		setContentPane(contentPane);
@@ -132,8 +130,6 @@ public class SocialGossipHomeGUI extends GUI{
 		btnAvviaChat.setBounds(550, 478, 200, 35);
 		btnAvviaChat.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("Button avvia chat pressed");
-				System.out.println(e.getActionCommand());
 				request_maker.eventsHandler(socialGossipHomeGUI, e.getActionCommand());
 			}
 		});
@@ -175,21 +171,6 @@ public class SocialGossipHomeGUI extends GUI{
 		contentPane.add(new_chatroom_field);
 		new_chatroom_field.setColumns(10);
 		
-		model_chatroom_list = new DefaultListModel<String>();
-		chatroom_list = new JList<String>(model_chatroom_list);
-		contentPane.add(chatroom_list);
-		chatroom_list.addMouseListener(new MouseAdapter() {
-		    @SuppressWarnings({ "rawtypes", "unused" })
-			public void mouseClicked(MouseEvent evt) {
-		        JList list = (JList)evt.getSource();
-		        if (evt.getClickCount() == 2) {
-		            // Double-click detected
-		            System.out.println("doppio click");
-		            request_maker.eventsHandler(socialGossipHomeGUI, "STARTCHATROOM");
-		        }
-		    }
-		});
-		chatroom_list.setBounds(25, 137, 460, 333);
 		
 		JButton btnNewButton = new JButton("Chiudi ChatRoom");
 		btnNewButton.setActionCommand("CHAT_CLOSING");
@@ -200,15 +181,23 @@ public class SocialGossipHomeGUI extends GUI{
 		});
 		btnNewButton.setBounds(267, 493, 214, 35);
 		contentPane.add(btnNewButton);
-	}
+		
+		JScrollPane scrollPane_1 = new JScrollPane();
+		scrollPane_1.setBounds(25, 137, 459, 345);
+		contentPane.add(scrollPane_1);
 
-	/*public DefaultListModel<User> getModelUserFriendList() {
-		return modelUserFriendList;
+		model_chatroom_list = new DefaultListModel<String>();
+		chatroom_list = new JList<String>(model_chatroom_list);
+		scrollPane_1.setViewportView(chatroom_list);
+		
+		chatroom_list.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent evt) {
+		        if (evt.getClickCount() == 2) {
+		            request_maker.eventsHandler(socialGossipHomeGUI, "STARTCHATROOM");
+		        }
+		    }
+		});
 	}
-
-	public DefaultListModel<ChatRoom> getModelChatRoomList() {
-		return modelChatRoomList;
-	}*/
 	
 	public void setListFriends(String list) {
 		model_friend_list.removeAllElements();
@@ -226,37 +215,25 @@ public class SocialGossipHomeGUI extends GUI{
 	
 	public String getSelectedListFriend() {
 		String friend=friend_list.getSelectedValue();
-		System.out.println("L'amico selezionato è "+friend_list.getSelectedValue());
 		return friend;
 	}
 	
 	public void setChatroomList(String belongsList, String notBelongsList) {
-		/*chatroom_list.setModel(new AbstractListModel<String>() {
-			private static final long serialVersionUID = 1L;
-			
-			String[] first = belongsList.split(", ");
-			String[] second = notBelongsList.split(", ");
-			String[] values = combine(first,second);
-			
-			public int getSize() {
-				return values.length;
-			}
-			public String getElementAt(int index) {
-				values[index] = values[index].replace("[", "");
-				values[index] = values[index].replace("]", "");
-				return values[index];
-			}
-		});*/
 		model_chatroom_list.removeAllElements();
 		belongsList = belongsList.replace("[", "").replace("]", "");
-		String[] chatroomsList = belongsList.split(", ");
-		for (String chatroom : chatroomsList) {
-			model_chatroom_list.addElement(chatroom);
+		String[] chatroomsList;
+		if (!belongsList.isEmpty()) {
+			chatroomsList = belongsList.split(", ");
+			for (String chatroom : chatroomsList) {
+				model_chatroom_list.addElement(chatroom);
+			}
 		}
 		notBelongsList = notBelongsList.replace("[", "").replace("]", "");
-		chatroomsList = notBelongsList.split(", ");
-		for (String chatroom : chatroomsList) {
-			model_chatroom_list.addElement(chatroom);
+		if (!notBelongsList.isEmpty()) {
+			chatroomsList = notBelongsList.split(", ");
+			for (String chatroom : chatroomsList) {
+				model_chatroom_list.addElement(chatroom);
+			}
 		}
 	}
 	
@@ -278,14 +255,12 @@ public class SocialGossipHomeGUI extends GUI{
 	
 	public String getSelectedListChatroom() {
 		String chatroom=chatroom_list.getSelectedValue();
-		System.out.println("La chatroom selezionata è "+chatroom_list.getSelectedValue());
 		return chatroom;
 	}
 	
 	public void logoutGUI() {
 		setVisible(false);
 		loginGUI=null;
-		//loginGUI.setVisible(true);
 	}
 	
 	public JPanel getContentPane() {

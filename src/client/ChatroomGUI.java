@@ -5,13 +5,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JLabel;
 
 /**
- * GUI della chat con un altro utente
+ * Chatroom messages GUI
  * @author Marco Cardia
  * @author Francesco Sabiu
  *
@@ -20,10 +19,6 @@ public class ChatroomGUI extends GUI{
 
 		private static final long serialVersionUID = 7018723357317188387L;
 		protected JButton btnInviaTextButton;
-		
-		
-		//public static final int WIDTH = 370;
-		//public static final int HEIGHT = 400;
 		
 		public static final int WIDTH = 470;
 		public static final int HEIGHT = 500;
@@ -39,14 +34,11 @@ public class ChatroomGUI extends GUI{
 		public ChatroomGUI(String title) {
 			ChatroomGUI chatGUI = this;
 			getContentPane().setBackground(new Color(240,240,240));
-			//setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 			setBounds(100, 100,WIDTH, HEIGHT);
 			setResizable(false);
 			this.title=title;
 			setTitle("Chat con "+title);
 			getContentPane().setLayout(null);
-			
-			//Border border = BorderFactory.createLineBorder(Color.BLACK);
 			
 			btnInviaTextButton = new JButton("Invia");
 			btnInviaTextButton.setActionCommand("MSG_TO_CHATROOM");

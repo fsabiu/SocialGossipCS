@@ -10,24 +10,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JLabel;
 
-/*import java.awt.EventQueue;
-
-import javax.swing.BorderFactory;
-import javax.swing.JFrame;
-
-import javax.swing.JTextArea;
-import javax.swing.border.LineBorder;
-import java.awt.Color;
-
-import javax.swing.border.Border;
-import javax.swing.JButton;
-import java.awt.SystemColor;
-import java.awt.Font;
-import javax.swing.JScrollPane;
-*/
-
 /**
- * GUI della chat con un altro utente
+ * Private messages chat GUI
  * @author Marco Cardia
  * @author Francesco Sabiu
  *
@@ -37,10 +21,6 @@ public class ChatGUI extends GUI{
 		private static final long serialVersionUID = 7018723357317188387L;
 		protected JButton btnInviaTextButton;
 		protected JButton btnInviaFile;
-		
-		
-		//public static final int WIDTH = 370;
-		//public static final int HEIGHT = 400;
 		
 		public static final int WIDTH = 470;
 		public static final int HEIGHT = 500;
@@ -63,8 +43,6 @@ public class ChatGUI extends GUI{
 			setTitle("Chat con "+title);
 			getContentPane().setLayout(null);
 			
-			//Border border = BorderFactory.createLineBorder(Color.BLACK);
-			
 			btnInviaTextButton = new JButton("Invia");
 			btnInviaTextButton.setActionCommand("MSG_TO_FRIEND");
 			btnInviaTextButton.addActionListener(new ActionListener() {
@@ -82,12 +60,6 @@ public class ChatGUI extends GUI{
 					request_maker.eventsHandler(chatGUI, e.getActionCommand());
 				}
 			});
-			/*try {
-				Image img = ImageIO.read(getClass().getResource("C:\\Users\\Marco\\git\\SocialGossipCS\\src\\attach.png"));
-				btnInviaFile.setIcon(new ImageIcon(img));
-			} catch (Exception ex) {
-					System.out.println(ex);
-			}*/
 			btnInviaFile.setBounds(375, 337, 79, 72);
 			getContentPane().add(btnInviaFile);
 			

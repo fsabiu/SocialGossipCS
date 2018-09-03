@@ -12,8 +12,17 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.EnumSet;
 
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+
 import util.Config;
 
+/**
+ * Class used to receive files
+ * @author Marco Cardia
+ * @author Francesco Sabiu
+ *
+ */
 public class FileReceiver extends Thread{
 
 	private String hostname;
@@ -43,7 +52,7 @@ public class FileReceiver extends Thread{
 		}
 		Path path = Paths.get(new File("").getAbsolutePath()+Config.DOWNLOAD_DIRECTORY+filename);
 		
-		//Creo il file che andreamo a ricevere
+		// Creating file to be received
 		try {
 			file = FileChannel.open(path, EnumSet.of(StandardOpenOption.CREATE,StandardOpenOption.TRUNCATE_EXISTING,StandardOpenOption.WRITE));
 		} catch (IOException e) {
@@ -61,7 +70,7 @@ public class FileReceiver extends Thread{
 			while (sender_sock.read(buffer) > 0) {
 			    buffer.flip();
 			    
-			    //scrivo su file
+			    //Writing into the file
 			    while (buffer.hasRemaining()) {
 			    	file.write(buffer);
 			    }
@@ -74,6 +83,10 @@ public class FileReceiver extends Thread{
 		}
 		
 		//Showing message to GUI
+		JOptionPane pane = new JOptionPane(sender+" ti ha inviato "+filename);
+        JDialog dialog = pane.createDialog(null, "Notification");
+        dialog.setModal(false);
+        dialog.setVisible(true);
 		chatGUI.setConversationArea(sender+" ti ha inviato "+filename);
 	}
 

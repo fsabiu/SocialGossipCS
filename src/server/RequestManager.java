@@ -135,6 +135,7 @@ public class RequestManager implements Runnable {
 				catch (IOException e1) {
 					//If it was a logged user, change its status to offline
 					if (connection_user!=null) {
+						notifier.notifyOfflineFriend(connection_user);
 						message_manager.setSender(null);
 						connection_user.setOffline();
 						System.out.println(connection_user.getUsername()+" disconnected");

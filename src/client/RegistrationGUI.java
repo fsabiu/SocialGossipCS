@@ -1,4 +1,5 @@
 package client;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -19,6 +20,12 @@ import javax.swing.JSeparator;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
+/**
+ * RegistrationGUI
+ * @author Marco Cardia
+ * @author Francesco Sabiu
+ *
+ */
 public class RegistrationGUI extends GUI{
 		private static final long serialVersionUID = -1214889789655181279L;
 		private JPanel contentPane;

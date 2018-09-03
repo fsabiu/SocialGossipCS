@@ -9,11 +9,14 @@ import javax.swing.JOptionPane;
 
 import communication.RMIClientInterface;
 
+/**
+ * NotificationReceiver class. Used RMI 
+ * @author Marco Cardia
+ * @author Francesco Sabiu
+ *
+ */
 public class NotificationReceiver extends UnicastRemoteObject implements RMIClientInterface {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private ConcurrentHashMap<String, GUI> interfaces;
 
@@ -21,7 +24,6 @@ public class NotificationReceiver extends UnicastRemoteObject implements RMIClie
 		super();
 		this.interfaces = interfaces;
 	}
-
 
 	@Override
 	public void notifyOnlineFriend(String friend) throws RemoteException {
@@ -39,7 +41,6 @@ public class NotificationReceiver extends UnicastRemoteObject implements RMIClie
 		JDialog dialog = pane.createDialog(null, "Notification");
 		dialog.setModal(false);
 		dialog.setVisible(true);
-		//JOptionPane.showMessageDialog(null, "Il tuo amico "+friend+" è ora offline");
 	}
 
 	@Override

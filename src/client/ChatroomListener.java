@@ -1,4 +1,5 @@
 package client;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -8,12 +9,19 @@ import java.net.MulticastSocket;
 
 import communication.RequestMessage;
 
+/**
+ * Class used to listen messages of a chatroom
+ * @author Marco Cardia
+ * @author Francesco Sabiu
+ *
+ */
 public class ChatroomListener extends Thread {
 	//Chatroom Listener configuration
 	private MulticastSocket socket; //Chatroom multicast socket
 	private InetAddress msAddress; //Chatroom address
 	
 	ChatroomGUI chatroomGUI;
+	private volatile boolean listen=true;
 	
 	//Message buffer settings
 	private static final int BUFFER_LEN = 1024;
@@ -23,7 +31,6 @@ public class ChatroomListener extends Thread {
 			this.chatroomGUI=chatroomGUI;
 			this.socket = new MulticastSocket(Integer.parseInt(port));
 			this.msAddress=InetAddress.getByName(msname);
-			System.out.println("Il socket è "+socket+" porta "+port+" msAddress "+msAddress);
 			socket.joinGroup(msAddress);
 		} catch (NumberFormatException | IOException e) {
 			e.printStackTrace();
@@ -31,13 +38,14 @@ public class ChatroomListener extends Thread {
 	}
 	
 	public void run() {
-		while (true) {
+		while (listen) {
 			 byte[] buf = new byte[BUFFER_LEN];
 			 DatagramPacket recv = new DatagramPacket(buf, buf.length);
 			try {
 				socket.receive(recv);
+				// Message received
 				RequestMessage ric = (RequestMessage) BytestoObject(recv.getData());
-				chatroomGUI.setConversationArea("["+ric.getParameter("SENDER")+": ] "+ric.getParameter("BODY").toString());
+				chatroomGUI.setConversationArea("["+ric.getParameter("SENDER")+"] "+ric.getParameter("BODY").toString());
 			} catch (IOException | ClassNotFoundException e) {
 				e.printStackTrace();
 			}
@@ -62,4 +70,8 @@ public class ChatroomListener extends Thread {
         }
         return obj;
     }
+
+	public void stopListening() {
+		listen=false;
+	}
 }

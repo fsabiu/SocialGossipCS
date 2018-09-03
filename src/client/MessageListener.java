@@ -25,20 +25,25 @@ import communication.ResponseMessage;
 import util.Config;
 import util.PortScanner;
 
+/**
+ * Class used to listen for private messages
+ * @author Marco Cardia
+ * @author Francesco Sabiu
+ *
+ */
 public class MessageListener extends Thread{
 
 	private MessageSender message_sender;
 	private DataInputStream control_in;
 	private ConcurrentHashMap<String,GUI> interfaces;
 	
-	//It is used to receive Objects over socket
+	//Structure used to receive Objects over socket
 	private ObjectInputStream object_control_in = null;
+	
 	private String hostname;
 	private RMIServerInterface serverRMI = null;
 	private RMIClientInterface callback = null;
-	
-	//To stop thread running
-	//private volatile boolean running = true;
+	private ChatroomListener chatroomListener;
 	
 	public MessageListener(DataInputStream control_in, MessageSender message_sender, ConcurrentHashMap<String,GUI> interfaces, String hostname) throws IOException {
 		this.interfaces = interfaces;
@@ -51,7 +56,7 @@ public class MessageListener extends Thread{
 	public void run() {
 		Object received_message;
 		while(true) {
-			//Receiving request
+			//Waiting for a request
 			received_message=receiveResponse();
 			if (received_message instanceof RequestMessage) {
 				RequestMessage request_message = (RequestMessage) received_message;
@@ -63,14 +68,6 @@ public class MessageListener extends Thread{
 		}
 	}
 	
-	/*
-	 * TODO Il costruttore di Message listener prende il control_in, mentre il costruttore di message
-	 * sender deve prendere solo il control_out
-	 * 
-	 * Fare lo switch su Request_Type (?)
-	 * 
-	 */
-	
 	private void checkRequest(RequestMessage request) {
 		String op = (String) request.getParameter("OPERATION");
 		switch (op) {
@@ -78,6 +75,7 @@ public class MessageListener extends Thread{
 				String sender = (String) request.getParameter("SENDER");
 				String receiver = (String) request.getParameter("RECEIVER");
 				String filename = (String) request.getParameter("FILENAME");
+				
 				//Setting up network settings to receive a new file
 				ResponseMessage res = new ResponseMessage();
 				res.setParameters("OPERATION:OK","TYPE:response","HOSTNAME:"+hostname,"FILENAME:"+filename, "RESPONSE_TYPE:"+op);
@@ -91,15 +89,14 @@ public class MessageListener extends Thread{
 			}
 			break;
 			default: {
-				System.out.println("Ricevuta richiesta non valida");
+				System.out.println("Received nov valid request");
 			}
 			break;
 		}
-		
-		
 	}
 
 	public void checkResponse(ResponseMessage reply) {
+		// Getting response type from server
 		String op = (String) reply.getParameter("RESPONSE_TYPE");
 		switch(op) {
 			case "REGISTER":{
@@ -110,11 +107,8 @@ public class MessageListener extends Thread{
 				GUI loginGUI = interfaces.get("loginGUI");
 				//Showing the result to user
 				((LoginGUI) loginGUI).getLoginResponse().setText((String) reply.getParameter("BODY"));
-				
 				if (reply.getParameter("OPERATION").equals("OK")) {
-					
 					loginGUI.setVisible(false);
-					
 					String user = (String) reply.getParameter("USER");
 					
 					// Requesting friend list
@@ -125,8 +119,7 @@ public class MessageListener extends Thread{
 
 					// Requesting chatroom list
 					RequestMessage req_chatroom = new RequestMessage();
-					req_chatroom.setParameters("SENDER:"+user);
-					req_chatroom.setParameters("OPERATION:CHAT_LISTING");
+					req_chatroom.setParameters("SENDER:"+user,"OPERATION:CHAT_LISTING");
 					message_sender.sendRequest(req_chatroom);
 					
 					SocialGossipHomeGUI sgGUI = new SocialGossipHomeGUI( ((LoginGUI) interfaces.get("loginGUI")).getFrame(),user);
@@ -136,40 +129,29 @@ public class MessageListener extends Thread{
 						callback = startRMI(serverRMI);
 						serverRMI.registerUserRMIChannel(user, callback);
 					} catch (RemoteException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						System.out.println("User RMI registration failed");
 					}
 					((LoginGUI) loginGUI).getLoginResponse().setText("");
 				}
 			}
 			break;
 			case "LOGOUT":{
-					
-				//Getting response from server
 				if (reply.getParameter("OPERATION").equals("OK")) {
-					
 					((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).logoutGUI();
 					String user = (String) reply.getParameter("SENDER");
 					interfaces.clear();
 					LoginGUI loginGUI = new LoginGUI(message_sender);
 					interfaces.putIfAbsent("loginGUI", loginGUI);
 					loginGUI.setVisible(true);
-					System.out.println("dOPO LA NEW");
-					for (String elem : interfaces.keySet()) {
-						System.out.println(elem);
-					}
 					try {
 						serverRMI.unregisterUserRMIChannel(user, callback);
 					} catch (RemoteException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						System.out.println("User RMI unregistration failed");
 					}
 				}
 			}
 			break;
 			case "LOOKUP":{
-				System.out.println("Inviata richiesta di ricerca dell'utente");
-				
 				if (reply.getParameter("OPERATION").equals("OK")) {
 					JOptionPane pane = new JOptionPane(reply.getParameter("BODY"));
 					JDialog dialog = pane.createDialog(null, "Notification");
@@ -193,11 +175,6 @@ public class MessageListener extends Thread{
 			break;
 			case "LIST_FRIENDS":{
 				if (reply.getParameter("OPERATION").equals("OK")) {
-					//Server returns an ArrayList of strings
-					
-					//((SocialGossipHomeGUI) gui).setListFriends((String) second_response.getParameter("BODY"));
-					//String list_friends = (String) reply.getParameter("BODY");
-					
 					if (reply.getParameter("BODY") != null) {
 						String lista = (String) reply.getParameter("BODY");
 						((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).setListFriends(lista);
@@ -207,15 +184,7 @@ public class MessageListener extends Thread{
 			break;
 			case "STARTCHAT": {
 				System.out.println("Apertura chat");
-				//Getting friend name
-				
-				//((SocialGossipHomeGUI) gui).getSelectedListFriend();
 				((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).getSelectedListFriend();
-				
-				//Creating chat to chat with the above friend
-				//((SocialGossipHomeGUI) gui).createChatGUI();
-				//((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).createChatGUI();
-				
 			}
 			break;
 			case "STARTCHATROOM": {
@@ -226,10 +195,8 @@ public class MessageListener extends Thread{
 				if (reply.getParameter("OPERATION").equals("OK")) {
 					String sender = (String) reply.getParameter("SENDER");
 					String receiver = (String) reply.getParameter("RECEIVER");
-					/*for(String s : interfaces.keySet()) {
-						System.out.println(s);
-					}*/
-					
+
+					//Showing message
 					ChatGUI chatGUI = (ChatGUI) interfaces.get("chatGUI"+receiver);
 					chatGUI.setConversationArea("["+sender+"] "+reply.getParameter("BODY"));
 				}
@@ -245,6 +212,7 @@ public class MessageListener extends Thread{
 				((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).setChatroomList(belongs, not_belongs);
 				belongs = belongs.replace("[", "").replace("]", "");
 				String[] chatroomList = belongs.split(", ");
+				
 				if (belongs.isEmpty()) break;
 				for (String chatroom : chatroomList) {
 					String msname = (String) reply.getParameter(chatroom+"?MSNAME");
@@ -266,19 +234,21 @@ public class MessageListener extends Thread{
 			} 
 			break;
 			case "CHAT_CREATION": {
-				//Ricevo la risposta 
 				if (reply.getParameter("OPERATION").equals("OK")) {
-					//Stampo il messaggio di creazione corretta
-					JOptionPane.showMessageDialog(null, reply.getParameter("BODY"));
-					
 					create_chatroom(reply);
+				}
+				else {
+					//Print error
+					JOptionPane pane = new JOptionPane(reply.getParameter("BODY"));
+		            JDialog dialog = pane.createDialog(null, "Error");
+		            dialog.setModal(false);
+		            dialog.setVisible(true);
 				}
 			}
 			break;
 			case "CHAT_ADDING": {
 				if (reply.getParameter("OPERATION").equals("OK")) {
 					JOptionPane.showMessageDialog(null, reply.getParameter("BODY"));
-
 					create_chatroom(reply);
 				}
 			}
@@ -291,11 +261,39 @@ public class MessageListener extends Thread{
 					if(!sendFile(hostname, port, filename)) {
 						JOptionPane.showMessageDialog(null, "Error while sending file");
 					}
+					else {
+						JOptionPane pane = new JOptionPane(filename+" inviato correttamente.");
+			            JDialog dialog = pane.createDialog(null, "Message");
+			            dialog.setModal(false);
+			            dialog.setVisible(true);
+					}
 				}
 			}
 			break;
+			case "MSG_TO_CHATROOM": {
+				if (!reply.getParameter("OPERATION").equals("OK")) {
+					JOptionPane pane = new JOptionPane(reply.getParameter("BODY"));
+		            JDialog dialog = pane.createDialog(null, "Error");
+		            dialog.setModal(false);
+		            dialog.setVisible(true);
+				}
+			}
+			break;
+			case "CHAT_CLOSING": {
+				JOptionPane pane = new JOptionPane(reply.getParameter("BODY"));
+	            JDialog dialog = pane.createDialog(null, "Error");
+	            dialog.setModal(false);
+	            dialog.setVisible(true);
+	            if (reply.getParameter("OPERATION").equals("OK")) {
+	            	chatroomListener.stopListening();
+	            }
+			}
+			break;
 			default: {
-				JOptionPane.showMessageDialog(null, reply.getParameter("BODY"));
+				JOptionPane pane = new JOptionPane(reply.getParameter("BODY"));
+	            JDialog dialog = pane.createDialog(null, "Error");
+	            dialog.setModal(false);
+	            dialog.setVisible(true);
 			}
 			break;
 		}
@@ -307,8 +305,7 @@ public class MessageListener extends Thread{
 			receiver_peer = SocketChannel.open();
 			receiver_peer.connect(new InetSocketAddress(hostname,(int) port));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Error while opening send file socket");
 		}
 		File file = new File("");
 		file = new File(file.getAbsolutePath()+Config.UPLOAD_DIRECTORY+filename);
@@ -330,26 +327,22 @@ public class MessageListener extends Thread{
 			//Reads bytes and write
 			while(inchannel.read(buffer) > 0) {
 				buffer.flip();
-				
-				//invio dati al client
+
 				while(buffer.hasRemaining()) {
 					receiver_peer.write(buffer);
 				}
-				
 				buffer.clear();
 			}
 			
 			afile.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Error creating file");
 		} finally {
 			if (receiver_peer != null) {
 				try {
 					receiver_peer.close();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					System.out.println("Error creating file");
 				}
 			}	
 		}
@@ -360,21 +353,18 @@ public class MessageListener extends Thread{
 
 	private RMIClientInterface startRMI(RMIServerInterface serverRMI) {
 		NotificationReceiver callback = null;
-		//cerco registro
+		// Looking for a registry 
 		try {
 			Registry registry = LocateRegistry.getRegistry(Config.SERVER_HOST_NAME, Config.SERVER_RMI_PORT);
 			serverRMI = (RMIServerInterface) registry.lookup(Config.SERVER_RMI_SERVICE_NAME);
 			this.serverRMI = serverRMI;
-			//creo la classe che implementa le callback
+			// Creating callback class implemantation
 			callback = new NotificationReceiver(interfaces);
 		} catch (RemoteException | NotBoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Error starting RMI");
 		}
 		
 		return callback;
-		//esporto la callback sul registro
-		//NotificationReceiver stub = (NotificationReceiver)UnicastRemoteObject.exportObject(callback,0);
 	}
 
 	private void create_chatroom(ResponseMessage reply) {
@@ -393,7 +383,7 @@ public class MessageListener extends Thread{
 		String port = (String) reply.getParameter("PORT");
 		
 		//Chatroom listener creation
-		ChatroomListener chatroomListener = new ChatroomListener(chatroomGUI, msname, port);
+		chatroomListener = new ChatroomListener(chatroomGUI, msname, port);
 		chatroomListener.start();
 	}
 

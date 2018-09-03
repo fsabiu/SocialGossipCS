@@ -40,7 +40,7 @@ public class LoginGUI extends GUI{
 	}
 	
 	/**
-	 * Inizializza il contenuto della finestra
+	 * Initialize window content
 	 */
 	private void initializeWindowContent() {
 		LoginGUI loginGui=this;
@@ -77,7 +77,6 @@ public class LoginGUI extends GUI{
 				request_maker.eventsHandler(loginGui, e.getActionCommand());
 				usernameField.setText("");
 				passwordField.setText("");
-				//createSGHome(usernameField.getText());
 			}
 		});
 		btnLogin.setToolTipText("Invia richiesta di Login");
@@ -105,8 +104,6 @@ public class LoginGUI extends GUI{
 		btnSignIn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				setVisible(false);
-				System.out.println("Creo interfaccia registrazione");
-				//new RegistrationGUI(frmSocialgossip);
 				request_maker.createRegistrationGUI();
 				usernameField.setText("");
 				passwordField.setText("");
@@ -134,18 +131,11 @@ public class LoginGUI extends GUI{
 		loginResponse.setBounds(250, 503, 439, 43);
 		frmSocialgossip.getContentPane().add(loginResponse);
 	}
-	/*
-	public void setLoginListener(RequestSender listener) {
-		btnLogin.addActionListener(listener);
-		btnSignIn.addActionListener(listener);
-	}
-	*/
 	
 	public JButton getBtnLogin() {
 		return btnLogin;
 	}
 	
-	//Replaced by HASH MAP
 	public SocialGossipHomeGUI createSGHome(String username){
 		setVisible(false);
 		return new SocialGossipHomeGUI(frmSocialgossip,username);

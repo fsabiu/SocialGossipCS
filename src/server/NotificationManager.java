@@ -28,14 +28,13 @@ public class NotificationManager {
 		RMIClientInterface RMIChannel; 
 		for(User participant: participants) {
 			//Notify
-			if(participant!=user) {
+			if(participant!=user && participant.isOnline()) {
 				RMIChannel=participant.getRMIChannel();
-				if(RMIChannel!=null) {//if participant is online
+				if(RMIChannel!=null) {//if participant is actually online
 					try {
 						RMIChannel.newChatroomSubscriber(user.getUsername(), chatroom.getName());
 					} catch (RemoteException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						System.out.println("Cannot notify to user");
 					}
 				}
 			}
@@ -44,26 +43,19 @@ public class NotificationManager {
 	}
 
 	public void notifyChatroomClosing(Chatroom chatroom) {
-		//Getting chatroom participants
-		HashSet<User> participants; 
-		
-		synchronized(chatroom) {
-			participants=chatroom.getParticipants();
-		}
 		//Getting chatroom name
 		String chatroom_name=chatroom.getName();
 		
 		//Notifying 
 		RMIClientInterface RMIChannel; 
-		for(User participant: participants) {
+		for(User u : usersbyname.values()) {
 			//Notify
-			RMIChannel=participant.getRMIChannel();
-			if(RMIChannel!=null) {//if is online
+			RMIChannel=u.getRMIChannel();
+			if(u.isOnline()) {//if is online
 				try {
 					RMIChannel.closeChatroom(chatroom_name);
 				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					System.out.println("Cannot notify to "+u.getUsername());
 				}
 			}
 		}
@@ -78,7 +70,7 @@ public class NotificationManager {
 			try {
 				RMIChannel.newFriendship(sender.getUsername());
 			} catch (RemoteException e) {
-				System.out.println(receiver.getUsername()+" unreachable.");
+				System.out.println("Cannot notify to user");
 			}
 		}
 	}
@@ -95,8 +87,7 @@ public class NotificationManager {
 					try {
 						RMIChannel.notifyOnlineFriend(sender);
 					} catch (RemoteException e) {
-						// TODO Auto-generated catch block
-						System.out.println("Impossibile notificare a "+friend.getUsername());
+						System.out.println("Cannot notify to user");
 					}
 				}
 			}
@@ -116,8 +107,7 @@ public class NotificationManager {
 					try {
 						RMIChannel.notifyOfflineFriend(sender);
 					} catch (RemoteException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						System.out.println("Cannot notify to user");
 					}
 				}
 			}
@@ -135,8 +125,7 @@ public class NotificationManager {
 					try {
 						RMIChannel.newChatroom(new_chatroom.getName());
 					} catch (RemoteException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						System.out.println("Cannot notify to user");
 					}
 				}
 			}

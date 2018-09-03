@@ -16,6 +16,12 @@ import communication.RequestMessage;
 import util.Config;
 import util.PortScanner;
 
+/**
+ * Client class
+ * @author Marco Cardia
+ * @author Francesco Sabiu
+ *
+ */
 public class Client implements Runnable{
 	private String message_ip;
 	private Socket server_control_socket;
@@ -35,14 +41,14 @@ public class Client implements Runnable{
 			Socket server_control= new Socket(InetAddress.getByName(Config.SERVER_HOST_NAME),Config.SERVER_TCP_PORT);
 			setServerControlSocket(server_control);
 			
-			
 			System.out.println("Connection established with server");
-			
 			try {
+				// Setting input and output streams
 				DataInputStream control_in= new DataInputStream(new BufferedInputStream(server_control_socket.getInputStream()));
 				DataOutputStream control_data_out= new DataOutputStream(server_control_socket.getOutputStream());
 				ObjectOutputStream control_out = new ObjectOutputStream(control_data_out);
 				
+				// Data structure used to store interfaces of a client 
 				interfaces = new ConcurrentHashMap<String,GUI>();
 				
 				//Setting new message connection with Server
@@ -51,20 +57,17 @@ public class Client implements Runnable{
 				DataOutputStream message_data_out = new DataOutputStream(server_message_socket.getOutputStream());
 				ObjectOutputStream message_out = new ObjectOutputStream(message_data_out);
 
-				//Init RMI
-				/*RMIClientInterface callback = null;
-				callback = startRMI(serverRMI);
-				*/
 				MessageSender message_sender= new MessageSender(control_out,message_out,server_message_socket,interfaces);
 				
+				// First interface to show
 				loginGUI=new LoginGUI(message_sender);
 				interfaces.putIfAbsent("loginGUI", loginGUI);
 				loginGUI.setVisible(true);
 				
+				// Class used to listen in a socket for prive messages
 				MessageListener message_listener = new MessageListener(control_in,message_sender,interfaces,hostname);
 				message_listener.start();
 				
-				//privateMessageListener.join();
 				message_listener.join();
 			} catch (IOException e) {
 				System.out.println("Error creating Streams IN/OUT");
@@ -77,24 +80,20 @@ public class Client implements Runnable{
 					server_message_socket.close();
 					System.out.println("Client closed");
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					System.out.println("Failed to close sockets");
 				}
 			}
 			
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Failed to establish connection with server");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			System.out.println("Server offline");
 		}
 	}
 	
 	@SuppressWarnings("resource")
 	private void setMessageConnection(DataOutputStream control_data_out, ConcurrentHashMap<String,GUI> interfaces) {
-		// TODO Auto-generated method stub
-		//Creating in/out streams
+		//Creating in/out streams used for private message
 		try {
 			//Setting IP and port in a JSONMessage
 			RequestMessage handshake= new RequestMessage();
@@ -116,8 +115,7 @@ public class Client implements Runnable{
 			privateMessageListener = new PrivateMessageListener(interfaces,message_in); 
 			privateMessageListener.start();			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Failed to generate socket for private messages");
 		}
 	}
 
