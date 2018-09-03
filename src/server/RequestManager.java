@@ -674,7 +674,7 @@ public class RequestManager implements Runnable {
 		
 		//Does chatroom already exist?
 		if(chatrooms.containsKey(chatroom)) {
-			reply.setParameters("OPERATION:CHATROOM_ALREADY_EXISTS");
+			reply.setParameters("OPERATION:CHATROOM_ALREADY_EXISTS", "BODY:La chatroom "+chatroom+" esiste già.");
 			return reply;
 		}
 		
