@@ -96,6 +96,7 @@ public class ChatGUI extends GUI{
 			getContentPane().add(scrollPane);
 			
 			conversationArea = new JTextArea();
+			conversationArea.setEditable(false);
 			scrollPane.setViewportView(conversationArea);
 			
 			JLabel friend_field = new JLabel("");

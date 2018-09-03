@@ -250,6 +250,11 @@ public class MessageListener extends Thread{
 					JOptionPane.showMessageDialog(null, reply.getParameter("BODY"));
 					
 					create_chatroom(reply);
+					
+					// Preparing chat interface with the new chatroom
+					String chatroom = (String) reply.getParameter("CHATROOM");
+					ChatGUI chatGUI = new ChatGUI(chatroom);
+					interfaces.putIfAbsent("chatroomGUI"+chatroom, chatGUI);
 				}
 			}
 			break;
@@ -258,7 +263,14 @@ public class MessageListener extends Thread{
 					JOptionPane.showMessageDialog(null, reply.getParameter("BODY"));
 
 					create_chatroom(reply);
-					//((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).getSelectedListChatroom();
+
+					String chatroom = (String) reply.getParameter("CHATROOM");
+					if(!interfaces.containsKey("chatroomGUI"+chatroom)) {
+						// Preparing chat interface with the new chatroom
+						ChatGUI chatGUI = new ChatGUI(chatroom);
+						interfaces.putIfAbsent("chatroomGUI"+chatroom, chatGUI);
+						//((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).getSelectedListChatroom();
+					}
 				}
 			}
 			break;

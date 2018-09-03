@@ -28,15 +28,18 @@ public class NotificationManager {
 		RMIClientInterface RMIChannel; 
 		for(User participant: participants) {
 			//Notify
-			RMIChannel=participant.getRMIChannel();
-			if(RMIChannel!=null) {//if is online
-				try {
-					RMIChannel.newChatroomSubscriber(participant.getUsername(), chatroom.getName());
-				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+			if(participant!=user) {
+				RMIChannel=participant.getRMIChannel();
+				if(RMIChannel!=null) {//if participant is online
+					try {
+						RMIChannel.newChatroomSubscriber(user.getUsername(), chatroom.getName());
+					} catch (RemoteException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			}
+			
 		}
 	}
 

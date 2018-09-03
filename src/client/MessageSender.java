@@ -5,6 +5,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 import communication.RequestMessage;
@@ -231,7 +232,14 @@ public class MessageSender {
 				String chatroom = ((SocialGossipHomeGUI) gui).getSelectedListChatroom();
 				if(chatroom != null) {
 					ChatroomGUI chatroomGUI;
-					//if (!interfaces.containsKey("chatroomGUI"+))
+					if (interfaces.containsKey("chatroomGUI"+chatroom)) {
+						interfaces.get("chatroomGUI"+chatroom).setVisible(true);
+					}
+					else {
+						chatroomGUI = new ChatroomGUI(chatroom);
+						chatroomGUI.setVisible(true);
+						interfaces.putIfAbsent("chatroomGUI"+chatroom, chatroomGUI);
+					}
 				}
 			}
 			break;
@@ -296,6 +304,7 @@ public class MessageSender {
 				String msg = ((ChatroomGUI) gui).getTextArea().getText();
 				req.setParameters("CHATROOM:"+((ChatroomGUI) gui).getTitle(),"BODY:"+msg);
 				sendRequest(req);
+				((ChatroomGUI) gui).getTextArea().setText("");
 			}
 			break;
 			case "CHAT_CLOSING": {
