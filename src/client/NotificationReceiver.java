@@ -21,7 +21,8 @@ public class NotificationReceiver extends UnicastRemoteObject implements RMIClie
 		super();
 		this.interfaces = interfaces;
 	}
-	
+
+
 	@Override
 	public void notifyOnlineFriend(String friend) throws RemoteException {
 		// Show notification to GUI
@@ -54,20 +55,28 @@ public class NotificationReceiver extends UnicastRemoteObject implements RMIClie
 	@Override
 	public void newChatroomSubscriber(String new_subscriber, String chatroom) throws RemoteException {
 		// Show notification to GUI
-		JOptionPane.showMessageDialog(null, new_subscriber+" si è inscritto alla chatroom "+chatroom);
+		JOptionPane pane = new JOptionPane(new_subscriber+" si è inscritto alla chatroom "+chatroom);
+	    JDialog dialog = pane.createDialog(null, "Notification");
+	    dialog.setModal(false);
+	    dialog.setVisible(true);
 	}
 
 	@Override
 	public void closeChatroom(String chatroom) throws RemoteException {
 		// Show notification to GUI
-		JOptionPane.showMessageDialog(null, "La chatroom "+chatroom+" è stata chiusa!");
+		JOptionPane pane = new JOptionPane("La chatroom "+chatroom+" è stata chiusa!");
+	    JDialog dialog = pane.createDialog(null, "Notification");
+	    dialog.setModal(false);
+	    dialog.setVisible(true);
 		((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).removeChatroom(chatroom);
 	}
 
 	@Override
 	public void newChatroom(String chatroom) throws RemoteException {
-		// TODO Auto-generated method stub
-		JOptionPane.showMessageDialog(null, "La chatroom "+chatroom+" è stata creata!");
+		JOptionPane pane = new JOptionPane("La chatroom "+chatroom+" è stata creata!");
+	    JDialog dialog = pane.createDialog(null, "Notification");
+	    dialog.setModal(false);
+	    dialog.setVisible(true);
 		((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).addChatroom(chatroom);
 	}
 
