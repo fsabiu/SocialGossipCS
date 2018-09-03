@@ -240,7 +240,29 @@ public class MessageListener extends Thread{
 			break;
 			case "CHAT_LISTING": {
 				System.out.println((String) reply.getParameter("BELONGS")+(String) reply.getParameter("NOT_BELONGS"));
-				((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).setChatroomList((String) reply.getParameter("BELONGS"), (String) reply.getParameter("NOT_BELONGS"));
+				String not_belongs = (String) reply.getParameter("NOT_BELONGS");
+				String belongs = (String) reply.getParameter("BELONGS");
+				((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).setChatroomList(belongs, not_belongs);
+				belongs = belongs.replace("[", "").replace("]", "");
+				String[] chatroomList = belongs.split(", ");
+				if (belongs.isEmpty()) break;
+				for (String chatroom : chatroomList) {
+					String msname = (String) reply.getParameter(chatroom+"?MSNAME");
+					String port = (String) reply.getParameter(chatroom+"?PORT");
+					
+					ChatroomGUI chatroomGUI;
+					if(!interfaces.containsKey("chatroomGUI"+chatroom)) {
+						chatroomGUI = new ChatroomGUI(chatroom);
+						chatroomGUI.setVisible(false);
+						interfaces.putIfAbsent("chatroomGUI"+chatroom, chatroomGUI);
+					} else {
+						chatroomGUI = (ChatroomGUI) interfaces.get("chatroomGUI"+chatroom);
+					}
+					
+					//Chatroom listener creation
+					ChatroomListener chatroomListener = new ChatroomListener(chatroomGUI, msname, port);
+					chatroomListener.start();
+				}
 			} 
 			break;
 			case "CHAT_CREATION": {
@@ -250,11 +272,6 @@ public class MessageListener extends Thread{
 					JOptionPane.showMessageDialog(null, reply.getParameter("BODY"));
 					
 					create_chatroom(reply);
-					
-					// Preparing chat interface with the new chatroom
-					String chatroom = (String) reply.getParameter("CHATROOM");
-					ChatGUI chatGUI = new ChatGUI(chatroom);
-					interfaces.putIfAbsent("chatroomGUI"+chatroom, chatGUI);
 				}
 			}
 			break;
@@ -263,14 +280,6 @@ public class MessageListener extends Thread{
 					JOptionPane.showMessageDialog(null, reply.getParameter("BODY"));
 
 					create_chatroom(reply);
-
-					String chatroom = (String) reply.getParameter("CHATROOM");
-					if(!interfaces.containsKey("chatroomGUI"+chatroom)) {
-						// Preparing chat interface with the new chatroom
-						ChatGUI chatGUI = new ChatGUI(chatroom);
-						interfaces.putIfAbsent("chatroomGUI"+chatroom, chatGUI);
-						//((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).getSelectedListChatroom();
-					}
 				}
 			}
 			break;
@@ -371,9 +380,14 @@ public class MessageListener extends Thread{
 	private void create_chatroom(ResponseMessage reply) {
 		//Interface creation
 		String nome_chatroom=reply.getParameter("CHATROOM").toString();
-		ChatroomGUI chatroomGUI = new ChatroomGUI(nome_chatroom);
-		chatroomGUI.setVisible(true);
-		interfaces.putIfAbsent("chatroomGUI"+nome_chatroom, chatroomGUI);
+		ChatroomGUI chatroomGUI;
+		if(!interfaces.containsKey("chatroomGUI"+nome_chatroom)) {
+			chatroomGUI = new ChatroomGUI(nome_chatroom);
+			chatroomGUI.setVisible(true);
+			interfaces.putIfAbsent("chatroomGUI"+nome_chatroom, chatroomGUI);
+		} else {
+			chatroomGUI = (ChatroomGUI) interfaces.get("chatroomGUI"+nome_chatroom);
+		}
 		
 		String msname = (String) reply.getParameter("MSNAME");
 		String port = (String) reply.getParameter("PORT");

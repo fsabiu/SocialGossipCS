@@ -131,7 +131,7 @@ public class NotificationManager {
 		RMIClientInterface RMIChannel;
 		//Notify
 		for(User u : usersbyname.values()) {
-			if(u!=new_chatroom.getCreator()) {
+			if(u.isOnline()) {
 				RMIChannel= u.getRMIChannel();
 				if(RMIChannel!=null) {//if user is online
 					try {

@@ -69,6 +69,7 @@ public class NotificationReceiver extends UnicastRemoteObject implements RMIClie
 	    dialog.setModal(false);
 	    dialog.setVisible(true);
 		((SocialGossipHomeGUI) interfaces.get("socialGossipHomeGUI")).removeChatroom(chatroom);
+		interfaces.remove("chatroomGUI"+chatroom);
 	}
 
 	@Override

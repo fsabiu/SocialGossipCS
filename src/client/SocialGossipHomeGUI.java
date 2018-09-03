@@ -212,7 +212,6 @@ public class SocialGossipHomeGUI extends GUI{
 	
 	public void setListFriends(String list) {
 		model_friend_list.removeAllElements();
-		System.out.println("La lista di amici prima di replace è "+list);
 		list = list.replace("[", "");
 		list = list.replace("]", "");
 		String[] friendList = list.split(", ");

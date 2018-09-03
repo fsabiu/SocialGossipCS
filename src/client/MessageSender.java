@@ -174,21 +174,6 @@ public class MessageSender {
 				//Sending request to server
 				sendRequest(req);
 				
-				//Getting response from server
-				/*ResponseMessage response=checkResponse();
-				
-				JOptionPane.showMessageDialog(null, response.getParameter("BODY"));*/
-				//TODO SWITCH CASE
-				/*if (response.getParameter("OPERATION").equals("OK")) {
-					JOptionPane.showMessageDialog(null, response.getParameter("BODY"));
-					//System.out.println("L'utente è stato aggiunto"+response.getParameter("BODY"));
-				}
-				//Other user is offline, show error message
-				else if (response.getParameter("OPERATION").equals("USER_OFFLINE")) {
-					JOptionPane.showMessageDialog(null, response.getParameter("BODY"));
-				}
-				else if */
-				
 				//RICHIEDO LA LISTA DI AMICI
 				//Setting username and operation field
 				RequestMessage second_req = new RequestMessage(username);
@@ -196,17 +181,6 @@ public class MessageSender {
 				
 				//Sending request to server
 				sendRequest(second_req);
-				
-				//Getting response from server
-				/*ResponseMessage second_response=checkResponse();
-				
-				if (second_response.getParameter("OPERATION").equals("OK")) {
-					//Server returns an ArrayList of strings
-					((SocialGossipHomeGUI) gui).setListFriends((String) second_response.getParameter("BODY"));
-					
-					//JSONArray friends= (JSONArray) second_response.getParameter("BODY");
-					//((SocialGossipHomeGUI) gui).setListFriends(friends);
-				}*/
 			}
 			break;
 			case "STARTCHAT": {
@@ -234,11 +208,13 @@ public class MessageSender {
 					ChatroomGUI chatroomGUI;
 					if (interfaces.containsKey("chatroomGUI"+chatroom)) {
 						interfaces.get("chatroomGUI"+chatroom).setVisible(true);
+						System.out.println("STARTCHATROOM if : chatroomGUI"+chatroom);
 					}
 					else {
 						chatroomGUI = new ChatroomGUI(chatroom);
 						chatroomGUI.setVisible(true);
 						interfaces.putIfAbsent("chatroomGUI"+chatroom, chatroomGUI);
+						System.out.println("STARTCHATROOM else : chatroomGUI"+chatroom);
 					}
 				}
 			}
@@ -279,9 +255,9 @@ public class MessageSender {
 				sendRequest(req);
 				
 				// Asking for list of chatrooms
-				RequestMessage req_chat = new RequestMessage(username);
+				/*RequestMessage req_chat = new RequestMessage(username);
 				req_chat.setParameters("OPERATION:CHAT_LISTING");
-				sendRequest(req_chat);
+				sendRequest(req_chat);*/
 			}
 			break;
 			case "CHAT_ADDING": {
