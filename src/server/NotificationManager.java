@@ -129,19 +129,19 @@ public class NotificationManager {
 	public void notifyNewChatroom(Chatroom new_chatroom) {
 		//Getting RMI Channel
 		RMIClientInterface RMIChannel;
-		
 		//Notify
 		for(User u : usersbyname.values()) {
-			RMIChannel= u.getRMIChannel();
-			if(RMIChannel!=null) {//if user is online
-				try {
-					RMIChannel.newChatroom(new_chatroom.getName());
-				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+			if(u!=new_chatroom.getCreator()) {
+				RMIChannel= u.getRMIChannel();
+				if(RMIChannel!=null) {//if user is online
+					try {
+						RMIChannel.newChatroom(new_chatroom.getName());
+					} catch (RemoteException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			}
 		}
-		
 	}
 }

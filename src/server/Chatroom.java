@@ -16,6 +16,7 @@ public class Chatroom {
 	private final String name;
 	private HashSet<User> administrators;
 	private HashSet<User> participants;
+	private User creator;
 	
 	// Configuration properties
 	private InetAddress msAddress; //Multicast socket IP address
@@ -38,6 +39,7 @@ public class Chatroom {
 		this.name=name;
 		this.administrators.add(u);
 		this.participants.add(u);
+		this.creator = u;
 		
 		//Multicast configuration
 		this.msName = msName;
@@ -127,5 +129,9 @@ public class Chatroom {
 
 	public synchronized HashSet<User> getParticipants() {
 		return this.participants;
+	}
+	
+	public User getCreator() {
+		return this.creator;
 	}
 }
