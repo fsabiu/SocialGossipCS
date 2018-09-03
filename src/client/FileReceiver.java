@@ -39,7 +39,7 @@ public class FileReceiver extends Thread{
 			socketChannel = ServerSocketChannel.open();
 			socketChannel.socket().bind(new InetSocketAddress(port));
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println("Error while creating socket");
 		}
 		Path path = Paths.get(new File("").getAbsolutePath()+Config.DOWNLOAD_DIRECTORY+filename);
 		
@@ -47,13 +47,13 @@ public class FileReceiver extends Thread{
 		try {
 			file = FileChannel.open(path, EnumSet.of(StandardOpenOption.CREATE,StandardOpenOption.TRUNCATE_EXISTING,StandardOpenOption.WRITE));
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println("Error while creating file to receive");
 		}
 		
 		try {
 			sender_sock = socketChannel.accept();
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println("Error while accepting connection.");
 		}
 		
 		ByteBuffer buffer = ByteBuffer.allocate(1024);
@@ -70,9 +70,10 @@ public class FileReceiver extends Thread{
 			}
 			file.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println("Error while copying file");
 		}
 		
+		//Showing message to GUI
 		chatGUI.setConversationArea(sender+" ti ha inviato "+filename);
 	}
 
